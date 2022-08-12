@@ -15,7 +15,21 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let scene = (scene as? UIWindowScene) else { return }
         
         window = UIWindow(frame: UIScreen.main.bounds)
-        window?.rootViewController = UINavigationController(rootViewController: SettingViewController())
+        
+        let mainViewController = MainViewController()
+        let vc1 = TastesStorageViewController().then {
+            $0.title = "@@@@@"
+            $0.view.backgroundColor = .white
+        }
+        let vc2 = UIViewController().then {
+            $0.title = "@@@@@"
+        }
+        let vc3 = UIViewController().then {
+            $0.title = "@@@@@"
+        }
+        mainViewController.viewControllers = [vc1, vc2, vc3]
+        
+        window?.rootViewController = mainViewController
         window?.windowScene = scene
         window?.makeKeyAndVisible()
     }
