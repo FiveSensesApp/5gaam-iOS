@@ -38,6 +38,8 @@ final class TimeLineViewController: BaseTastesViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        self.setFirstWriteView(userNickname: "워니버니")
     }
     
     override func viewDidAppear(_ animated: Bool) {

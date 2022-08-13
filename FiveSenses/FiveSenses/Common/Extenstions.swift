@@ -124,7 +124,7 @@ extension UIView {
     func addShadow(location: VerticalLocation, color: UIColor = .white, opacity: Float = 0.2, radius: CGFloat = 5.0) {
         switch location {
         case .bottom:
-            addShadow(offset: CGSize(width: 0, height: 10), color: color, opacity: opacity, radius: radius)
+            addShadow(offset: CGSize(width: 0, height: 5), color: color, opacity: opacity, radius: radius)
         case .top:
             addShadow(offset: CGSize(width: 0, height: -10), color: color, opacity: opacity, radius: radius)
         case .left:

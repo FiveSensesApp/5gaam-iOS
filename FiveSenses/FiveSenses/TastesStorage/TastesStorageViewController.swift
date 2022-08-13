@@ -46,7 +46,7 @@ final class TastesStorageViewController: CMViewController {
             .when(.recognized)
             .bind { [weak self] _ in
                 guard let self = self else { return }
-                self.timeLineViewController.toggleMenu(buttonView: self.titleView.arrowImageView)
+                self.timeLineViewController.toggleMenu(buttonView: self.titleView.arrowImageView, titleView: self.titleView)
                 UIView.animate(withDuration: 0.1) {
                     self.titleView.arrowImageView.transform = self.titleView.arrowImageView.transform.rotated(by: .pi)
                 }

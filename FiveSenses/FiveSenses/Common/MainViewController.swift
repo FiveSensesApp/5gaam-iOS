@@ -18,6 +18,8 @@ class MainViewController: UITabBarController {
         }
         
         self.tabBar.backgroundColor = .white
+        self.tabBar.tintColor = .black
+        self.tabBar.unselectedItemTintColor = .gray02
         
         let appearance = UITabBarAppearance().then {
             $0.backgroundColor = .white

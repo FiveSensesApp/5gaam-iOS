@@ -12,6 +12,9 @@ class BaseTastesViewController: UIViewController {
     var tastesCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     
     var tastesCategoryChoiceMenuView = TastesCategoryChoiceMenuView()
+    var maskView = UIView()
+    
+    var firstWriteView = FirstWriteView()
     
     var filterCollectionViewFlowLayout: UICollectionViewFlowLayout? {
         didSet {
@@ -53,6 +56,23 @@ class BaseTastesViewController: UIViewController {
             $0.left.right.bottom.equalToSuperview()
         }
         
+        self.view.addSubview(firstWriteView)
+        self.firstWriteView.snp.makeConstraints {
+            $0.top.equalTo(self.filterCollectionView.snp.bottom).offset(9.0)
+            $0.left.right.equalToSuperview().inset(20.0)
+            $0.height.equalTo(388.0)
+        }
+        
+        showWritingManual()
+        
+        self.view.addSubview(maskView)
+        self.maskView.then {
+            $0.backgroundColor = .white.withAlphaComponent(0.5)
+            $0.isHidden = true
+        }.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        
         self.view.addSubview(tastesCategoryChoiceMenuView)
         self.tastesCategoryChoiceMenuView.snp.makeConstraints {
             $0.top.equalToSuperview().inset(4.0)
@@ -61,15 +81,53 @@ class BaseTastesViewController: UIViewController {
         }
     }
     
-    func toggleMenu(buttonView: UIView) {
+    func showWritingManual() {
+        // TODO: 1회 클릭 후 뜨지 않도록
+        let view = UIView().then {
+            $0.backgroundColor = .black
+            $0.makeCornerRadius(radius: 22.5)
+        }
+        let label = UILabel().then {
+            $0.text = "어떻게 쓰는지 모르겠다면? 👋"
+            $0.font = .bold(18.0)
+            $0.textAlignment = .center
+            $0.textColor = .white
+        }
+        
+        view.addSubview(label)
+        label.snp.makeConstraints {
+            $0.left.right.centerY.equalToSuperview()
+        }
+        
+        self.view.addSubview(view)
+        view.snp.makeConstraints {
+            $0.bottom.equalTo(self.view.safeAreaLayoutGuide).inset(38.0)
+            $0.width.equalTo(259.0)
+            $0.height.equalTo(44.0)
+            $0.centerX.equalToSuperview()
+        }
+    }
+    
+    func setFirstWriteView(userNickname: String) {
+        let userNickname = NSMutableAttributedString(string: userNickname, attributes: [.font: UIFont.bold(20.0), .foregroundColor: UIColor.gray04])
+        
+        userNickname.append((self.firstWriteView.titleLabel.attributedText ?? NSMutableAttributedString()))
+        self.firstWriteView.titleLabel.attributedText = userNickname
+    }
+    
+    func toggleMenu(buttonView: UIView, titleView: TastesStorageTitleView) {
         buttonView.isUserInteractionEnabled = false
+        self.maskView.isHidden = self.isMenuDropped
+        
         if !self.isMenuDropped {
+            titleView.titleLabel.textColor = .gray03
             self.tastesCategoryChoiceMenuView.snp.remakeConstraints {
                 $0.top.equalToSuperview().inset(4.0)
                 $0.left.right.equalToSuperview()
             }
             self.tastesCategoryChoiceMenuView.addShadow(location: .bottom, color: .lightGray, opacity: 0.1, radius: 1.0)
         } else {
+            titleView.titleLabel.textColor = .black
             self.tastesCategoryChoiceMenuView.snp.remakeConstraints {
                 $0.top.equalToSuperview().inset(4.0)
                 $0.left.right.equalToSuperview()
@@ -94,7 +152,15 @@ final class TastesFilterCell: UICollectionViewCell {
     
     var titleLabel = UILabel()
     
-    
+    override var isSelected: Bool {
+        didSet {
+            if isSelected {
+                self.contentView.backgroundColor = .black
+            } else {
+                self.contentView.backgroundColor = .gray03
+            }
+        }
+    }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
