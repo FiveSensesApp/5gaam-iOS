@@ -89,7 +89,7 @@ class BaseTastesViewController: UIViewController {
         }
         let label = UILabel().then {
             $0.text = "어떻게 쓰는지 모르겠다면? 👋"
-            $0.font = .bold(18.0)
+            $0.font = .bold(16.0)
             $0.textAlignment = .center
             $0.textColor = .white
         }

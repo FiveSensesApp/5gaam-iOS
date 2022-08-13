@@ -81,7 +81,7 @@ class WriteToSenseButtonView: UIView {
         self.addSubview(titleLabel)
         self.titleLabel.then {
             $0.text = title
-            $0.font = .bold(18.0)
+            $0.font = .bold(16.0)
             $0.textColor = color
         }.snp.makeConstraints {
             $0.top.equalTo(self.imageView.snp.bottom).offset(7.0)
