@@ -54,6 +54,10 @@ extension UIColor {
 
 // MARK: - 기본 폰트 프리셋
 extension UIFont {
+    static func semiBold(_ size: CGFloat) -> UIFont {
+        return UIFont(name: "Pretendard-SemiBold", size: size)!
+    }
+    
     static func bold(_ size: CGFloat) -> UIFont {
         return UIFont(name: "Pretendard-Bold", size: size)!
     }
@@ -78,6 +82,10 @@ extension UIView {
         let mask = CAShapeLayer()
         mask.path = path.cgPath
         self.layer.mask = mask
+    }
+    
+    func getRoundCornerPath(corners: UIRectCorner, radius: CGFloat) -> UIBezierPath {
+        return UIBezierPath(roundedRect: bounds, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
     }
 }
 
@@ -140,5 +148,27 @@ extension UIView {
         self.layer.shadowOffset = offset
         self.layer.shadowOpacity = opacity
         self.layer.shadowRadius = radius
+    }
+}
+
+// MARK: - String <-> Date 변환
+enum DateFormatType: String {
+    /// 7.2 (화) 오전 4:20
+    case CategoryHeader = "M.d (E) a hh:mm"
+}
+
+extension String {
+    func toDate(format: DateFormatType) -> Date? {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = format.rawValue
+        return dateFormatter.date(from: self)
+    }
+}
+
+extension Date {
+    func toString(format: DateFormatType) -> String? {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = format.rawValue
+        return dateFormatter.string(from: self)
     }
 }

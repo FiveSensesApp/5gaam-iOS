@@ -41,6 +41,10 @@ final class TastesStorageViewController: CMViewController {
         self.tastesContainerView.addSubview(timeLineViewController.view)
         self.timeLineViewController.view.snp.makeConstraints { $0.edges.equalToSuperview() }
         self.timeLineViewController.didMove(toParent: self)
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
         
         self.titleView.arrowImageView.rx.tapGesture()
             .when(.recognized)

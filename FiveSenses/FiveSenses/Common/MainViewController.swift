@@ -7,8 +7,11 @@
 
 import UIKit
 
+import RxSwift
+
 class MainViewController: UITabBarController {
     var writeButton = BaseButton()
+    var disposeBag = DisposeBag()
     
     override func loadView() {
         super.loadView()
@@ -34,6 +37,14 @@ class MainViewController: UITabBarController {
         super.viewDidLoad()
         
         self.view.insertSubview(self.writeButton, aboveSubview: self.tabBar)
+        self.writeButton.rx.tap
+            .bind { [weak self] in
+                if let self = self, let vc = self.selectedViewController {
+                    
+                    WriteBottomSheetViewController.showBottomSheet(viewController: vc, type: .category, tabBar: self.tabBar, writeButton: self.writeButton)
+                }
+            }
+            .disposed(by: disposeBag)
     }
     
     override func viewWillLayoutSubviews() {
