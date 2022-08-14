@@ -155,6 +155,8 @@ extension UIView {
 enum DateFormatType: String {
     /// 7.2 (화) 오전 4:20
     case CategoryHeader = "M.d (E) a hh:mm"
+    /// 2022.12.23
+    case WriteView = "yyyy.MM.dd"
 }
 
 extension String {

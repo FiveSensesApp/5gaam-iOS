@@ -7,6 +7,9 @@
 
 import UIKit
 
+import RxSwift
+import RxCocoa
+
 enum WriteBottomSheetType {
     case category
     case write
@@ -14,14 +17,24 @@ enum WriteBottomSheetType {
 
 final class WriteBottomSheetViewController: BaseBottomSheetController {
     var writeCategorySelectView = WriteCategorySelectView()
-    var writeView = UIView()
+    var writeView = WriteTastesView()
     var backgroundView = UIView()
     
     let maskView = UIView(frame: CGRect(x: 0, y: 0, width: 69.0, height: 69.0)).then {
         $0.makeCornerRadius(radius: 69 / 2.0)
     }
     
-    var currentType: WriteBottomSheetType = .category
+    var currentType: WriteBottomSheetType = .category {
+        didSet {
+            guard let writeButton = self.writeButton else { return }
+            switch self.currentType {
+            case .category:
+                writeButton.setImage(UIImage(named: "기록 닫기 버튼"), for: .normal)
+            case .write:
+                writeButton.setImage(UIImage(named: "기록 완료 버튼"), for: .normal)
+            }
+        }
+    }
     
     weak var tabBar: UITabBar?
     weak var writeButton: UIButton?
@@ -42,6 +55,12 @@ final class WriteBottomSheetViewController: BaseBottomSheetController {
         let vc = WriteBottomSheetViewController(type: type, tabBar: tabBar, writeButton: writeButton)
         vc.modalPresentationStyle = .overCurrentContext
         viewController.present(vc, animated: false)
+        switch type {
+        case .category:
+            writeButton.setImage(UIImage(named: "기록 닫기 버튼"), for: .normal)
+        case .write:
+            writeButton.setImage(UIImage(named: "기록 완료 버튼"), for: .normal)
+        }
     }
     
     override func viewDidLayoutSubviews() {
@@ -60,14 +79,7 @@ final class WriteBottomSheetViewController: BaseBottomSheetController {
             }
             
             UIView.animate(withDuration: 0.2, animations: { [weak self] in
-                guard let self = self, let writeButton = self.writeButton else { return }
-                switch self.currentType {
-                case .category:
-                    writeButton.setImage(UIImage(named: "기록 닫기 버튼"), for: .normal)
-                case .write:
-                    writeButton.setImage(UIImage(named: "기록 완료 버튼"), for: .normal)
-                }
-                self.view.layoutIfNeeded()
+                self?.view.layoutIfNeeded()
             })
         }
     }
@@ -118,24 +130,64 @@ final class WriteBottomSheetViewController: BaseBottomSheetController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        self.setCategoryButtons()
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touchView = touches.first?.view else { return }
         
+        if (
+            !self.contentView.subviews.contains(touchView) &&
+            !self.writeView.subviews.contains(touchView) &&
+            !self.writeCategorySelectView.contains(touchView)
+        ) && self.isBackgroundDismissOn {
+            self.dismissActionSheet()
+        }
     }
     
     override var prefersStatusBarHidden: Bool {
         return true
     }
     
+    private func setCategoryButtons() {
+        Observable.merge(
+            self.writeCategorySelectView.sightButton.rx.tapGesture().when(.recognized).map { _ in return FiveSenses.sight },
+            self.writeCategorySelectView.hearingButton.rx.tapGesture().when(.recognized).map { _ in return FiveSenses.hearing },
+            self.writeCategorySelectView.smellButton.rx.tapGesture().when(.recognized).map { _ in return FiveSenses.smell },
+            self.writeCategorySelectView.tasteButton.rx.tapGesture().when(.recognized).map { _ in return FiveSenses.taste },
+            self.writeCategorySelectView.touchButton.rx.tapGesture().when(.recognized).map { _ in return FiveSenses.touch },
+            self.writeCategorySelectView.dontKnowButton.rx.tapGesture().when(.recognized).map { _ in return FiveSenses.dontKnow }
+        ).bind { [weak self] in
+            guard let self = self else { return }
+            self.writeView = WriteTastesView(sense: $0)
+            self.setWriteView()
+        }
+        .disposed(by: disposeBag)
+    }
+    
     func setCategoryView() {
+        self.writeView.removeFromSuperview()
+        self.currentType = .category
         self.contentView.addSubview(self.writeCategorySelectView)
         self.writeCategorySelectView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
-        
         self.writeCategorySelectView.dateLabel.text = Date().toString(format: .CategoryHeader) ?? ""
     }
     
     func setWriteView() {
-        
+        self.writeCategorySelectView.removeFromSuperview()
+        self.currentType = .write
+        self.contentView.addSubview(self.writeView)
+        self.writeView.backImageView.rx.tapGesture()
+            .when(.recognized)
+            .bind { [weak self] _ in
+                self?.setCategoryView()
+            }
+            .disposed(by: disposeBag)
+        self.writeView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
     }
     
     private func mask() {

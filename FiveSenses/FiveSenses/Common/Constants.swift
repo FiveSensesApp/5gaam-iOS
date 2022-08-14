@@ -31,3 +31,68 @@ class Constants {
         ].randomElement()!
     }
 }
+
+enum FiveSenses {
+    case sight
+    case hearing
+    case smell
+    case taste
+    case touch
+    case dontKnow
+    
+    var name: String {
+        switch self {
+        case .sight:
+            return "시각"
+        case .hearing:
+            return "청각"
+        case .smell:
+            return "후각"
+        case .taste:
+            return "미각"
+        case .touch:
+            return "촉각"
+        case .dontKnow:
+            return "모르겠어요"
+        }
+    }
+    
+    var image: UIImage? {
+        switch self {
+        case .sight:
+            return UIImage(named: "시각")
+        case .hearing:
+            return UIImage(named: "청각")
+        case .smell:
+            return UIImage(named: "후각")
+        case .taste:
+            return UIImage(named: "미각")
+        case .touch:
+            return UIImage(named: "촉각")
+        case .dontKnow:
+            return UIImage(named: "모르겠어요")
+        }
+    }
+    
+    var color: UIColor {
+        switch self {
+        case .sight:
+            return .red02
+        case .hearing:
+            return .blue02
+        case .smell:
+            return .green02
+        case .taste:
+            return .yellow02
+        case .touch:
+            return .purple02
+        case .dontKnow:
+            return .gray04
+        }
+    }
+    
+    func star(isEmpty: Bool) -> UIImage? {
+        let footer = isEmpty ? " 빈별점" : " 별점"
+        return UIImage(named: self.name + footer)
+    }
+}
