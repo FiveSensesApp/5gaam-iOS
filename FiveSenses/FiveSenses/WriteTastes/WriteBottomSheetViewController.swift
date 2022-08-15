@@ -9,6 +9,7 @@ import UIKit
 
 import RxSwift
 import RxCocoa
+import RxKeyboard
 
 enum WriteBottomSheetType {
     case category
@@ -38,6 +39,9 @@ final class WriteBottomSheetViewController: BaseBottomSheetController {
     
     weak var tabBar: UITabBar?
     weak var writeButton: UIButton?
+    
+    var continueWrite: () -> Void = { }
+    var backToCategorySelect: () -> Void = { }
     
     convenience init(type: WriteBottomSheetType, tabBar: UITabBar, writeButton: UIButton) {
         self.init()
@@ -131,6 +135,38 @@ final class WriteBottomSheetViewController: BaseBottomSheetController {
         super.viewDidLoad()
         
         self.setCategoryButtons()
+        RxKeyboard.instance.visibleHeight
+            .skip(1)
+            .drive { [weak self] height in
+                guard let self = self, let tabBar = self.tabBar else { return }
+                
+                if height == 0 {
+                    self.writeView.titleLabel.snp.remakeConstraints {
+                        $0.left.equalToSuperview().inset(35.0)
+                        $0.top.equalTo(self.writeView.selectedSenseImageView.snp.bottom).offset(20.0)
+                    }
+                    self.writeView.layoutSubviews()
+                    self.containerView.snp.remakeConstraints {
+                        $0.bottom.equalTo(tabBar.snp.top).offset(-1.0)
+                        $0.left.right.equalToSuperview()
+                    }
+                } else {
+                    self.writeView.titleLabel.snp.remakeConstraints {
+                        $0.height.equalTo(0)
+                        $0.top.equalTo(self.writeView.selectedSenseImageView.snp.bottom).offset(-27.0)
+                    }
+                    self.writeView.layoutSubviews()
+                    self.containerView.snp.remakeConstraints {
+                        $0.top.equalToSuperview().inset(44.0)
+                        $0.left.right.equalToSuperview()
+                    }
+                }
+                
+                UIView.animate(withDuration: 0) {
+                    self.writeView.layoutIfNeeded()
+                }
+            }
+            .disposed(by: disposeBag)
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -182,12 +218,18 @@ final class WriteBottomSheetViewController: BaseBottomSheetController {
         self.writeView.backImageView.rx.tapGesture()
             .when(.recognized)
             .bind { [weak self] _ in
-                self?.setCategoryView()
+                guard let self = self else { return }
+                self.showReSelectAlert()
             }
             .disposed(by: disposeBag)
         self.writeView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
+    }
+    
+    private func showReSelectAlert() {
+        self.view.endEditing(true)
+        CategoryReselectAlert.showAlert(viewController: self, title: "다시 선택하시겠습니까?", content: "작성한 글은 저장되지 않아요.", buttonTitle: "뒤로가기", cancelButtonTitle: "계속쓰기", okAction: self.backToCategorySelect, cancelAction: self.continueWrite)
     }
     
     private func mask() {
@@ -206,5 +248,44 @@ final class WriteBottomSheetViewController: BaseBottomSheetController {
         path.append(UIBezierPath(rect: CGRect(x: 0, y: 0, width: Constants.DeviceWidth, height: 594.0)))
         layer.path = path.cgPath
         self.containerView.layer.mask = layer
+    }
+}
+
+class CategoryReselectAlert: TwoButtonAlertController {
+    var backgroundView = UIView()
+    
+    override func loadView() {
+        super.loadView()
+        
+        self.view.backgroundColor = .clear
+        
+        self.view.insertSubview(self.backgroundView, belowSubview: self.contentView)
+        self.backgroundView.then {
+            $0.backgroundColor = .white.withAlphaComponent(0.9)
+        }.snp.makeConstraints {
+            $0.bottom.equalToSuperview().inset(153.0)
+            $0.left.right.equalToSuperview().inset(10.0)
+            $0.height.equalTo(340.0)
+        }
+        
+        self.contentView.snp.remakeConstraints {
+            $0.left.right.equalToSuperview().inset(32.0)
+            $0.top.equalTo(self.backgroundView).inset(71.0)
+        }
+    }
+    
+    class func showAlert(
+        viewController: UIViewController,
+        title: String,
+        content: String,
+        buttonTitle: String,
+        cancelButtonTitle: String,
+        okAction: () -> Void,
+        cancelAction: () -> Void
+    ) {
+        let vc = CategoryReselectAlert(title: title, content: content, okButtonTitle: buttonTitle, cancelButtonTitle: cancelButtonTitle)
+        vc.modalPresentationStyle = .overCurrentContext
+        vc.modalTransitionStyle = .crossDissolve
+        viewController.present(vc, animated: true)
     }
 }

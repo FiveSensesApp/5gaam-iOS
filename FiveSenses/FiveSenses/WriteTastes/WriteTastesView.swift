@@ -107,6 +107,7 @@ final class WriteTastesView: UIView {
             $0.backgroundColor = .gray01
             $0.autocorrectionType = .no
             $0.autocapitalizationType = .none
+            $0.spellCheckingType = .no
             $0.delegate = self
             $0.text = self.textViewPlaceHolder
             $0.textContainer.lineBreakMode = .byWordWrapping

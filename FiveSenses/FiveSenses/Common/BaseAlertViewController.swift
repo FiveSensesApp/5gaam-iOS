@@ -95,6 +95,10 @@ class BaseAlertViewController: UIViewController {
 //        }
     }
     
+    override var prefersStatusBarHidden: Bool {
+        return true
+    }
+    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         let touch: UITouch? = touches.first
         

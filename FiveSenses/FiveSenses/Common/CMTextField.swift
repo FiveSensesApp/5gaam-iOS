@@ -20,6 +20,7 @@ class CMTextField: UITextField {
         
         self.autocorrectionType = .no
         self.autocapitalizationType = .none
+        self.spellCheckingType = .no
         
         if isPlaceHolderBold {
             self.attributedPlaceholder = NSAttributedString(string: placeHolder, attributes: [.font: UIFont.bold(font.pointSize)])

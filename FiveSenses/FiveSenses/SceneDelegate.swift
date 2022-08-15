@@ -23,7 +23,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             $0.tabBarItem.imageInsets = UIEdgeInsets(top: 12.0, left: 0, bottom: -12.0, right: 0)
         }
         let vc2 = UIViewController()
-        let vc3 = UIViewController().then {
+        let vc3 = SettingViewController().then {
             $0.tabBarItem.image = UIImage(named: "성향분석 아이콘")
             $0.tabBarItem.imageInsets = UIEdgeInsets(top: 12.0, left: 0, bottom: -12.0, right: 0)
         }
