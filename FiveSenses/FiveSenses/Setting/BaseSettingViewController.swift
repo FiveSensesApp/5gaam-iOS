@@ -11,7 +11,7 @@ import RxSwift
 import RxCocoa
 import RxGesture
 
-class BaseSettingViewController: CMViewController {
+class BaseSettingViewController: UIViewController {
     var navigationBarView = SettingNavigationView()
     
     var disposeBag = DisposeBag()
@@ -21,6 +21,9 @@ class BaseSettingViewController: CMViewController {
     
     override func loadView() {
         super.loadView()
+        
+        self.navigationItem.setHidesBackButton(true, animated: true)
+        self.navigationController?.setNavigationBarHidden(true, animated: true)
         
         self.view.backgroundColor = .white
         self.view.addSubview(navigationBarView)

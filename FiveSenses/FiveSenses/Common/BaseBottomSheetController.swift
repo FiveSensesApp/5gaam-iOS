@@ -18,7 +18,7 @@ class BaseBottomSheetController: UIViewController {
     
     var contentHeight: CGFloat = 0.0
     var isBackgroundDismissOn = true
-    private var isUp = false
+    var isUp = false
     
     var disposeBag = DisposeBag()
     

@@ -54,6 +54,10 @@ extension UIColor {
 
 // MARK: - 기본 폰트 프리셋
 extension UIFont {
+    static func semiBold(_ size: CGFloat) -> UIFont {
+        return UIFont(name: "Pretendard-SemiBold", size: size)!
+    }
+    
     static func bold(_ size: CGFloat) -> UIFont {
         return UIFont(name: "Pretendard-Bold", size: size)!
     }
@@ -77,7 +81,11 @@ extension UIView {
         let path = UIBezierPath(roundedRect: bounds, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
         let mask = CAShapeLayer()
         mask.path = path.cgPath
-        layer.mask = mask
+        self.layer.mask = mask
+    }
+    
+    func getRoundCornerPath(corners: UIRectCorner, radius: CGFloat) -> UIBezierPath {
+        return UIBezierPath(roundedRect: bounds, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
     }
 }
 
@@ -90,5 +98,79 @@ extension UIImage {
         let image: UIImage = UIGraphicsGetImageFromCurrentImageContext()!
         UIGraphicsEndImageContext()
         return image
+    }
+}
+
+extension Optional where Wrapped == String {
+    var isNilOrEmpty: Bool {
+        if let string = self {
+            return string.isEmpty
+        } else {
+            return true
+        }
+    }
+}
+
+extension Optional where Wrapped: Collection {
+    var isNilOrEmpty: Bool {
+        if let array = self {
+            return array.isEmpty
+        } else {
+            return true
+        }
+    }
+}
+
+extension UIView {
+    enum VerticalLocation {
+        case bottom
+        case top
+        case left
+        case right
+    }
+
+    func addShadow(location: VerticalLocation, color: UIColor = .white, opacity: Float = 0.2, radius: CGFloat = 5.0) {
+        switch location {
+        case .bottom:
+            addShadow(offset: CGSize(width: 0, height: 5), color: color, opacity: opacity, radius: radius)
+        case .top:
+            addShadow(offset: CGSize(width: 0, height: -10), color: color, opacity: opacity, radius: radius)
+        case .left:
+            addShadow(offset: CGSize(width: -10, height: 0), color: color, opacity: opacity, radius: radius)
+        case .right:
+            addShadow(offset: CGSize(width: 10, height: 0), color: color, opacity: opacity, radius: radius)
+        }
+    }
+    
+    func addShadow(offset: CGSize, color: UIColor = .black, opacity: Float = 0.1, radius: CGFloat = 3.0) {
+        self.layer.masksToBounds = false
+        self.layer.shadowColor = color.cgColor
+        self.layer.shadowOffset = offset
+        self.layer.shadowOpacity = opacity
+        self.layer.shadowRadius = radius
+    }
+}
+
+// MARK: - String <-> Date 변환
+enum DateFormatType: String {
+    /// 7.2 (화) 오전 4:20
+    case CategoryHeader = "M.d (E) a hh:mm"
+    /// 2022.12.23
+    case WriteView = "yyyy.MM.dd"
+}
+
+extension String {
+    func toDate(format: DateFormatType) -> Date? {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = format.rawValue
+        return dateFormatter.date(from: self)
+    }
+}
+
+extension Date {
+    func toString(format: DateFormatType) -> String? {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = format.rawValue
+        return dateFormatter.string(from: self)
     }
 }
