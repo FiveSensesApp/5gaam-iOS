@@ -8,7 +8,15 @@
 import UIKit
 
 final class TimeLineViewController: BaseTastesViewController {
+    enum Model {
+        case header(String)
+        case post(TastePost)
+    }
+    
     let filterTitles = ["최신순", "오래된순"]
+    
+    lazy var adapter = Adapter(collectionView: self.tastesCollectionView)
+    var viewModel = TimeLineViewModel()
     
     override func loadView() {
         super.loadView()
@@ -34,12 +42,21 @@ final class TimeLineViewController: BaseTastesViewController {
         self.tastesCollectionViewFlowLayout = UICollectionViewFlowLayout().then {
             $0.sectionInset = UIEdgeInsets(top: 8.0, left: 0.0, bottom: 29.0, right: 0.0)
         }
+        
+        self.firstWriteView.isHidden = true
+        
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         self.setFirstWriteView(userNickname: "워니버니")
+        
+        self.adapter.delegate = self
+        self.tastesCollectionView.delegate = self.adapter
+        self.tastesCollectionView.dataSource = self.adapter
+        
+        self.adapter.reload(sections: self.viewModel.toSections())
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -47,6 +64,40 @@ final class TimeLineViewController: BaseTastesViewController {
         
         if self.filterCollectionView.indexPathsForSelectedItems.isNilOrEmpty {
             self.filterCollectionView.selectItem(at: IndexPath(item: 0, section: 0), animated: false, scrollPosition: .left)
+        }
+    }
+}
+
+extension TimeLineViewController: AdapterDelegate {
+    func configure(model: Any, view: UIView, indexPath: IndexPath) {
+        guard let model = model as? Model else { return }
+        
+        switch (model, view) {
+        case (.header(let count), let view as TastesTotalCountHeaderView):
+            view.totalCountLabel.text = "총 \(count)개"
+        case (.post(let post), let cell as ContentTastesCell):
+            cell.configure(tastePost: post)
+        default:
+            break
+        }
+    }
+    
+    func select(model: Any) {
+        
+    }
+    
+    func size(model: Any, containerSize: CGSize) -> CGSize {
+        guard let model = model as? Model else { return .zero }
+        
+        switch model {
+        case .header:
+            return CGSize(width: Constants.DeviceWidth, height: 12.0)
+        case .post(let post):
+            if post.content.isNilOrEmpty {
+                return CGSize(width: Constants.DeviceWidth - 40.0, height: 187.0)
+            } else {
+                return CGSize(width: Constants.DeviceWidth - 40.0, height: 335.0)
+            }
         }
     }
 }

@@ -32,7 +32,7 @@ class Constants {
     }
 }
 
-enum FiveSenses {
+enum FiveSenses: Codable {
     case sight
     case hearing
     case smell
@@ -71,6 +71,23 @@ enum FiveSenses {
             return UIImage(named: "촉각")
         case .dontKnow:
             return UIImage(named: "모르겠어요")
+        }
+    }
+    
+    var characterImage: UIImage? {
+        switch self {
+        case .sight:
+            return UIImage(named: "시각 캐릭터")
+        case .hearing:
+            return UIImage(named: "청각 캐릭터")
+        case .smell:
+            return UIImage(named: "후각 캐릭터")
+        case .taste:
+            return UIImage(named: "미각 캐릭터")
+        case .touch:
+            return UIImage(named: "촉각 캐릭터")
+        case .dontKnow:
+            return UIImage(named: "모르겠어요 캐릭터")
         }
     }
     

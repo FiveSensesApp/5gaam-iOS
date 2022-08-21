@@ -157,13 +157,20 @@ enum DateFormatType: String {
     case CategoryHeader = "M.d (E) a hh:mm"
     /// 2022.12.23
     case WriteView = "yyyy.MM.dd"
+    /// 2022-08-05T14:54:43.19
+    case Server = "yyyy-MM-dd'T'HH:mm:ss.SS"
 }
 
 extension String {
     func toDate(format: DateFormatType) -> Date? {
+        var string = self
+        if format == .Server {
+            string = String(string.prefix(22))
+        }
+        print(string, format.rawValue)
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = format.rawValue
-        return dateFormatter.date(from: self)
+        return dateFormatter.date(from: string)
     }
 }
 

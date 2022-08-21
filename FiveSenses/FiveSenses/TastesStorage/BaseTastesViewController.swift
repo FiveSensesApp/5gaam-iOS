@@ -51,6 +51,7 @@ class BaseTastesViewController: UIViewController {
         self.view.addSubview(tastesCollectionView)
         self.tastesCollectionView.then {
             $0.register(TastesTotalCountHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: TastesTotalCountHeaderView.identifier)
+            $0.register(ContentTastesCell.self, forCellWithReuseIdentifier: ContentTastesCell.identifier)
         }.snp.makeConstraints {
             $0.top.equalTo(self.filterCollectionView.snp.bottom)
             $0.left.right.bottom.equalToSuperview()
@@ -63,7 +64,7 @@ class BaseTastesViewController: UIViewController {
             $0.height.equalTo(388.0)
         }
         
-        showWritingManual()
+//        showWritingManual()
         
         self.view.addSubview(maskView)
         self.maskView.then {
