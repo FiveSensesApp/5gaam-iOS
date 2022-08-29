@@ -32,7 +32,14 @@ class Constants {
     }
 }
 
-enum FiveSenses: Codable {
+enum StorageType: String {
+    case timeLine = "타임라인"
+    case senses = "감각별"
+    case score = "점수별"
+    case calendar = "달력별"
+}
+
+enum FiveSenses: Codable, CaseIterable {
     case sight
     case hearing
     case smell
@@ -105,6 +112,23 @@ enum FiveSenses: Codable {
             return .purple02
         case .dontKnow:
             return .gray04
+        }
+    }
+    
+    var barImage: UIImage? {
+        switch self {
+        case .sight:
+            return UIImage(named: "시각 막대")
+        case .hearing:
+            return UIImage(named: "청각 막대")
+        case .smell:
+            return UIImage(named: "후각 막대")
+        case .taste:
+            return UIImage(named: "미각 막대")
+        case .touch:
+            return UIImage(named: "촉각 막대")
+        case .dontKnow:
+            return UIImage(named: "모르겠어요 막대")
         }
     }
     

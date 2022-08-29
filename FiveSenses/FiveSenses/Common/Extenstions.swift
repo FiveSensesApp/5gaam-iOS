@@ -77,11 +77,18 @@ extension UIView {
         self.layer.cornerRadius = radius
     }
     
-    func roundCorners(corners: UIRectCorner, radius: CGFloat) {
+    func roundCorners(corners: UIRectCorner, radius: CGFloat, isShadowOn: Bool = false) {
         let path = UIBezierPath(roundedRect: bounds, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
         let mask = CAShapeLayer()
         mask.path = path.cgPath
         self.layer.mask = mask
+        
+        if isShadowOn {
+            let shadowLayer = makeShadowLayer(offset: CGSize(width: 0, height: 5), color: .lightGray, opacity: 0.1, radius: 1.0)
+            shadowLayer.shadowPath = path.cgPath
+            shadowLayer.frame = self.frame
+            self.superview!.layer.insertSublayer(shadowLayer, below: self.layer)
+        }
     }
     
     func getRoundCornerPath(corners: UIRectCorner, radius: CGFloat) -> UIBezierPath {
@@ -149,6 +156,16 @@ extension UIView {
         self.layer.shadowOpacity = opacity
         self.layer.shadowRadius = radius
     }
+    
+    func makeShadowLayer(offset: CGSize, color: UIColor = .black, opacity: Float = 0.1, radius: CGFloat = 3.0) -> CALayer {
+        let layer = CALayer()
+        layer.shadowColor = color.cgColor
+        layer.shadowOffset = offset
+        layer.shadowOpacity = opacity
+        layer.shadowRadius = radius
+        
+        return layer
+    }
 }
 
 // MARK: - String <-> Date 변환
@@ -179,5 +196,13 @@ extension Date {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = format.rawValue
         return dateFormatter.string(from: self)
+    }
+}
+
+extension UIImage {
+    func withAlpha(_ a: CGFloat) -> UIImage {
+        return UIGraphicsImageRenderer(size: size, format: imageRendererFormat).image { (_) in
+            draw(in: CGRect(origin: .zero, size: size), blendMode: .normal, alpha: a)
+        }
     }
 }

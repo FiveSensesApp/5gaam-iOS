@@ -1,13 +1,13 @@
 //
-//  TimeLineViewModel.swift
+//  TastesStorageViewModel.swift
 //  FiveSenses
 //
 //  Created by Nam Jun Lee on 2022/08/21.
 //
 
-import Foundation
+import UIKit
 
-class TimeLineViewModel: BaseViewModel {
+class TastesStorageViewModel: BaseViewModel {
     struct Input { }
     struct Output {
         var tastePosts: [TastePost] = []
@@ -27,16 +27,17 @@ class TimeLineViewModel: BaseViewModel {
         self.output?.tastePosts = self.mockData
     }
     
-    func toSections() -> [Section] {
+    func toCollectionSections<T>(cellType: T.Type) -> [Section] where T: UICollectionViewCell {
         var items: [Item] = []
         
         for post in self.output?.tastePosts ?? [] {
-            items.append(Item(model: TimeLineViewController.Model.post(post), cellType: ContentTastesCell.self))
+            items.append(Item(model: BaseTastesViewController.Model.post(post), cellType: cellType))
         }
         
         return [Section(
-            header: Header(model: TimeLineViewController.Model.header("2"), viewType: TastesTotalCountHeaderView.self),
+            header: Header(model: BaseTastesViewController.Model.header("2"), viewType: TastesTotalCountHeaderView.self),
             items: items
         )]
     }
+    
 }

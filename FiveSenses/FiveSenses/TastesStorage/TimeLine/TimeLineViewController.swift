@@ -8,23 +8,16 @@
 import UIKit
 
 final class TimeLineViewController: BaseTastesViewController {
-    enum Model {
-        case header(String)
-        case post(TastePost)
-    }
-    
     let filterTitles = ["최신순", "오래된순"]
     
     lazy var adapter = Adapter(collectionView: self.tastesCollectionView)
-    var viewModel = TimeLineViewModel()
+    var viewModel = TastesStorageViewModel()
     
     override func loadView() {
         super.loadView()
         
         self.filterCollectionView.delegate = self
         self.filterCollectionView.dataSource = self
-        self.tastesCollectionView.delegate = self
-        self.tastesCollectionView.dataSource = self
         
         self.filterCollectionView.snp.remakeConstraints {
             $0.height.equalTo(60.0)
@@ -56,7 +49,7 @@ final class TimeLineViewController: BaseTastesViewController {
         self.tastesCollectionView.delegate = self.adapter
         self.tastesCollectionView.dataSource = self.adapter
         
-        self.adapter.reload(sections: self.viewModel.toSections())
+        self.adapter.reload(sections: self.viewModel.toCollectionSections(cellType: ContentTastesCell.self))
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -104,20 +97,12 @@ extension TimeLineViewController: AdapterDelegate {
 
 extension TimeLineViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if collectionView == self.filterCollectionView {
-            return 2
-        } else {
-            return 0
-        }
+        return 2
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if collectionView == self.filterCollectionView {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TastesFilterCell.identifier, for: indexPath) as! TastesFilterCell
-            cell.titleLabel.text = filterTitles[indexPath.item]
-            return cell
-        } else {
-            return UICollectionViewCell()
-        }
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TastesFilterCell.identifier, for: indexPath) as! TastesFilterCell
+        cell.titleLabel.text = filterTitles[indexPath.item]
+        return cell
     }
 }

@@ -8,11 +8,13 @@
 import UIKit
 
 class BaseTastesViewController: UIViewController {
+    enum Model {
+        case header(String)
+        case post(TastePost)
+    }
+    
     var filterCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     var tastesCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-    
-    var tastesCategoryChoiceMenuView = TastesCategoryChoiceMenuView()
-    var maskView = UIView()
     
     var firstWriteView = FirstWriteView()
     
@@ -32,8 +34,6 @@ class BaseTastesViewController: UIViewController {
         }
     }
     
-    var isMenuDropped = false
-    
     override func loadView() {
         self.view = UIView()
         
@@ -42,6 +42,7 @@ class BaseTastesViewController: UIViewController {
         self.view.addSubview(filterCollectionView)
         self.filterCollectionView.then {
             $0.backgroundColor = .white
+            $0.showsHorizontalScrollIndicator = false
             $0.register(TastesFilterCell.self, forCellWithReuseIdentifier: TastesFilterCell.identifier)
         }.snp.makeConstraints {
             $0.height.equalTo(60.0)
@@ -65,21 +66,6 @@ class BaseTastesViewController: UIViewController {
         }
         
 //        showWritingManual()
-        
-        self.view.addSubview(maskView)
-        self.maskView.then {
-            $0.backgroundColor = .white.withAlphaComponent(0.5)
-            $0.isHidden = true
-        }.snp.makeConstraints {
-            $0.edges.equalToSuperview()
-        }
-        
-        self.view.addSubview(tastesCategoryChoiceMenuView)
-        self.tastesCategoryChoiceMenuView.snp.makeConstraints {
-            $0.top.equalToSuperview().inset(4.0)
-            $0.left.right.equalToSuperview()
-            $0.height.equalTo(0)
-        }
     }
     
     func showWritingManual() {
@@ -114,37 +100,6 @@ class BaseTastesViewController: UIViewController {
         
         userNickname.append((self.firstWriteView.titleLabel.attributedText ?? NSMutableAttributedString()))
         self.firstWriteView.titleLabel.attributedText = userNickname
-    }
-    
-    func toggleMenu(buttonView: UIView, titleView: TastesStorageTitleView) {
-        buttonView.isUserInteractionEnabled = false
-        self.maskView.isHidden = self.isMenuDropped
-        
-        if !self.isMenuDropped {
-            titleView.titleLabel.textColor = .gray03
-            self.tastesCategoryChoiceMenuView.snp.remakeConstraints {
-                $0.top.equalToSuperview().inset(4.0)
-                $0.left.right.equalToSuperview()
-            }
-            self.tastesCategoryChoiceMenuView.addShadow(location: .bottom, color: .lightGray, opacity: 0.1, radius: 1.0)
-        } else {
-            titleView.titleLabel.textColor = .black
-            self.tastesCategoryChoiceMenuView.snp.remakeConstraints {
-                $0.top.equalToSuperview().inset(4.0)
-                $0.left.right.equalToSuperview()
-                $0.height.equalTo(0)
-            }
-            self.tastesCategoryChoiceMenuView.layer.shadowColor = UIColor.clear.cgColor
-        }
-        
-        UIView.animate(withDuration: 0.1, animations: { [weak self] in
-            guard let self = self else { return }
-            
-            self.view.layoutIfNeeded()
-        }) { _ in
-            self.isMenuDropped.toggle()
-            buttonView.isUserInteractionEnabled = true
-        }
     }
 }
 
