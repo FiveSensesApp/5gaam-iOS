@@ -197,6 +197,11 @@ extension Date {
         dateFormatter.dateFormat = format.rawValue
         return dateFormatter.string(from: self)
     }
+    
+    func addComponent(value: Int, component: Calendar.Component) -> Date {
+        let calendar = Calendar.current
+        return calendar.date(byAdding: component, value: value, to: self) ?? self
+    }
 }
 
 extension UIImage {

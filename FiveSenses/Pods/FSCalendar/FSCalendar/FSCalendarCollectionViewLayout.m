@@ -65,7 +65,7 @@
         self.sectionRowCounts = NULL;
         
         self.scrollDirection = UICollectionViewScrollDirectionHorizontal;
-        self.sectionInsets = UIEdgeInsetsMake(5, 0, 5, 0);
+        self.sectionInsets = UIEdgeInsetsMake(0, 0, 0, 0);
         
         self.itemAttributes = NSMutableDictionary.dictionary;
         self.headerAttributes = NSMutableDictionary.dictionary;
@@ -115,29 +115,36 @@
         }
         headerSize;
     });
+    
     self.estimatedItemSize = ({
+            
             CGFloat width = (self.collectionView.fs_width-self.sectionInsets.left-self.sectionInsets.right)/7.0;
             CGFloat height = ({
+                
                 CGFloat height = FSCalendarStandardRowHeight;
-    //            if (!self.calendar.floatingMode) {
-    //                switch (self.calendar.transitionCoordinator.representingScope) {
-    //                    case FSCalendarScopeMonth: {
-    //                        height = (self.collectionView.fs_height-self.sectionInsets.top-self.sectionInsets.bottom)/6.0;
-    //                        break;
-    //                    }
-    //                    case FSCalendarScopeWeek: {
-    //                        height = (self.collectionView.fs_height-self.sectionInsets.top-self.sectionInsets.bottom);
-    //                        break;
-    //                    }
-    //                    default:
-    //                        break;
-    //                }
-    //            } else {
-                    height = self.calendar.rowHeight;
-    //            }
-                height;
+                //            if (!self.calendar.floatingMode) {
+                //                switch (self.calendar.transitionCoordinator.representingScope) {
+                //                    case FSCalendarScopeMonth: {
+                //                        height = (self.collectionView.fs_height-self.sectionInsets.top-self.sectionInsets.bottom)/6.0;
+                //                        break;
+                //                    }
+                //                    case FSCalendarScopeWeek: {
+                //                        height = (self.collectionView.fs_height-self.sectionInsets.top-self.sectionInsets.bottom);
+                //                        break;
+                //                    }
+                //                    default:
+                //                        break;
+                //                }
+                //            } else {
+//                height = self.calendar.rowHeight;
+//                height;
+               
+                44.0;
             });
-            CGSize size = CGSizeMake(width, height);
+        
+        NSString *weekday = [NSString stringWithFormat:@"%f", height];
+        NSLog(@"HEIGHT : %@", weekday);
+            CGSize size = CGSizeMake(44.0, height);
             size;
         });
     
@@ -175,7 +182,7 @@
             FSCalendarSliceCake(contentHeight, rowCount, heights);
         } else {
             for (int i = 0; i < rowCount; i++) {
-                heights[i] = self.estimatedItemSize.height;
+                heights[i] = 44.0;
             }
         }
         heights;
@@ -188,7 +195,7 @@
         CGFloat *tops = malloc(rowSize);
         tops[0] = self.sectionInsets.top;
         for (int i = 1; i < rowCount; i++) {
-            tops[i] = tops[i-1] + self.heights[i-1];
+            tops[i] = tops[i-1] + self.heights[i-1] + 8.0;
         }
         tops;
     });
@@ -407,6 +414,7 @@
     FSCalendarCoordinate coordinate = [self.calendar.calculator coordinateForIndexPath:indexPath];
     NSInteger column = coordinate.column;
     NSInteger row = coordinate.row;
+    
     NSInteger numberOfRows = [self.calendar.calculator numberOfRowsInSection:indexPath.section];
     UICollectionViewLayoutAttributes *attributes = self.itemAttributes[indexPath];
     if (!attributes) {

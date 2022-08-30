@@ -33,8 +33,9 @@ class CalendarViewController: BaseTastesViewController {
         _ = self.calendarView.then {
             $0.delegate = self
             $0.dataSource = self
-            $0.setScope(.week, animated: false)
+//            $0.setScope(.week, animated: false)
             $0.scrollEnabled = false
+            $0.scrollDirection = .horizontal
             $0.register(CalendarCell.self, forCellReuseIdentifier: CalendarCell.identifier)
 //            $0.appearance.todaySelectionColor = .white
             $0.appearance.selectionColor = .red02
@@ -96,25 +97,59 @@ class CalendarViewController: BaseTastesViewController {
         self.calendarView.addSubview(calendarLeftButton)
         _ = self.calendarLeftButton.then {
             $0.setImage(UIImage(named: "왼쪽꺽쇠"), for: .normal)
-            $0.frame = CGRect(x: 6.0, y: 2.5, width: 44.0, height: 44.0)
+            $0.frame = CGRect(x: 5.0, y: 2.5, width: 44.0, height: 44.0)
         }
         
         self.calendarView.addSubview(calendarRightButton)
         _ = self.calendarRightButton.then {
             $0.setImage(UIImage(named: "오른쪽꺽쇠"), for: .normal)
-            $0.frame = CGRect(x: 150.0, y: 2.5, width: 44.0, height: 44.0)
+            $0.frame = CGRect(x: 151.0, y: 2.5, width: 44.0, height: 44.0)
         }
         
         self.calendarExpandButton.rx.tapGesture()
             .when(.recognized)
             .bind { [weak self] _ in
-                if self?.calendarView.scope == .month {
-                    self?.calendarView.setScope(.week, animated: false)
+                guard let self = self else { return }
+                
+                if self.calendarView.scope == .month {
+                    self.calendarView.setScope(.week, animated: false)
+                    
                 } else {
-                    self?.calendarView.setScope(.month, animated: false)
+                    self.calendarView.setScope(.month, animated: false)
+                    
                 }
+                
+                self.calendarExpandButton.imageView.transform = self.calendarExpandButton.imageView.transform.rotated(by: .pi)
             }
             .disposed(by: self.disposeBag)
+        
+        self.calendarRightButton.rx.tap
+            .bind { [weak self] in
+                guard let self = self else { return }
+                
+                let current = self.calendarView.currentPage
+                
+                if self.calendarView.scope == .week {
+                    self.calendarView.setCurrentPage(current.addComponent(value: 7, component: .day), animated: true)
+                } else {
+                    self.calendarView.setCurrentPage(current.addComponent(value: 1, component: .month), animated: true)
+                }
+            }
+            .disposed(by: disposeBag)
+        
+        self.calendarLeftButton.rx.tap
+            .bind { [weak self] in
+                guard let self = self else { return }
+                
+                let current = self.calendarView.currentPage
+                
+                if self.calendarView.scope == .week {
+                    self.calendarView.setCurrentPage(current.addComponent(value: -7, component: .day), animated: true)
+                } else {
+                    self.calendarView.setCurrentPage(current.addComponent(value: -1, component: .month), animated: true)
+                }
+            }
+            .disposed(by: disposeBag)
     }
     
     func calendarStyle() {
@@ -155,7 +190,6 @@ class CalendarViewController: BaseTastesViewController {
         
         // day 폰트 설정
         calendarView.appearance.titleFont = .semiBold(16.0)
-        calendarView.rowHeight = 44.0
         
         calendarView.collectionViewLayout.sectionInsets = .zero
         
@@ -172,11 +206,13 @@ extension CalendarViewController: FSCalendarDelegate, FSCalendarDataSource {
     
     func calendar(_ calendar: FSCalendar, boundingRectWillChange bounds: CGRect, animated: Bool) {
         if bounds.size.height > 140.0 {
-            let calendarFrame = CGRect(x: 0, y: calendar.fs_top, width: bounds.size.width, height: 376.0)
+            let calendarFrame = CGRect(x: 0, y: calendar.fs_top, width: bounds.size.width, height: 400.0)
             calendarView.frame = calendarFrame
+            
         } else {
             let calendarFrame = CGRect(x: 0, y: calendar.fs_top, width: bounds.size.width, height: 141.0)
             calendarView.frame = calendarFrame
+//            calendarView.rowHeight = 44.0
         }
         
         calendarView.reloadData()

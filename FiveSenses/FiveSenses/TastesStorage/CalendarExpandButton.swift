@@ -8,12 +8,13 @@
 import UIKit
 
 class CalendarExpandButton: UIView {
+    let imageView = UIImageView(image: UIImage(named: "펼치기 버튼"))
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
         self.backgroundColor = .white
         
-        let imageView = UIImageView(image: UIImage(named: "펼치기 버튼"))
         self.addSubview(imageView)
         imageView.then {
             $0.backgroundColor = .white

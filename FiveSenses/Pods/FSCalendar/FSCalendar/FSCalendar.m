@@ -173,7 +173,7 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
     _preferredRowHeight     = FSCalendarAutomaticDimension;
     
     _scrollDirection = FSCalendarScrollDirectionHorizontal;
-    _scope = FSCalendarScopeMonth;
+    _scope = FSCalendarScopeWeek;
     _selectedDates = [NSMutableArray arrayWithCapacity:1];
     _visibleSectionHeaders = [NSMapTable weakToWeakObjectsMapTable];
     
@@ -300,7 +300,7 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
             rowHeight = FSCalendarFloor(rowHeight*2)*0.5; // Round to nearest multiple of 0.5. e.g. (16.8->16.5),(16.2->16.0)
         }
         
-        self.calendarHeaderView.frame = CGRectMake(0, 0, 200.0, headerHeight);
+        self.calendarHeaderView.frame = CGRectMake(0, 0, 202.0, headerHeight);
         self.calendarWeekdayView.frame = CGRectMake(0, self.calendarHeaderView.fs_bottom + 14.0, self.contentView.fs_width, weekdayHeight);
 
         _deliver.frame = CGRectMake(self.calendarHeaderView.fs_left, self.calendarHeaderView.fs_top, self.calendarHeaderView.fs_width, headerHeight+weekdayHeight);
@@ -310,21 +310,23 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
             switch (self.transitionCoordinator.representingScope) {
                 case FSCalendarScopeMonth: {
 //                    CGFloat contentHeight = rowHeight*6 + padding*2;
-                    CGFloat contentHeight = 376.0 - (headerHeight+weekdayHeight) - 12.0 - 14.0;
-                    NSString *str = [NSString stringWithFormat:@"%f", contentHeight];
-                    NSLog(@"str : %@", str);
-                    NSString *header = [NSString stringWithFormat:@"%f", headerHeight];
-                    NSLog(@"str : %@", header);
-                    NSString *weekday = [NSString stringWithFormat:@"%f", weekdayHeight];
-                    NSLog(@"str : %@", weekday);
                     
+//                    NSString *str = [NSString stringWithFormat:@"%f", contentHeight];
+//                    NSLog(@"str : %@", str);
+//                    NSString *header = [NSString stringWithFormat:@"%f", headerHeight];
+//                    NSLog(@"str : %@", header);
+//                    NSString *weekday = [NSString stringWithFormat:@"%f", weekdayHeight];
+//                    NSLog(@"str : %@", weekday);
+                    
+                    CGFloat contentHeight = 400.0 - (headerHeight+weekdayHeight) - 12.0 - 14.0;
                     _daysContainer.frame = CGRectMake(0, headerHeight+weekdayHeight + 12.0 + 14.0, self.fs_width, contentHeight);
                     _collectionView.frame = CGRectMake(0, 0, _daysContainer.fs_width, contentHeight);
+//                    self.collectionViewLayout.sectionInsets.top = 16.0;
                     break;
                 }
                 case FSCalendarScopeWeek: {
 //                    CGFloat contentHeight = rowHeight + padding*2;
-                    NSLog(@"WEEK!!!!!!");
+//                    NSLog(@"WEEK!!!!!!");
                     CGFloat contentHeight = 141.0 - (headerHeight+weekdayHeight) - 12.0 - 14.0;
                     _daysContainer.frame = CGRectMake(0, headerHeight+weekdayHeight + 12.0 + 14.0, self.fs_width, contentHeight);
                     _collectionView.frame = CGRectMake(0, 0, _daysContainer.fs_width, contentHeight);
@@ -338,7 +340,7 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
             _collectionView.frame = _daysContainer.bounds;
             
         }
-        _collectionView.fs_height = FSCalendarHalfFloor(_collectionView.fs_height);
+//        _collectionView.fs_height = FSCalendarHalfFloor(_collectionView.fs_height);
         NSString *height = [NSString stringWithFormat:@"%f",  _collectionView.fs_height];
         NSLog(@"str : %@", height);
     }
@@ -407,8 +409,9 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
             return 7;
         }
     }
-    return 7;
+//    return 7;
 }
+
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
