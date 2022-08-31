@@ -77,11 +77,18 @@ extension UIView {
         self.layer.cornerRadius = radius
     }
     
-    func roundCorners(corners: UIRectCorner, radius: CGFloat) {
+    func roundCorners(corners: UIRectCorner, radius: CGFloat, isShadowOn: Bool = false) {
         let path = UIBezierPath(roundedRect: bounds, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
         let mask = CAShapeLayer()
         mask.path = path.cgPath
         self.layer.mask = mask
+        
+        if isShadowOn {
+            let shadowLayer = makeShadowLayer(offset: CGSize(width: 0, height: 5), color: .lightGray, opacity: 0.1, radius: 1.0)
+            shadowLayer.shadowPath = path.cgPath
+            shadowLayer.frame = self.frame
+            self.superview!.layer.insertSublayer(shadowLayer, below: self.layer)
+        }
     }
     
     func getRoundCornerPath(corners: UIRectCorner, radius: CGFloat) -> UIBezierPath {
@@ -149,6 +156,16 @@ extension UIView {
         self.layer.shadowOpacity = opacity
         self.layer.shadowRadius = radius
     }
+    
+    func makeShadowLayer(offset: CGSize, color: UIColor = .black, opacity: Float = 0.1, radius: CGFloat = 3.0) -> CALayer {
+        let layer = CALayer()
+        layer.shadowColor = color.cgColor
+        layer.shadowOffset = offset
+        layer.shadowOpacity = opacity
+        layer.shadowRadius = radius
+        
+        return layer
+    }
 }
 
 // MARK: - String <-> Date 변환
@@ -157,13 +174,20 @@ enum DateFormatType: String {
     case CategoryHeader = "M.d (E) a hh:mm"
     /// 2022.12.23
     case WriteView = "yyyy.MM.dd"
+    /// 2022-08-05T14:54:43.19
+    case Server = "yyyy-MM-dd'T'HH:mm:ss.SS"
 }
 
 extension String {
     func toDate(format: DateFormatType) -> Date? {
+        var string = self
+        if format == .Server {
+            string = String(string.prefix(22))
+        }
+        print(string, format.rawValue)
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = format.rawValue
-        return dateFormatter.date(from: self)
+        return dateFormatter.date(from: string)
     }
 }
 
@@ -172,5 +196,18 @@ extension Date {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = format.rawValue
         return dateFormatter.string(from: self)
+    }
+    
+    func addComponent(value: Int, component: Calendar.Component) -> Date {
+        let calendar = Calendar.current
+        return calendar.date(byAdding: component, value: value, to: self) ?? self
+    }
+}
+
+extension UIImage {
+    func withAlpha(_ a: CGFloat) -> UIImage {
+        return UIGraphicsImageRenderer(size: size, format: imageRendererFormat).image { (_) in
+            draw(in: CGRect(origin: .zero, size: size), blendMode: .normal, alpha: a)
+        }
     }
 }

@@ -10,11 +10,19 @@ import UIKit
 final class TastesCategoryChoiceMenuView: UIView {
     var lineView = UIView()
     var categoryStackView = UIStackView()
-    var senseView = TastesCategoryView(image: UIImage(named: "토글) 감각"), title: "감각별")
-    var scoreView = TastesCategoryView(image: UIImage(named: "토글) 별점별"), title: "점수별")
-    var calendarView = TastesCategoryView(image: UIImage(named: "토글) 달력별"), title: "달력별")
+    var timeLineView = TastesCategoryView(image: UIImage(named: "토글) 타임라인"), type: .timeLine)
+    var senseView = TastesCategoryView(image: UIImage(named: "토글) 감각"), type: .senses)
+    var scoreView = TastesCategoryView(image: UIImage(named: "토글) 별점별"), type: .score)
+    var calendarView = TastesCategoryView(image: UIImage(named: "토글) 달력별"), type: .calendar)
     
-    private var shadowLayer: CAShapeLayer!
+    lazy var modeViews: [TastesCategoryView] = [self.timeLineView, self.senseView, self.scoreView, self.calendarView]
+    
+    var currentType: StorageType = .timeLine {
+        didSet {
+            modeViews.forEach { $0.isHidden = false }
+            modeViews.first(where: { $0.type == self.currentType })?.isHidden = true
+        }
+    }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -28,9 +36,7 @@ final class TastesCategoryChoiceMenuView: UIView {
             $0.height.equalTo(1.0)
         }
         
-        self.categoryStackView.addArrangedSubview(senseView)
-        self.categoryStackView.addArrangedSubview(scoreView)
-        self.categoryStackView.addArrangedSubview(calendarView)
+        self.modeViews.forEach { self.categoryStackView.addArrangedSubview($0) }
         
         self.addSubview(categoryStackView)
         self.categoryStackView.then {
@@ -63,8 +69,12 @@ final class TastesCategoryView: UIView {
     var imageView = UIImageView()
     var titleLabel = UILabel()
     
-    convenience init(image: UIImage?, title: String) {
+    var type: StorageType!
+    
+    convenience init(image: UIImage?, type: StorageType) {
         self.init(frame: .zero)
+        
+        self.type = type
         
         self.addSubview(self.imageView)
         self.imageView.then {
@@ -78,7 +88,7 @@ final class TastesCategoryView: UIView {
         
         self.addSubview(titleLabel)
         self.titleLabel.then {
-            $0.text = " | \(title)"
+            $0.text = " | \(type.rawValue)"
             $0.font = .bold(26.0)
             $0.textColor = .black
         }.snp.makeConstraints {
