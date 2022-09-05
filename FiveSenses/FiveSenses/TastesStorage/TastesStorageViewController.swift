@@ -16,8 +16,15 @@ final class TastesStorageViewController: CMViewController {
     let tastesContainerView = UIView()
     
     let timeLineViewController = TimeLineViewController()
+    let senseViewController = SenseViewController()
+    let scoreViewController = ScoreViewController()
+    let calendarViewController = CalendarViewController()
     
     var disposeBag = DisposeBag()
+    
+    var tastesCategoryChoiceMenuView = TastesCategoryChoiceMenuView()
+    var maskView = UIView()
+    var isMenuDropped = false
     
     override func loadView() {
         super.loadView()
@@ -37,25 +44,125 @@ final class TastesStorageViewController: CMViewController {
             $0.edges.equalToSuperview()
         }
         
+        self.addChild(calendarViewController)
+        self.tastesContainerView.addSubview(calendarViewController.view)
+        self.calendarViewController.view.snp.makeConstraints { $0.edges.equalToSuperview() }
+        self.calendarViewController.didMove(toParent: self)
+        
+        self.addChild(scoreViewController)
+        self.tastesContainerView.addSubview(scoreViewController.view)
+        self.scoreViewController.view.snp.makeConstraints { $0.edges.equalToSuperview() }
+        self.scoreViewController.didMove(toParent: self)
+        
+        self.addChild(senseViewController)
+        self.tastesContainerView.addSubview(senseViewController.view)
+        self.senseViewController.view.snp.makeConstraints { $0.edges.equalToSuperview() }
+        self.senseViewController.didMove(toParent: self)
+        
         self.addChild(timeLineViewController)
         self.tastesContainerView.addSubview(timeLineViewController.view)
         self.timeLineViewController.view.snp.makeConstraints { $0.edges.equalToSuperview() }
         self.timeLineViewController.didMove(toParent: self)
+        
+        self.contentView.addSubview(maskView)
+        self.maskView.then {
+            $0.backgroundColor = .white.withAlphaComponent(0.5)
+            $0.isHidden = true
+        }.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        
+        self.contentView.addSubview(tastesCategoryChoiceMenuView)
+        self.tastesCategoryChoiceMenuView.snp.makeConstraints {
+            $0.top.equalTo(navigationBarView.snp.bottom).offset(4.0)
+            $0.left.right.equalToSuperview()
+            $0.height.equalTo(0)
+        }
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        self.tastesCategoryChoiceMenuView.currentType = .timeLine
+        
         self.titleView.arrowImageView.rx.tapGesture()
             .when(.recognized)
             .bind { [weak self] _ in
                 guard let self = self else { return }
-                self.timeLineViewController.toggleMenu(buttonView: self.titleView.arrowImageView, titleView: self.titleView)
+                self.toggleMenu(buttonView: self.titleView.arrowImageView, titleView: self.titleView)
                 UIView.animate(withDuration: 0.1) {
                     self.titleView.arrowImageView.transform = self.titleView.arrowImageView.transform.rotated(by: .pi)
                 }
             }
             .disposed(by: self.disposeBag)
+        
+        self.tastesCategoryChoiceMenuView.modeViews
+            .forEach { modeView in
+                modeView.rx.tapGesture()
+                    .when(.recognized)
+                    .bind { [weak self] _ in
+                        self?.setCurrentViewController(type: modeView.type)
+                    }
+                    .disposed(by: disposeBag)
+            }
+    }
+    
+    private func setCurrentViewController(type: StorageType) {
+        // TODO: 타입 선택하면 타입에 맞게 뷰모델에서 데이터 가공
+        self.timeLineViewController.view.isHidden = true
+        self.senseViewController.view.isHidden = true
+        self.scoreViewController.view.isHidden = true
+        self.calendarViewController.view.isHidden = true
+        
+        self.tastesCategoryChoiceMenuView.currentType = type
+        self.titleView.currentFilterLabel.text = " | \(type.rawValue)"
+        
+        self.toggleMenu(buttonView: self.titleView.arrowImageView, titleView: self.titleView)
+        UIView.animate(withDuration: 0.1) {
+            self.titleView.arrowImageView.transform = self.titleView.arrowImageView.transform.rotated(by: .pi)
+        }
+        
+        switch type {
+        case .timeLine:
+            self.timeLineViewController.view.isHidden = false
+        case .senses:
+            self.senseViewController.view.isHidden = false
+        case .score:
+            self.scoreViewController.view.isHidden = false
+        case .calendar:
+            self.calendarViewController.view.isHidden = false
+        }
+    }
+    
+    private func toggleMenu(buttonView: UIView, titleView: TastesStorageTitleView) {
+        buttonView.isUserInteractionEnabled = false
+        self.maskView.isHidden = self.isMenuDropped
+        
+        if !self.isMenuDropped {
+            titleView.titleLabel.textColor = .gray03
+            self.tastesCategoryChoiceMenuView.snp.remakeConstraints {
+                $0.top.equalTo(navigationBarView.snp.bottom).offset(4.0)
+                $0.left.right.equalToSuperview()
+            }
+            self.tastesCategoryChoiceMenuView.addShadow(location: .bottom, color: .lightGray, opacity: 0.1, radius: 1.0)
+        } else {
+            titleView.titleLabel.textColor = .black
+            self.tastesCategoryChoiceMenuView.snp.remakeConstraints {
+                $0.top.equalTo(navigationBarView.snp.bottom).offset(4.0)
+                $0.left.right.equalToSuperview()
+                $0.height.equalTo(0)
+            }
+            self.tastesCategoryChoiceMenuView.layer.shadowColor = UIColor.clear.cgColor
+        }
+        
+        UIView.animate(withDuration: 0.1, animations: { [weak self] in
+            guard let self = self else { return }
+            
+            self.view.layoutIfNeeded()
+        }) { _ in
+            self.isMenuDropped.toggle()
+            buttonView.isUserInteractionEnabled = true
+        }
     }
 }
 

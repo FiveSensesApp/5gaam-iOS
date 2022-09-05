@@ -71,7 +71,7 @@ class SettingViewController: BaseSettingViewController {
         let timeButtonView = SettingButtonView()
         alertAndTimeStackView.addArrangedSubview(timeButtonView)
         _ = timeButtonView.then {
-            $0.title = "시간설정"
+            $0.title = "시간 설정"
             $0.titleColor = .gray04
             $0.rightImageView.isHidden = true
             $0.addSubview(timePicker)
