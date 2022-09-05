@@ -29,7 +29,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
         mainViewController.viewControllers = [vc1, vc2, vc3]
         
-        window?.rootViewController = mainViewController
+        window?.rootViewController = IntroViewController()
         window?.windowScene = scene
         window?.makeKeyAndVisible()
     }

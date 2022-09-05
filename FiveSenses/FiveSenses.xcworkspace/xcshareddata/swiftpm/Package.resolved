@@ -10,15 +10,6 @@
       }
     },
     {
-      "identity" : "calendarview",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/mmick66/CalendarView",
-      "state" : {
-        "revision" : "d0b4808bb3c98ec8ece7999508e3eb7bc415acda",
-        "version" : "1.8.9"
-      }
-    },
-    {
       "identity" : "estabbarcontroller",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/eggswift/ESTabBarController",
@@ -34,6 +25,15 @@
       "state" : {
         "revision" : "be1a1acb283a702b99b630f586877ba02234b4cb",
         "version" : "7.3.2"
+      }
+    },
+    {
+      "identity" : "lottie-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/airbnb/lottie-ios.git",
+      "state" : {
+        "revision" : "314537ec697719fa33a9d48210f4d06a463286d3",
+        "version" : "3.4.3"
       }
     },
     {
@@ -88,6 +88,15 @@
       "state" : {
         "revision" : "f222cbdf325885926566172f6f5f06af95473158",
         "version" : "5.6.0"
+      }
+    },
+    {
+      "identity" : "swiftyuserdefaults",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/sunshinejr/SwiftyUserDefaults",
+      "state" : {
+        "revision" : "f66bcd04088582c8fbb5cb8554d577e303bae396",
+        "version" : "5.3.0"
       }
     },
     {
