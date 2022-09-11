@@ -12,7 +12,7 @@ import RxCocoa
 import SwiftyUserDefaults
 
 class OnBoardingViewController: UIViewController {
-    private var currentProgress = BehaviorRelay<Int>(value: 1)
+    private var currentProgress = BehaviorRelay<Int>(value: Defaults[\.hadSeenOnBoarding] ? 4 : 1)
     
     private var messageLabel = UILabel()
     private var illustImageView = UIImageView()
@@ -159,13 +159,25 @@ class OnBoardingViewController: UIViewController {
         self.nextButton.rx.tap
             .withLatestFrom(self.currentProgress)
             .map { $0 + 1 }
-            .bind(to: self.currentProgress)
+            .bind { [weak self] in
+                guard let self = self else { return }
+                
+                if $0 == 5 {
+                    let vc = UINavigationController(rootViewController: EmailPasswordViewController())
+                    vc.modalPresentationStyle = .fullScreen
+                    self.present(vc, animated: true)
+                } else {
+                    self.currentProgress.accept($0)
+                }
+            }
             .disposed(by: self.disposeBag)
         
         self.loginButton.rx.tapGesture()
             .when(.recognized)
             .bind { _ in
-                UIApplication.shared.keyWindow?.replaceRootViewController(LoginViewController(), animated: true, completion: nil)
+                let vc = UINavigationController(rootViewController: LoginViewController())
+                vc.modalPresentationStyle = .fullScreen
+                self.present(vc, animated: true)
             }
             .disposed(by: self.disposeBag)
     }

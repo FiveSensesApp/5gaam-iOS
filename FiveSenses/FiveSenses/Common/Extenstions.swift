@@ -212,78 +212,58 @@ extension UIImage {
     }
 }
 
-extension UIWindow
-
-{
-
-    func replaceRootViewController(_ replacementController: UIViewController, animated: Bool, completion: (() -> Void)?) {
-
-           let snapshotImageView = UIImageView(image: self.snapshot())
-
-           self.addSubview(snapshotImageView)
-
- 
-
-           let dismissCompletion = { () -> Void in // dismiss all modal view controllers
-
-               self.rootViewController = replacementController
-
-               self.bringSubviewToFront(snapshotImageView)
-
-               if animated {
-
-                   UIView.animate(withDuration: 0.4, animations: { () -> Void in
-
-                       snapshotImageView.alpha = 0
-
-                   }, completion: { (success) -> Void in
-
-                       snapshotImageView.removeFromSuperview()
-
-                       completion?()
-
-                   })
-
-               }
-
-               else {
-
-                   snapshotImageView.removeFromSuperview()
-
-                   completion?()
-
-               }
-
-           }
-
-           if self.rootViewController!.presentedViewController != nil {
-
-               self.rootViewController!.dismiss(animated: false, completion: dismissCompletion)
-
-           }
-
-           else {
-
-               dismissCompletion()
-
-           }
-
-       }
-
+extension UIWindow {
     
-
-    func snapshot() -> UIImage {
-
-        UIGraphicsBeginImageContextWithOptions(bounds.size, false, UIScreen.main.scale)
-
-        drawHierarchy(in: bounds, afterScreenUpdates: true)
-
-        guard let result = UIGraphicsGetImageFromCurrentImageContext() else { return UIImage.init() }
-
-        UIGraphicsEndImageContext()
-
-        return result
-
+    func replaceRootViewController(_ replacementController: UIViewController, animated: Bool, completion: (() -> Void)?) {
+        let snapshotImageView = UIImageView(image: self.snapshot())
+        self.addSubview(snapshotImageView)
+        
+        let dismissCompletion = { () -> Void in // dismiss all modal view controllers
+            self.rootViewController = replacementController
+            self.bringSubviewToFront(snapshotImageView)
+            
+            if animated {
+                UIView.animate(withDuration: 0.4, animations: { () -> Void in
+                    snapshotImageView.alpha = 0
+                }, completion: { (success) -> Void in
+                    snapshotImageView.removeFromSuperview()
+                    completion?()
+                })
+            }
+            
+            else {
+                snapshotImageView.removeFromSuperview()
+                completion?()
+            }
+        }
+        
+        if self.rootViewController!.presentedViewController != nil {
+            self.rootViewController!.dismiss(animated: false, completion: dismissCompletion)
+        }
+        else {
+            dismissCompletion()
+        }
     }
-
+    
+    
+    
+    func snapshot() -> UIImage {
+        UIGraphicsBeginImageContextWithOptions(bounds.size, false, UIScreen.main.scale)
+        drawHierarchy(in: bounds, afterScreenUpdates: true)
+        guard let result = UIGraphicsGetImageFromCurrentImageContext() else { return UIImage.init() }
+        UIGraphicsEndImageContext()
+        return result
+    }
 }
+
+extension SignTextFieldType {
+    var textRule: String {
+        switch self {
+        case .email:
+            return "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
+        case .password:
+            return "((?=.*[A-Za-z])|(?=.*[0-9]))|((?=.*[0-9])|(?=.*[!@#$&*]))|((?=.*[A-Za-z])|(?=.*[!@#$&*])).{10,20}"
+        }
+    }
+}
+
