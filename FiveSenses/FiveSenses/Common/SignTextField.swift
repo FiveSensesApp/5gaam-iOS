@@ -19,8 +19,8 @@ class SignTextField: CMTextField {
     var passwordRevealButton = UIButton()
     private var disposeBag = DisposeBag()
     
-    // 이메일 정규식, 비밀번호 규칙 검사
-
+    var isConfirmed = BehaviorRelay<Bool>(value: false)
+    
     convenience init(type: SignTextFieldType, placeHolder: String = "") {
         switch type {
         case .email:
@@ -43,7 +43,8 @@ class SignTextField: CMTextField {
             self.isSecureTextEntry = true
             self.addSubview(passwordRevealButton)
             self.passwordRevealButton.then {
-                $0.setImage(UIImage(named: "비밀번호 보기"), for: .normal)
+                $0.setImage(UIImage(named: "비밀번호 보기")?.withRenderingMode(.alwaysTemplate), for: .normal)
+                $0.tintColor = .gray04
                 $0.isHidden = true
             }.snp.makeConstraints {
                 $0.width.height.equalTo(30.0)
@@ -64,7 +65,7 @@ class SignTextField: CMTextField {
                 
                 switch type {
                 case .email:
-                    print($0.range(of: type.textRule, options: .regularExpression) != nil)
+                    self.isConfirmed.accept($0.range(of: type.textRule, options: .regularExpression) != nil)
                 case .password:
                     var check = 0
                     
@@ -85,7 +86,7 @@ class SignTextField: CMTextField {
                         check += 1
                     }
                     
-                    print((check >= 2))
+                    self.isConfirmed.accept(check >= 2)
                 }
                 
                 

@@ -31,6 +31,14 @@ class OnBoardingViewController: UIViewController {
     
     private let disposeBag = DisposeBag()
     
+    convenience init(progress: Int? = nil) {
+        self.init()
+        
+        if let progress = progress {
+            self.currentProgress.accept(progress)
+        }
+    }
+    
     override func loadView() {
         super.loadView()
         
