@@ -263,6 +263,8 @@ extension SignTextFieldType {
             return "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
         case .password:
             return "((?=.*[A-Za-z])|(?=.*[0-9]))|((?=.*[0-9])|(?=.*[!@#$&*]))|((?=.*[A-Za-z])|(?=.*[!@#$&*])).{10,20}"
+        case .none:
+            return ""
         }
     }
 }

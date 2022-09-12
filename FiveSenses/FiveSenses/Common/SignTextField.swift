@@ -13,6 +13,7 @@ import RxCocoa
 enum SignTextFieldType {
     case email
     case password
+    case none
 }
 
 class SignTextField: CMTextField {
@@ -22,11 +23,15 @@ class SignTextField: CMTextField {
     var isConfirmed = BehaviorRelay<Bool>(value: false)
     
     convenience init(type: SignTextFieldType, placeHolder: String = "") {
+        self.init()
+        
         switch type {
         case .email:
             self.init(isPlaceHolderBold: true, placeHolder: placeHolder, font: .bold(16.0), inset: UIEdgeInsets(top: 15.0, left: 22.0, bottom: 15.0, right: 22.0))
         case .password:
             self.init(isPlaceHolderBold: true, placeHolder: placeHolder, font: .bold(16.0), inset: UIEdgeInsets(top: 15.0, left: 22.0, bottom: 15.0, right: 50.0))
+        default:
+            break
         }
         
         _ = self.then {
@@ -51,6 +56,8 @@ class SignTextField: CMTextField {
                 $0.right.equalToSuperview().inset(10.0)
                 $0.centerY.equalToSuperview()
             }
+        default:
+            break
         }
         
         self.rx.text
@@ -58,18 +65,30 @@ class SignTextField: CMTextField {
             .bind(to: self.passwordRevealButton.rx.isHidden)
             .disposed(by: disposeBag)
         
-        self.rx.text
-            .orEmpty
-            .bind { [weak self] in
-                guard let self = self else { return }
-                
-                switch type {
-                case .email:
-                    self.isConfirmed.accept($0.range(of: type.textRule, options: .regularExpression) != nil)
-                case .password:
+        switch type {
+        case .email:
+            self.rx.text
+                .orEmpty
+                .debounce(.seconds(1), scheduler: MainScheduler.instance)
+                .flatMap { text -> Observable<Bool> in
+                    if text.range(of: type.textRule, options: .regularExpression) != nil {
+                        return UserServices.validateDuplicate(email: text).map {
+                            $0?.meta.code == 200
+                        }
+                    } else {
+                        return Observable.just(false)
+                    }
+                }
+                .bind(to: self.isConfirmed)
+                .disposed(by: disposeBag)
+        case .password:
+            self.rx.text
+                .orEmpty
+                .debounce(.seconds(1), scheduler: MainScheduler.instance)
+                .map {
                     var check = 0
                     
-                    guard $0.count >= 10 else { return }
+                    guard $0.count >= 10 else { return false }
                     
                     // 숫자
                     if $0.rangeOfCharacter(from: CharacterSet.decimalDigits) != nil {
@@ -86,12 +105,13 @@ class SignTextField: CMTextField {
                         check += 1
                     }
                     
-                    self.isConfirmed.accept(check >= 2)
+                    return check >= 2
                 }
-                
-                
-            }
-            .disposed(by: disposeBag)
+                .bind(to: self.isConfirmed)
+                .disposed(by: disposeBag)
+        default:
+            break
+        }
         
         self.passwordRevealButton
             .rx.tap

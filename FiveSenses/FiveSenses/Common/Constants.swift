@@ -30,6 +30,10 @@ class Constants {
             "지극히 나다운 취향수집함"
         ].randomElement()!
     }
+    
+    static let sourceURL = "http://fivesensesserver2-env.eba-2dcamzuq.ap-northeast-2.elasticbeanstalk.com/api"
+    
+    static let ServiceString = Bundle.main.bundleIdentifier ?? ""
 }
 
 enum StorageType: String {
