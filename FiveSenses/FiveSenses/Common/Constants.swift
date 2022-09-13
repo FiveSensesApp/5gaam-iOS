@@ -34,6 +34,8 @@ class Constants {
     static let sourceURL = "http://fivesensesserver2-env.eba-2dcamzuq.ap-northeast-2.elasticbeanstalk.com/api"
     
     static let ServiceString = Bundle.main.bundleIdentifier ?? ""
+    
+    static var CurrentUser: CreatedUser? = nil
 }
 
 enum StorageType: String {

@@ -265,6 +265,8 @@ extension SignTextFieldType {
             return "((?=.*[A-Za-z])|(?=.*[0-9]))|((?=.*[0-9])|(?=.*[!@#$&*]))|((?=.*[A-Za-z])|(?=.*[!@#$&*])).{10,20}"
         case .none:
             return ""
+        case .nickname:
+            return "[가-힣A-Za-z0-9]{2,8}"
         }
     }
 }

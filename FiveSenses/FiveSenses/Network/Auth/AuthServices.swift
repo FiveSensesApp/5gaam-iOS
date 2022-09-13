@@ -36,5 +36,26 @@ class AuthServices: Networkable {
             case meta
             case data
         }
-    }}
+    }
+    
+    static func login(email: String, password: String) -> Observable<LoginResponse?> {
+        AuthServices.provider
+            .rx.request(.login(email: email, password: password))
+            .asObservable()
+            .map {
+                let response = $0.data.decode(LoginResponse.self)
+                dump(response)
+                return response
+            }
+    }
+    
+    struct LoginResponse: ResponseBase {
+        struct Token: Codable {
+            var token: String
+        }
+        
+        var meta: APIMeta
+        var data: Token?
+    }
+}
 

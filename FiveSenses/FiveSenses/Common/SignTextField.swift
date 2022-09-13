@@ -14,6 +14,7 @@ enum SignTextFieldType {
     case email
     case password
     case none
+    case nickname
 }
 
 class SignTextField: CMTextField {
@@ -26,12 +27,12 @@ class SignTextField: CMTextField {
         self.init()
         
         switch type {
-        case .email:
+        case .email, .nickname:
             self.init(isPlaceHolderBold: true, placeHolder: placeHolder, font: .bold(16.0), inset: UIEdgeInsets(top: 15.0, left: 22.0, bottom: 15.0, right: 22.0))
         case .password:
             self.init(isPlaceHolderBold: true, placeHolder: placeHolder, font: .bold(16.0), inset: UIEdgeInsets(top: 15.0, left: 22.0, bottom: 15.0, right: 50.0))
         default:
-            break
+            self.init(isPlaceHolderBold: true, placeHolder: placeHolder, font: .bold(16.0), inset: UIEdgeInsets(top: 15.0, left: 22.0, bottom: 15.0, right: 22.0))
         }
         
         _ = self.then {
@@ -65,13 +66,15 @@ class SignTextField: CMTextField {
             .bind(to: self.passwordRevealButton.rx.isHidden)
             .disposed(by: disposeBag)
         
+        let pred = NSPredicate(format:"SELF MATCHES %@", type.textRule)
+        
         switch type {
         case .email:
             self.rx.text
                 .orEmpty
                 .debounce(.seconds(1), scheduler: MainScheduler.instance)
                 .flatMap { text -> Observable<Bool> in
-                    if text.range(of: type.textRule, options: .regularExpression) != nil {
+                    if pred.evaluate(with: text) {
                         return UserServices.validateDuplicate(email: text).map {
                             $0?.meta.code == 200
                         }
@@ -84,7 +87,7 @@ class SignTextField: CMTextField {
         case .password:
             self.rx.text
                 .orEmpty
-                .debounce(.seconds(1), scheduler: MainScheduler.instance)
+                .debounce(.milliseconds(250), scheduler: MainScheduler.instance)
                 .map {
                     var check = 0
                     
@@ -109,6 +112,16 @@ class SignTextField: CMTextField {
                 }
                 .bind(to: self.isConfirmed)
                 .disposed(by: disposeBag)
+        case .nickname:
+            self.rx.text
+                .orEmpty
+                .debounce(.milliseconds(250), scheduler: MainScheduler.instance)
+                .map { text -> Bool in
+                    return pred.evaluate(with: text)
+                }
+                .bind(to: self.isConfirmed)
+                .disposed(by: disposeBag)
+            
         default:
             break
         }

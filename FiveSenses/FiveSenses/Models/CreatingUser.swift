@@ -27,7 +27,7 @@ struct CreatedUser: Codable {
     var id: Int
     var nickname: String
     var isAlarmOn: Bool
-    var alarmDate: Date
+    var alarmDate: Date?
     var email: String
     var emailValidCode: String?
     var createdDate: Date

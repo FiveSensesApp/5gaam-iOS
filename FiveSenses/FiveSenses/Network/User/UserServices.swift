@@ -26,6 +26,29 @@ class UserServices: Networkable {
             }
     }
     
+    /// 이메일로 코드 전송
+    static func validateEmail(email: String) -> Observable<Bool> {
+        UserServices.provider
+            .rx.request(.validateEmail(email))
+            .asObservable()
+            .map {
+                let response = $0.data.decode(ValidateDuplicateResponse.self)
+                return response?.meta.code == 200
+            }
+    }
+    
+    /// 코드 올바른지 확인
+    static func validateEmailSendCode(email: String, code: String) -> Observable<Bool> {
+        UserServices.provider
+            .rx.request(.validateEmailSendCode(email: email, code: code))
+            .asObservable()
+            .map {
+                let response = $0.data.decode(ValidateDuplicateResponse.self)
+                return response?.meta.code == 200
+            }
+            
+    }
+    
     struct ValidateDuplicateResponse: ResponseBase {
         var meta: APIMeta
         var data: String?
