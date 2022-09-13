@@ -79,7 +79,12 @@ class BaseAlertViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+     
+        self.okButton.rx.tap
+            .bind { [weak self] in
+                self?.dismiss(animated: true)
+            }
+            .disposed(by: disposeBag)
     }
     
     override func viewDidLayoutSubviews() {

@@ -139,5 +139,39 @@ class LoginViewController: UIViewController {
                 })
             }
             .disposed(by: self.disposeBag)
+        
+        Observable.combineLatest (
+            self.emailTextfield.rx.text.orEmpty.map { $0 != "" },
+            self.passwordTextfield.rx.text.orEmpty.map { $0 != "" }
+        )
+        .map { $0 && $1 }
+        .bind(to: self.loginButton.rx.isEnabled)
+        .disposed(by: self.disposeBag)
+        
+        self.loginButton
+            .rx.tap
+            .flatMap { [weak self] _ -> Observable<Bool> in
+                guard let self = self else { return Observable.just(false) }
+                self.loginButton.isEnabled = false
+                
+                return AuthServices.login(
+                    email: self.emailTextfield.text ?? "",
+                    password: self.passwordTextfield.text ?? ""
+                ).map {
+                    $0?.meta.code == 200
+                }
+            }
+            .bind { [weak self] in
+                guard let self = self else { return }
+                
+                self.loginButton.isEnabled = true
+                
+                if $0 {
+                    UIApplication.shared.keyWindow?.replaceRootViewController(MainViewController.makeMainViewController(), animated: true, completion: nil)
+                } else {
+                    BaseAlertViewController.showAlert(viewController: self, title: "로그인 실패", content: "이메일 / 비밀번호를 확인해주세요.", buttonTitle: "확인")
+                }
+            }
+            .disposed(by: disposeBag)
     }
 }
