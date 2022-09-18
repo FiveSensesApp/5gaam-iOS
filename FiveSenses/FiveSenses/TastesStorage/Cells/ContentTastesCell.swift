@@ -17,7 +17,7 @@ class ContentTastesCell: UICollectionViewCell {
     var dateLabel = UILabel()
     var starView = ContentTastesStarView()
     
-    var tastePost: TastePost!
+    var tastePost: Post!
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -94,19 +94,19 @@ class ContentTastesCell: UICollectionViewCell {
         }
     }
     
-    func configure(tastePost: TastePost) {
+    func configure(tastePost: Post) {
         self.tastePost = tastePost
         
-        self.menuButton.setImage(UIImage(named: "메뉴(공유,수정,삭제)")?.withTintColor(tastePost.sense.color), for: .normal)
-        self.senseImageView.image = tastePost.sense.characterImage
-        self.dateLabel.textColor = tastePost.sense.color
+        self.menuButton.setImage(UIImage(named: "메뉴(공유,수정,삭제)")?.withTintColor(tastePost.category.color), for: .normal)
+        self.senseImageView.image = tastePost.category.characterImage
+        self.dateLabel.textColor = tastePost.category.color
         self.dateLabel.text = tastePost.createdDate.toString(format: .WriteView)
-        self.starView.setStar(score: tastePost.star, sense: tastePost.sense)
+        self.starView.setStar(score: tastePost.star, sense: tastePost.category)
         
         self.keywordLabel.text = tastePost.keyword
         self.contentLabel.text = tastePost.content
         
-        if tastePost.content.isNilOrEmpty {
+        if tastePost.content == "" {
             self.contentLabel.snp.updateConstraints {
                 $0.height.equalTo(0)
             }

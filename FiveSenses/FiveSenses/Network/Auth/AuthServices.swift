@@ -10,6 +10,7 @@ import Foundation
 import Moya
 import RxMoya
 import RxSwift
+import SwiftJWT
 
 class AuthServices: Networkable {
     typealias Target = AuthAPI
@@ -45,6 +46,11 @@ class AuthServices: Networkable {
             .map {
                 let response = $0.data.decode(LoginResponse.self)
                 dump(response)
+                if let token = response?.data?.token {
+                    KeyChainController.shared.create(Constants.ServiceString, account: "Token", value: token)
+                    
+                    Constants.CurrentToken = (try? JWT<TokenContent>(jwtString: token))?.claims
+                }
                 return response
             }
     }

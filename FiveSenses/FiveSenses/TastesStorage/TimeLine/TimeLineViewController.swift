@@ -7,11 +7,14 @@
 
 import UIKit
 
+import RxSwift
+
 final class TimeLineViewController: BaseTastesViewController {
     let filterTitles = ["최신순", "오래된순"]
     
     lazy var adapter = Adapter(collectionView: self.tastesCollectionView)
     var viewModel = TastesStorageViewModel()
+    private var disposeBag = DisposeBag()
     
     override func loadView() {
         super.loadView()
@@ -49,7 +52,19 @@ final class TimeLineViewController: BaseTastesViewController {
         self.tastesCollectionView.delegate = self.adapter
         self.tastesCollectionView.dataSource = self.adapter
         
+        self.viewModel.loadPosts()
+        
         self.adapter.reload(sections: self.viewModel.toCollectionSections(cellType: ContentTastesCell.self))
+        
+        self.viewModel.output?.numberOfPosts
+            .debug("포스트 갯수")
+            .bind { [weak self] in
+                guard let self = self else { return }
+                if let headerView = self.tastesCollectionView.visibleSupplementaryViews(ofKind: UICollectionView.elementKindSectionHeader).first as? TastesTotalCountHeaderView {
+                    headerView.totalCountLabel.text = "총 \($0)개"
+                }
+            }
+            .disposed(by: disposeBag)
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -86,7 +101,7 @@ extension TimeLineViewController: AdapterDelegate {
         case .header:
             return CGSize(width: Constants.DeviceWidth, height: 12.0)
         case .post(let post):
-            if post.content.isNilOrEmpty {
+            if post.content == "" {
                 return CGSize(width: Constants.DeviceWidth - 40.0, height: 187.0)
             } else {
                 return CGSize(width: Constants.DeviceWidth - 40.0, height: 335.0)

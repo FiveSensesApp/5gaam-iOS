@@ -171,7 +171,7 @@ class OnBoardingViewController: UIViewController {
                 guard let self = self else { return }
                 
                 if $0 == 5 {
-                    let vc = UINavigationController(rootViewController: EmailPasswordViewController())
+                    let vc = CMNavigationController(rootViewController: EmailPasswordViewController())
                     vc.modalPresentationStyle = .fullScreen
                     self.present(vc, animated: true)
                 } else {
@@ -183,7 +183,7 @@ class OnBoardingViewController: UIViewController {
         self.loginButton.rx.tapGesture()
             .when(.recognized)
             .bind { _ in
-                let vc = UINavigationController(rootViewController: LoginViewController())
+                let vc = CMNavigationController(rootViewController: LoginViewController())
                 vc.modalPresentationStyle = .fullScreen
                 self.present(vc, animated: true)
             }

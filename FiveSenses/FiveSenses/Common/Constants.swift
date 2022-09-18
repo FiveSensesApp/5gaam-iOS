@@ -36,6 +36,7 @@ class Constants {
     static let ServiceString = Bundle.main.bundleIdentifier ?? ""
     
     static var CurrentUser: CreatedUser? = nil
+    static var CurrentToken: TokenContent? = nil
 }
 
 enum StorageType: String {
@@ -136,6 +137,33 @@ enum FiveSenses: Codable, CaseIterable {
         case .dontKnow:
             return UIImage(named: "모르겠어요 막대")
         }
+    }
+    
+    var category: String {
+        switch self {
+        case .sight:
+            return "SIGHT"
+        case .hearing:
+            return "HEARING"
+        case .smell:
+            return "SMELL"
+        case .taste:
+            return "TASTE"
+        case .touch:
+            return "TOUCH"
+        case .dontKnow:
+            return "AMBIGUOUS"
+        }
+    }
+    
+    static func senseByCategory(category: String) -> FiveSenses {
+        for sense in FiveSenses.allCases {
+            if category == sense.category {
+                return sense
+            }
+        }
+        
+        return .dontKnow
     }
     
     func star(isEmpty: Bool) -> UIImage? {

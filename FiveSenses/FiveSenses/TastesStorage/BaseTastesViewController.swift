@@ -10,7 +10,7 @@ import UIKit
 class BaseTastesViewController: UIViewController {
     enum Model {
         case header(String)
-        case post(TastePost)
+        case post(Post)
     }
     
     var filterCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())

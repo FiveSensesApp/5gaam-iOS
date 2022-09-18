@@ -45,6 +45,8 @@ class SenseViewController: BaseTastesViewController {
         self.tastesCollectionView.delegate = self.adapter
         self.tastesCollectionView.dataSource = self.adapter
         
+        self.viewModel.loadPosts()
+        
         self.adapter.reload(sections: self.viewModel.toCollectionSections(cellType: KeywordTastesCell.self))
     }
 }

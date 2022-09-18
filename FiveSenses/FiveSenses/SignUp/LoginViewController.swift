@@ -21,12 +21,24 @@ class LoginViewController: UIViewController {
     var loginButton = BaseButton()
     var forgetButton = UILabel()
     
+    var backButton = BaseButton()
+    
     private var disposeBag = DisposeBag()
     
     override func loadView() {
         self.view = UIView()
         
         self.view.backgroundColor = .white
+        self.navigationController?.isNavigationBarHidden = true
+        
+        self.view.addSubview(backButton)
+        self.backButton.then {
+            $0.setImage(UIImage(named: "뒤로가기"), for: .normal)
+        }.snp.makeConstraints {
+            $0.width.height.equalTo(38.0)
+            $0.top.equalToSuperview().inset(44.0)
+            $0.left.equalToSuperview().inset(21.0)
+        }
         
         self.view.addSubview(upperImageView)
         self.upperImageView.then {
@@ -173,5 +185,17 @@ class LoginViewController: UIViewController {
                 }
             }
             .disposed(by: disposeBag)
+        
+        self.backButton
+            .rx.tap
+            .bind { [weak self] in
+                self?.navigationController?.dismiss(animated: true)
+            }
+            .disposed(by: disposeBag)
+        
+    }
+    
+    override var prefersStatusBarHidden: Bool {
+        return true
     }
 }

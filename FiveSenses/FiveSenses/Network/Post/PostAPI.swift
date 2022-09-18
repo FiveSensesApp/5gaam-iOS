@@ -1,0 +1,90 @@
+//
+//  PostAPI.swift
+//  FiveSenses
+//
+//  Created by Nam Jun Lee on 2022/09/14.
+//
+
+import Foundation
+
+import Moya
+
+enum PostSortType: String {
+    case desc
+    case asc
+}
+
+enum PostAPI {
+    case getPosts(
+        page: Int,
+        size: Int = 10,
+        sort: PostSortType,
+        category: FiveSenses? = nil,
+        star: Int? = nil,
+        createdDate: String? = nil
+    )
+    case getCountOfPost(sense: FiveSenses)
+}
+
+extension PostAPI: TargetType, AccessTokenAuthorizable {
+    var baseURL: URL {
+        return URL(string: Constants.sourceURL + "/posts")!
+    }
+    
+    var path: String {
+        switch self {
+        case .getPosts:
+            return ""
+        case .getCountOfPost:
+            return "/count"
+        }
+    }
+    
+    var method: Moya.Method {
+        switch self {
+        case .getPosts:
+            return .get
+        case .getCountOfPost:
+            return .get
+        }
+    }
+    
+    var task: Task {
+        switch self {
+        case .getPosts(
+            let page,
+            let size,
+            let sort,
+            let category,
+            let star,
+            let createdDate):
+            return .requestParameters(
+                parameters: [
+                    "userId": Constants.CurrentToken?.userId ?? -1,
+                    "page": page,
+                    "size": size,
+                    "sort": "id,\(sort.rawValue)",
+                    "category": category?.category,
+                    "star": star,
+                    "createdDate": createdDate
+                ].compactMapValues { $0 },
+                encoding: URLEncoding.default
+            )
+        case .getCountOfPost(let sense):
+            return .requestParameters(
+                parameters: ["userId": Constants.CurrentToken?.userId ?? -1, "category": sense.category],
+                encoding: URLEncoding.default
+            )
+        }
+    }
+    
+    var headers: [String : String]? {
+        return nil
+    }
+    
+    var authorizationType: AuthorizationType? {
+        return .bearer
+    }
+    
+    
+}

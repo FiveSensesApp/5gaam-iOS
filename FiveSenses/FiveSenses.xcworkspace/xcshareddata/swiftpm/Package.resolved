@@ -10,6 +10,33 @@
       }
     },
     {
+      "identity" : "bluecryptor",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Kitura/BlueCryptor.git",
+      "state" : {
+        "revision" : "cec97c24b111351e70e448972a7d3fe68a756d6d",
+        "version" : "2.0.2"
+      }
+    },
+    {
+      "identity" : "blueecc",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Kitura/BlueECC.git",
+      "state" : {
+        "revision" : "baf6ed3fc1a622675f0041b4aff7c02dd1a93818",
+        "version" : "1.2.200"
+      }
+    },
+    {
+      "identity" : "bluersa",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Kitura/BlueRSA.git",
+      "state" : {
+        "revision" : "440f78db26d8bb073f29590f1c7bd31004da09ae",
+        "version" : "1.0.201"
+      }
+    },
+    {
       "identity" : "estabbarcontroller",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/eggswift/ESTabBarController",
@@ -25,6 +52,24 @@
       "state" : {
         "revision" : "be1a1acb283a702b99b630f586877ba02234b4cb",
         "version" : "7.3.2"
+      }
+    },
+    {
+      "identity" : "kituracontracts",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Kitura/KituraContracts.git",
+      "state" : {
+        "revision" : "8a4778c3aa7833e9e1af884e8819d436c237cd70",
+        "version" : "1.2.201"
+      }
+    },
+    {
+      "identity" : "loggerapi",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Kitura/LoggerAPI.git",
+      "state" : {
+        "revision" : "e82d34eab3f0b05391082b11ea07d3b70d2f65bb",
+        "version" : "1.9.200"
       }
     },
     {
@@ -88,6 +133,24 @@
       "state" : {
         "revision" : "f222cbdf325885926566172f6f5f06af95473158",
         "version" : "5.6.0"
+      }
+    },
+    {
+      "identity" : "swift-jwt",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Kitura/Swift-JWT",
+      "state" : {
+        "revision" : "47c6384b6923e9bb1f214d2ba4bd52af39440588",
+        "version" : "3.6.201"
+      }
+    },
+    {
+      "identity" : "swift-log",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-log.git",
+      "state" : {
+        "revision" : "6fe203dc33195667ce1759bf0182975e4653ba1c",
+        "version" : "1.4.4"
       }
     },
     {

@@ -7,30 +7,55 @@
 
 import UIKit
 
+import RxSwift
+import RxCocoa
+
 class TastesStorageViewModel: BaseViewModel {
-    struct Input { }
+    struct Input {
+        var currentSortType = BehaviorRelay<PostSortType>(value: .desc)
+        var currentCategory = BehaviorRelay<FiveSenses?>(value: nil)
+        var currentStar = BehaviorRelay<Int?>(value: nil)
+    }
     struct Output {
-        var tastePosts: [TastePost] = []
+        var tastePosts = BehaviorRelay<[Post]>(value: [])
+        var numberOfPosts = BehaviorRelay<Int>(value: 0)
     }
     
     var input: Input?
     var output: Output? = Output()
     
-    var mockData = [
-        TastePost(id: 61, sense: .touch, keyword: "취향 키워드", star: 2, content: "", createdDate: "2022-08-05T14:54:43.191123".toDate(format: .Server)!, modifiedDate: Date()),
-        TastePost(id: 62, sense: .sight, keyword: "취향 키워드", star: 2, content: "취향 컨텐츠 입니다.취향 컨텐츠 입니다.취향 컨텐츠 입니다.취향 컨텐츠 입니다.", createdDate: Date(), modifiedDate: Date()),
-        TastePost(id: 63, sense: .dontKnow, keyword: "취향 키워드", star: 2, content: "", createdDate: Date(), modifiedDate: Date()),
-        TastePost(id: 64, sense: .smell, keyword: "취향 키워드", star: 2, content: "취향 컨텐츠 입니다.취향 컨텐츠 입니다.취향 컨텐츠 입니다.취향 컨텐츠 입니다.", createdDate: Date(), modifiedDate: Date())
-    ]
+    var currentPage = 0
     
-    init() {
-        self.output?.tastePosts = self.mockData
+    private var disposeBag = DisposeBag()
+    
+    init(input: Input? = nil) {
+        self.input = input
+    }
+    
+    func loadPosts() {
+        PostServices.getCountOfPost(sense: self.input?.currentCategory.value ?? .dontKnow)
+           .bind(to: self.output!.numberOfPosts)
+           .disposed(by: self.disposeBag)
+        
+        PostServices.getPosts(
+            page: currentPage,
+            size: 10,
+            sort: self.input?.currentSortType.value ?? .desc,
+            category: self.input?.currentCategory.value,
+            star: self.input?.currentStar.value,
+            createdDate: nil)
+        .map { [weak self] in
+            guard let self = self else { return [] }
+            return self.output!.tastePosts.value + ($0?.data?.content ?? [])
+        }
+        .bind(to: self.output!.tastePosts)
+        .disposed(by: self.disposeBag)
     }
     
     func toCollectionSections<T>(cellType: T.Type) -> [Section] where T: UICollectionViewCell {
         var items: [Item] = []
         
-        for post in self.output?.tastePosts ?? [] {
+        for post in self.output?.tastePosts.value ?? [] {
             items.append(Item(model: BaseTastesViewController.Model.post(post), cellType: cellType))
         }
         

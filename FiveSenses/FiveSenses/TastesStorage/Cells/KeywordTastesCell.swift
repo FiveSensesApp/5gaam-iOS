@@ -33,9 +33,9 @@ class KeywordTastesCell: UICollectionViewCell {
         }
     }
     
-    func configure(post: TastePost) {
+    func configure(post: Post) {
         self.keywordLabel.text = post.keyword
-        self.senseImageView.image = post.sense.barImage
+        self.senseImageView.image = post.category.barImage
     }
     
     required init?(coder: NSCoder) {

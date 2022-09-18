@@ -7,6 +7,8 @@
 
 import Foundation
 
+import SwiftJWT
+
 struct CreatingUser: Codable {
     var nickname: String
     var isAlarmOn: Bool
@@ -42,5 +44,17 @@ struct CreatedUser: Codable {
         case emailValidCode
         case createdDate
         case modifiedDate
+    }
+}
+
+struct TokenContent: Codable, Claims {
+    var userId: String
+    var auth: String
+    var exp: Int
+    
+    enum CodingKeys: String, CodingKey {
+        case userId = "sub"
+        case auth
+        case exp
     }
 }

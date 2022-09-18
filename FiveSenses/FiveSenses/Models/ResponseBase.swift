@@ -13,3 +13,29 @@ protocol ResponseBase: Codable {
     var meta: APIMeta { get set }
     var data: Data? { get set }
 }
+
+struct Sort: Codable {
+    var sorted: Bool
+    var unsorted: Bool
+    var empty: Bool
+}
+
+struct Pageble: Codable {
+    
+    var sort: Sort
+    var pageNumber: Int
+    var pageSize: Int
+    var offset: Int
+    var unpaged: Bool
+    var paged: Bool
+}
+
+struct PageInfo: Codable {
+    var number: Int
+    var first: Bool
+    var last: Bool
+    var sort: Sort
+    var numberOfElements: Int
+    var size: Int
+    var empty: Bool
+}
