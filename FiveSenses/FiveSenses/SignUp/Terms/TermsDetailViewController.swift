@@ -293,6 +293,12 @@ class TermsBottomSheetController: BaseBottomSheetController {
             .disposed(by: disposeBag)
     }
     
+    override class func showBottomSheet(viewController: UIViewController, title: String?, content: UIView, contentHeight: CGFloat) {
+        let vc = BaseBottomSheetController(title: title, content: content, contentHeight: contentHeight)
+        vc.modalPresentationStyle = .fullScreen
+        viewController.present(vc, animated: false)
+    }
+    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touchView = touches.first?.view else { return }
         

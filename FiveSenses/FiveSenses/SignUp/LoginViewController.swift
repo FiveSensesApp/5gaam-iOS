@@ -15,8 +15,7 @@ class LoginViewController: UIViewController {
     private var greetingLabel = UILabel()
     
     var emailTextfield = CMTextField(isPlaceHolderBold: true, placeHolder: "이메일 주소를 입력해주세요.", font: .bold(16.0), inset: UIEdgeInsets(top: 15.0, left: 22.0, bottom: 15.0, right: 22.0))
-    var passwordTextfield = CMTextField(isPlaceHolderBold: true, placeHolder: "비밀번호를 입력해주세요.", font: .bold(16.0), inset: UIEdgeInsets(top: 15.0, left: 22.0, bottom: 15.0, right: 50.0))
-    var passwordRevealButton = UIButton()
+    var passwordTextfield = SignTextField(type: .password, placeHolder: "비밀번호를 입력해주세요.")
     
     var loginButton = BaseButton()
     var forgetButton = UILabel()
@@ -84,15 +83,6 @@ class LoginViewController: UIViewController {
             $0.top.equalTo(self.emailTextfield.snp.bottom).offset(13.0)
             $0.left.right.equalToSuperview().inset(20.0)
             $0.height.equalTo(50.0)
-        }
-        
-        self.view.addSubview(passwordRevealButton)
-        self.passwordRevealButton.then {
-            $0.setImage(UIImage(named: "비밀번호 보기"), for: .normal)
-        }.snp.makeConstraints {
-            $0.width.height.equalTo(30.0)
-            $0.right.equalTo(self.passwordTextfield).inset(10.0)
-            $0.centerY.equalTo(self.passwordTextfield)
         }
         
         self.view.addSubview(loginButton)

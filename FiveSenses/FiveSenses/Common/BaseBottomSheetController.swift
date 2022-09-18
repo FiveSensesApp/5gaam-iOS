@@ -33,7 +33,7 @@ class BaseBottomSheetController: UIViewController {
     override func loadView() {
         super.loadView()
         
-        self.view.backgroundColor = .black.withAlphaComponent(0.7)
+        self.view.backgroundColor = UIColor(hex: "000000").withAlphaComponent(0.7)
         self.view.addSubview(containerView)
         self.containerView.then {
             $0.backgroundColor = .white

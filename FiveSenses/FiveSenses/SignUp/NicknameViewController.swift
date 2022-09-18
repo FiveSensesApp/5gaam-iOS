@@ -32,9 +32,10 @@ class NicknameViewController: SignUpBaseViewController {
         self.contentView.addSubview(infoLabel)
         self.infoLabel.then {
             $0.font = .regular(12.0)
-            $0.text = "한글, 영어, 숫자만 가능합니다.\n특수문자 및 이모지는 사용 불가해요."
+            $0.text = "2글자 이상 한글, 영어, 숫자만 가능합니다.\n특수문자 및 이모지는 사용 불가해요."
             $0.numberOfLines = 2
             $0.textColor = .gray04
+            $0.textAlignment = .center
         }.snp.makeConstraints {
             $0.top.equalTo(self.nicknameTextField.snp.bottom).offset(10.0)
             $0.centerX.equalToSuperview()

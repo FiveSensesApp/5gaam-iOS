@@ -130,6 +130,13 @@ class SignTextField: CMTextField {
             .rx.tap
             .bind { [weak self] in
                 self?.isSecureTextEntry.toggle()
+                if self?.isSecureTextEntry == false {
+                    self?.passwordRevealButton.tintColor = .red02
+                    self?.textColor = .red02
+                } else {
+                    self?.passwordRevealButton.tintColor = .gray04
+                    self?.textColor = .gray04
+                }
             }
             .disposed(by: disposeBag)
     }

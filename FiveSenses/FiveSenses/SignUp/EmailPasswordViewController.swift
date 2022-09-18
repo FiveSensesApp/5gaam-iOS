@@ -201,15 +201,11 @@ class EmailPasswordViewController: SignUpBaseViewController {
             guard let self = self else { return }
             
             if !$0 {
-                self.passwordTextfield.textColor = .red02
-                self.passwordTextfield.passwordRevealButton.tintColor = .red02
-                self.passwordInfoLabel.textColor = .red02
                 self.passwordInfoLabel.text = "* 비밀번호가 일치하지 않습니다!"
+                self.passwordInfoLabel.textColor = .red02
             } else {
-                self.passwordTextfield.textColor = .gray04
-                self.passwordTextfield.passwordRevealButton.tintColor = .gray04
-                self.passwordInfoLabel.textColor = .gray04
                 self.passwordInfoLabel.text = "(영문, 숫자, 특수문자 중 2개 조합 10자 이상)"
+                self.passwordInfoLabel.textColor = .gray04
             }
         }
         .disposed(by: disposeBag)
