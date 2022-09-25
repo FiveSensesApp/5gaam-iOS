@@ -13,7 +13,8 @@ class ContentTastesCell: UICollectionViewCell {
     var menuButton = BaseButton()
     var senseImageView = UIImageView()
     var keywordLabel = UILabel()
-    var contentLabel = PaddingLabel(padding: UIEdgeInsets(top: 14.0, left: 14.0, bottom: 14.0, right: 14.0))
+    var contentTextView = UITextView()
+//    PaddingLabel(padding: UIEdgeInsets(top: 14.0, left: 14.0, bottom: 14.0, right: 14.0))
     var dateLabel = UILabel()
     var starView = ContentTastesStarView()
     
@@ -62,14 +63,15 @@ class ContentTastesCell: UICollectionViewCell {
             $0.left.equalTo(keywordBackgroundImageView).inset(14.0)
         }
         
-        self.contentView.addSubview(contentLabel)
-        self.contentLabel.then {
+        self.contentView.addSubview(contentTextView)
+        self.contentTextView.then {
             $0.backgroundColor = .white
             $0.makeCornerRadius(radius: 10.0)
-            $0.numberOfLines = 0
-            $0.textAlignment = .center
+            $0.textAlignment = .left
             $0.textColor = .gray04
             $0.font = .medium(14.0)
+            $0.isUserInteractionEnabled = false
+            $0.textContainerInset = UIEdgeInsets(top: 14.0, left: 14.0, bottom: 14.0, right: 14.0)
         }.snp.makeConstraints {
             $0.height.equalTo(134.0)
             $0.left.right.equalToSuperview().inset(14.0)
@@ -82,14 +84,14 @@ class ContentTastesCell: UICollectionViewCell {
         }.snp.makeConstraints {
             $0.height.equalTo(20.0)
             $0.left.equalToSuperview().inset(24.0)
-            $0.top.equalTo(self.contentLabel.snp.bottom).offset(18.0)
+            $0.top.equalTo(self.contentTextView.snp.bottom).offset(18.0)
         }
         
         self.contentView.addSubview(starView)
         self.starView.snp.makeConstraints {
             $0.right.equalToSuperview().inset(18.0)
             $0.height.equalTo(34.0)
-            $0.top.equalTo(self.contentLabel.snp.bottom).offset(10.0)
+            $0.top.equalTo(self.contentTextView.snp.bottom).offset(10.0)
             $0.bottom.equalToSuperview().inset(26.0)
         }
     }
@@ -104,14 +106,14 @@ class ContentTastesCell: UICollectionViewCell {
         self.starView.setStar(score: tastePost.star, sense: tastePost.category)
         
         self.keywordLabel.text = tastePost.keyword
-        self.contentLabel.text = tastePost.content
+        self.contentTextView.text = tastePost.content
         
         if tastePost.content == "" {
-            self.contentLabel.snp.updateConstraints {
+            self.contentTextView.snp.updateConstraints {
                 $0.height.equalTo(0)
             }
         } else {
-            self.contentLabel.snp.updateConstraints {
+            self.contentTextView.snp.updateConstraints {
                 $0.height.equalTo(134.0)
             }
         }
