@@ -9,6 +9,7 @@ import UIKit
 
 import RxSwift
 import RxCocoa
+import RxKeyboard
 
 class EmailPasswordViewController: SignUpBaseViewController {
     static var creatingUser = CreatingUser(nickname: "", isAlarmOn: false, email: "", password: "", alarmDate: "")
@@ -309,5 +310,10 @@ class EmailPasswordViewController: SignUpBaseViewController {
                 self.passwordRepeatTextfield.isHidden = !$0
             }
             .disposed(by: disposeBag)
+        
+        RxKeyboard.instance.visibleHeight
+            .drive { height in
+                
+            }
     }
 }
