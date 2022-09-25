@@ -1,8 +1,8 @@
 //
-//  TastesStorageViewModel.swift
+//  SenseViewModel.swift
 //  FiveSenses
 //
-//  Created by Nam Jun Lee on 2022/08/21.
+//  Created by Nam Jun Lee on 2022/09/25.
 //
 
 import UIKit
@@ -10,9 +10,9 @@ import UIKit
 import RxSwift
 import RxCocoa
 
-class TastesStorageViewModel: BaseViewModel {
+class SenseViewModel: BaseViewModel {
     struct Input {
-        var currentSortType = BehaviorRelay<PostSortType>(value: .desc)
+        var currentCategory = BehaviorRelay<FiveSenses>(value: .sight)
     }
     struct Output {
         var tastePosts = BehaviorRelay<[Post]>(value: [])
@@ -23,6 +23,7 @@ class TastesStorageViewModel: BaseViewModel {
     var output: Output? = Output()
     
     var currentPage = 0
+    private var currentLoadingType: PostLoadingType = .refresh
     
     private var disposeBag = DisposeBag()
     
@@ -31,11 +32,17 @@ class TastesStorageViewModel: BaseViewModel {
         
         NotificationCenter.default.addObserver(self, selector: #selector(writeBottomSheetDidDismiss), name: .didWriteViewDismiss, object: nil)
 
-        self.input!.currentSortType
+        self.input?.currentCategory
             .bind { [weak self] _ in
                 self?.currentPage = 0
                 self?.output!.tastePosts.accept([])
                 self?.loadPosts(loadingType: .refresh)
+            }
+            .disposed(by: disposeBag)
+        
+        self.output!.numberOfPosts
+            .bind { [weak self] _ in
+                self?.load()
             }
             .disposed(by: disposeBag)
     }
@@ -45,22 +52,26 @@ class TastesStorageViewModel: BaseViewModel {
     }
     
     func loadPosts(loadingType: PostLoadingType = .more) {
-//        PostServices.getCountOfPost(sense: self.input?.currentCategory.value ?? .dontKnow)
-//           .bind(to: self.output!.numberOfPosts)
-//           .disposed(by: self.disposeBag)
+        self.currentLoadingType = loadingType
         
-        let pageToLoad = (loadingType == .refresh) ? 0 : self.currentPage
+        PostServices.getCountOfPost(sense: self.input?.currentCategory.value ?? .dontKnow)
+           .bind(to: self.output!.numberOfPosts)
+           .disposed(by: self.disposeBag)
+    }
+    
+    private func load() {
+        let pageToLoad = (self.currentLoadingType == .refresh) ? 0 : self.currentPage
         
         PostServices.getPosts(
             page: pageToLoad,
             size: 10,
-            sort: self.input!.currentSortType.value,
-            category: nil,
+            sort: .desc,
+            category: self.input?.currentCategory.value,
             star: nil,
             createdDate: nil)
         .map { [weak self] in
             guard let self = self else { return [] }
-            switch loadingType {
+            switch self.currentLoadingType {
             case .refresh:
                 var newPost: [Post] = []
                 for post in ($0?.data?.content ?? []) {
@@ -98,10 +109,4 @@ class TastesStorageViewModel: BaseViewModel {
             items: items
         )]
     }
-    
-}
-
-enum PostLoadingType {
-    case refresh
-    case more
 }

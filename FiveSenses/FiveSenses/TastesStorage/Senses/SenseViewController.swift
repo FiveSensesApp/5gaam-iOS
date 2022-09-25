@@ -6,12 +6,15 @@
 //
 
 import UIKit
+import RxSwift
 
 class SenseViewController: BaseTastesViewController {
-    let filterTitles = FiveSenses.allCases.map { $0.name }
+    let filterTitles = FiveSenses.allCases.map { $0 }
     
     lazy var adapter = Adapter(collectionView: self.tastesCollectionView)
-    var viewModel = TastesStorageViewModel()
+    var viewModel = SenseViewModel()
+    
+    var disposeBag = DisposeBag()
     
     override func loadView() {
         super.loadView()
@@ -45,13 +48,20 @@ class SenseViewController: BaseTastesViewController {
         self.tastesCollectionView.delegate = self.adapter
         self.tastesCollectionView.dataSource = self.adapter
         
-        self.adapter.reload(sections: self.viewModel.toCollectionSections(cellType: KeywordTastesCell.self))
+        self.viewModel.output?.tastePosts
+            .bind { [weak self] _ in
+                self?.adapter.reload(sections: self?.viewModel.toCollectionSections(cellType: KeywordTastesCell.self) ?? [])
+            }
+            .disposed(by: disposeBag)
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        self.viewModel.loadPosts()
+        if self.filterCollectionView.indexPathsForSelectedItems.isNilOrEmpty {
+            self.filterCollectionView.selectItem(at: IndexPath(item: 0, section: 0), animated: false, scrollPosition: .left)
+            self.viewModel.loadPosts(loadingType: .refresh)
+        }
     }
 }
 
@@ -86,18 +96,22 @@ extension SenseViewController: AdapterDelegate {
 }
 
 extension SenseViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        self.viewModel.input?.currentCategory.accept(self.filterTitles[indexPath.item])
+    }
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return self.filterTitles.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TastesFilterCell.identifier, for: indexPath) as! TastesFilterCell
-        cell.titleLabel.text = filterTitles[indexPath.item]
+        cell.titleLabel.text = filterTitles[indexPath.item].name
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let width = (self.filterTitles[indexPath.item] as NSString).size(withAttributes: [.font: UIFont.bold(16.0)]).width
+        let width = (self.filterTitles[indexPath.item].name as NSString).size(withAttributes: [.font: UIFont.bold(16.0)]).width
         
         return CGSize(width: width + 29.0, height: 36.0)
     }

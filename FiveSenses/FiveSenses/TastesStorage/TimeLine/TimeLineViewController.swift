@@ -90,7 +90,7 @@ final class TimeLineViewController: BaseTastesViewController {
         
         if self.filterCollectionView.indexPathsForSelectedItems.isNilOrEmpty {
             self.filterCollectionView.selectItem(at: IndexPath(item: 0, section: 0), animated: false, scrollPosition: .left)
-            self.viewModel.loadPosts()
+            self.viewModel.loadPosts(loadingType: .refresh)
         }
     }
 }
@@ -130,6 +130,14 @@ extension TimeLineViewController: AdapterDelegate {
 }
 
 extension TimeLineViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if self.filterTitles[indexPath.item] == "최신순" {
+            self.viewModel.input?.currentSortType.accept(.desc)
+        } else if self.filterTitles[indexPath.item] == "오래된순" {
+            self.viewModel.input?.currentSortType.accept(.asc)
+        }
+    }
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return 2
     }

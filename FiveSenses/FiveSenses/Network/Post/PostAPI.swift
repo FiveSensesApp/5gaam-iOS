@@ -23,7 +23,11 @@ enum PostAPI {
         star: Int? = nil,
         createdDate: String? = nil
     )
-    case getCountOfPost(sense: FiveSenses)
+    case getCountOfPost(
+        sense: FiveSenses?,
+        star: Int? = nil,
+        createdDate: String? = nil
+    )
     case createPost(creatingPost: CreatingPost)
 }
 
@@ -75,9 +79,14 @@ extension PostAPI: TargetType, AccessTokenAuthorizable {
                 ].compactMapValues { $0 },
                 encoding: URLEncoding.default
             )
-        case .getCountOfPost(let sense):
+        case .getCountOfPost(let sense, let star, let createdDate):
             return .requestParameters(
-                parameters: ["userId": Constants.CurrentToken?.userId ?? -1, "category": sense.category],
+                parameters: [
+                    "userId": Constants.CurrentToken?.userId ?? -1,
+                    "category": sense?.category,
+                    "star": star,
+                    "createdDate": createdDate
+                ].compactMapValues { $0 },
                 encoding: URLEncoding.default
             )
         case .createPost(let creatingPost):
