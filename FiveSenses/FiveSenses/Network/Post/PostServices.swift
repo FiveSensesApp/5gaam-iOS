@@ -64,4 +64,19 @@ class PostServices: Networkable {
                 return response?.data ?? 0
             }
     }
+    
+    struct CreatePostResponse: ResponseBase {
+        var meta: APIMeta
+        var data: Post?
+    }
+    
+    static func createPost(creatingPost: CreatingPost) -> Observable<Post?> {
+        PostServices.provider
+            .rx.request(.createPost(creatingPost: creatingPost))
+            .asObservable()
+            .map {
+                let response = $0.data.decode(CreatePostResponse.self)
+                return response?.data
+            }
+    }
 }

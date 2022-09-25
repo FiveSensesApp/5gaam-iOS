@@ -22,6 +22,8 @@ class BaseBottomSheetController: UIViewController {
     
     var disposeBag = DisposeBag()
     
+    var dismissView = UIView()
+    
     convenience init(title: String?, content: UIView, contentHeight: CGFloat) {
         self.init()
         
@@ -65,6 +67,15 @@ class BaseBottomSheetController: UIViewController {
             $0.bottom.equalToSuperview().inset(60.0)
             $0.top.equalTo(self.cancelButton.snp.bottom).offset(7.0)
         }
+        
+        self.view.addSubview(dismissView)
+        self.dismissView.then {
+            $0.backgroundColor = .clear
+        }.snp.makeConstraints {
+            $0.left.right.equalToSuperview()
+            $0.top.equalToSuperview()
+            $0.bottom.equalTo(contentView.snp.top)
+        }
     }
     
     override func viewDidLayoutSubviews() {
@@ -99,6 +110,13 @@ class BaseBottomSheetController: UIViewController {
         
         self.cancelButton.rx.tap
             .bind { [weak self] in
+                self?.dismissActionSheet()
+            }
+            .disposed(by: self.disposeBag)
+        
+        self.dismissView.rx.tapGesture()
+            .when(.recognized)
+            .bind { [weak self] _ in
                 self?.dismissActionSheet()
             }
             .disposed(by: self.disposeBag)

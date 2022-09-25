@@ -49,3 +49,41 @@ struct Post: Codable {
         try container.encode(modifiedDate, forKey: .modifiedDate)
     }
 }
+
+struct CreatingPost: Codable {
+    var category: FiveSenses
+    var keyword: String
+    var star: Int
+    var content: String
+    
+    enum CodingKeys: String, CodingKey {
+        case category
+        case keyword
+        case star
+        case content
+    }
+    
+    init(category: FiveSenses, keyword: String, star: Int, content: String) {
+        self.category = category
+        self.keyword = keyword
+        self.star = star
+        self.content = content
+    }
+    
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        let categoryString = try values.decode(String.self, forKey: .category)
+        category = FiveSenses.senseByCategory(category: categoryString)
+        keyword = try values.decode(String.self, forKey: .keyword)
+        star = try values.decode(Int.self, forKey: .star)
+        content = try values.decode(String.self, forKey: .content)
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(category.category, forKey: .category)
+        try container.encode(keyword, forKey: .keyword)
+        try container.encode(star, forKey: .star)
+        try container.encode(content, forKey: .content)
+    }
+}

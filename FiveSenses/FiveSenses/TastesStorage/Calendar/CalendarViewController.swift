@@ -91,8 +91,6 @@ class CalendarViewController: BaseTastesViewController {
         self.tastesCollectionView.delegate = self.adapter
         self.tastesCollectionView.dataSource = self.adapter
         
-        self.viewModel.loadPosts()
-        
         self.adapter.reload(sections: self.viewModel.toCollectionSections(cellType: KeywordTastesCell.self))
         
         
@@ -152,6 +150,12 @@ class CalendarViewController: BaseTastesViewController {
                 }
             }
             .disposed(by: disposeBag)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        self.viewModel.loadPosts()
     }
     
     func calendarStyle() {

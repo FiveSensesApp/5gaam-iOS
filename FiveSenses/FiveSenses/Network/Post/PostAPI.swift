@@ -24,6 +24,7 @@ enum PostAPI {
         createdDate: String? = nil
     )
     case getCountOfPost(sense: FiveSenses)
+    case createPost(creatingPost: CreatingPost)
 }
 
 extension PostAPI: TargetType, AccessTokenAuthorizable {
@@ -37,6 +38,8 @@ extension PostAPI: TargetType, AccessTokenAuthorizable {
             return ""
         case .getCountOfPost:
             return "/count"
+        case .createPost:
+            return ""
         }
     }
     
@@ -46,6 +49,8 @@ extension PostAPI: TargetType, AccessTokenAuthorizable {
             return .get
         case .getCountOfPost:
             return .get
+        case .createPost:
+            return .post
         }
     }
     
@@ -75,6 +80,8 @@ extension PostAPI: TargetType, AccessTokenAuthorizable {
                 parameters: ["userId": Constants.CurrentToken?.userId ?? -1, "category": sense.category],
                 encoding: URLEncoding.default
             )
+        case .createPost(let creatingPost):
+            return .requestJSONEncodable(creatingPost)
         }
     }
     

@@ -30,15 +30,24 @@ class TastesStorageViewModel: BaseViewModel {
     
     init(input: Input? = nil) {
         self.input = input
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(writeBottomSheetDidDismiss), name: .didWriteViewDismiss, object: nil)
+
     }
     
-    func loadPosts() {
+    @objc private func writeBottomSheetDidDismiss() {
+        self.loadPosts(loadingType: .refresh)
+    }
+    
+    func loadPosts(loadingType: PostLoadingType = .more) {
         PostServices.getCountOfPost(sense: self.input?.currentCategory.value ?? .dontKnow)
            .bind(to: self.output!.numberOfPosts)
            .disposed(by: self.disposeBag)
         
+        let pageToLoad = (loadingType == .refresh) ? 0 : self.currentPage
+        
         PostServices.getPosts(
-            page: currentPage,
+            page: pageToLoad,
             size: 10,
             sort: self.input?.currentSortType.value ?? .desc,
             category: self.input?.currentCategory.value,
@@ -46,7 +55,27 @@ class TastesStorageViewModel: BaseViewModel {
             createdDate: nil)
         .map { [weak self] in
             guard let self = self else { return [] }
-            return self.output!.tastePosts.value + ($0?.data?.content ?? [])
+            switch loadingType {
+            case .refresh:
+                var newPost: [Post] = []
+                for post in ($0?.data?.content ?? []) {
+                    if !self.output!.tastePosts.value.contains(where: { $0.id == post.id }) {
+                        newPost.append(post)
+                    }
+                }
+                
+                return newPost + self.output!.tastePosts.value
+            case .more:
+                self.currentPage += 1
+                var newPost: [Post] = []
+                for post in ($0?.data?.content ?? []) {
+                    if !self.output!.tastePosts.value.contains(where: { $0.id == post.id }) {
+                        newPost.append(post)
+                    }
+                }
+                
+                return self.output!.tastePosts.value + newPost
+            }
         }
         .bind(to: self.output!.tastePosts)
         .disposed(by: self.disposeBag)
@@ -60,9 +89,14 @@ class TastesStorageViewModel: BaseViewModel {
         }
         
         return [Section(
-            header: Header(model: BaseTastesViewController.Model.header("2"), viewType: TastesTotalCountHeaderView.self),
+            header: Header(model: BaseTastesViewController.Model.header("\(self.output?.numberOfPosts.value ?? 0)"), viewType: TastesTotalCountHeaderView.self),
             items: items
         )]
     }
     
+}
+
+enum PostLoadingType {
+    case refresh
+    case more
 }

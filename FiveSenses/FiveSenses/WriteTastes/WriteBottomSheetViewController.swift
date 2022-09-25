@@ -39,14 +39,14 @@ final class WriteBottomSheetViewController: BaseBottomSheetController {
     
     weak var tabBar: UITabBar?
     weak var writeButton: UIButton?
-    
-    var continueWrite: () -> Void = { }
-    var backToCategorySelect: () -> Void = { }
+    var writebuttonView = UIView()
+    var emptyAlertLabel = UILabel()
     
     convenience init(type: WriteBottomSheetType, tabBar: UITabBar, writeButton: UIButton) {
         self.init()
         
         self.writeButton = writeButton
+        
         self.currentType = type
         self.tabBar = tabBar
         for item in self.tabBar?.items ?? [] {
@@ -58,6 +58,7 @@ final class WriteBottomSheetViewController: BaseBottomSheetController {
     class func showBottomSheet(viewController: UIViewController, type: WriteBottomSheetType, tabBar: UITabBar, writeButton: UIButton) {
         let vc = WriteBottomSheetViewController(type: type, tabBar: tabBar, writeButton: writeButton)
         vc.modalPresentationStyle = .overCurrentContext
+        vc.isBackgroundDismissOn = false
         viewController.present(vc, animated: false)
         switch type {
         case .category:
@@ -91,6 +92,8 @@ final class WriteBottomSheetViewController: BaseBottomSheetController {
     override func dismissActionSheet() {
         super.dismissActionSheet()
         
+        NotificationCenter.default.post(name: .didWriteViewDismiss, object: nil)
+        
         self.writeButton?.setImage(UIImage(named: "기록 시작 버튼"), for: .normal)
         for (index, item) in (self.tabBar?.items ?? []).enumerated() {
             item.isEnabled = true
@@ -123,12 +126,24 @@ final class WriteBottomSheetViewController: BaseBottomSheetController {
             $0.edges.equalToSuperview()
         }
         
+        if let writeButton = writeButton {
+            self.view.addSubview(writebuttonView)
+            writebuttonView.frame = writeButton.frame
+            writebuttonView.backgroundColor = .clear
+        }
+        
         switch self.currentType {
         case .category:
             self.setCategoryView()
         case .write:
             self.setWriteView()
         }
+        
+        self.emptyAlertLabel.isHidden = true
+        self.emptyAlertLabel.textAlignment = .center
+        self.emptyAlertLabel.font = .semiBold(16.0)
+        self.emptyAlertLabel.textColor = .black
+        self.emptyAlertLabel.text = "키워드와 별점은 필수입니다!"
     }
     
     override func viewDidLoad() {
@@ -167,18 +182,13 @@ final class WriteBottomSheetViewController: BaseBottomSheetController {
                 }
             }
             .disposed(by: disposeBag)
-    }
-    
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touchView = touches.first?.view else { return }
         
-        if (
-            !self.contentView.subviews.contains(touchView) &&
-            !self.writeView.subviews.contains(touchView) &&
-            !self.writeCategorySelectView.contains(touchView)
-        ) && self.isBackgroundDismissOn {
-            self.dismissActionSheet()
-        }
+        self.writebuttonView.rx.tapGesture()
+            .when(.recognized)
+            .bind { [weak self] _ in
+                self?.writeButtonTapped()
+            }
+            .disposed(by: disposeBag)
     }
     
     override var prefersStatusBarHidden: Bool {
@@ -202,6 +212,7 @@ final class WriteBottomSheetViewController: BaseBottomSheetController {
     }
     
     func setCategoryView() {
+        self.emptyAlertLabel.removeFromSuperview()
         self.writeView.removeFromSuperview()
         self.currentType = .category
         self.contentView.addSubview(self.writeCategorySelectView)
@@ -225,11 +236,29 @@ final class WriteBottomSheetViewController: BaseBottomSheetController {
         self.writeView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
+        self.contentView.addSubview(self.emptyAlertLabel)
+        self.emptyAlertLabel.snp.makeConstraints {
+            $0.bottom.equalToSuperview().inset(30.0)
+            $0.left.right.equalToSuperview()
+        }
     }
     
     private func showReSelectAlert() {
         self.view.endEditing(true)
-        CategoryReselectAlert.showAlert(viewController: self, title: "다시 선택하시겠습니까?", content: "작성한 글은 저장되지 않아요.", buttonTitle: "뒤로가기", cancelButtonTitle: "계속쓰기", okAction: self.backToCategorySelect, cancelAction: self.continueWrite)
+        
+        let alert = CategoryReselectAlert(title: "다시 선택하시겠습니까?", content: "작성한 글은 저장되지 않아요.", okButtonTitle: "뒤로가기", cancelButtonTitle: "계속쓰기")
+        alert.modalPresentationStyle = .overCurrentContext
+        alert.modalTransitionStyle = .crossDissolve
+        
+        alert.okButton.rx.tap
+            .bind { [weak self] in
+                self?.setCategoryView()
+            }.disposed(by: disposeBag)
+        alert.cancelButton.rx.tap
+            .bind {
+                alert.dismiss(animated: true)
+            }.disposed(by: disposeBag)
+        self.present(alert, animated: true)
     }
     
     private func mask() {
@@ -248,6 +277,65 @@ final class WriteBottomSheetViewController: BaseBottomSheetController {
         path.append(UIBezierPath(rect: CGRect(x: 0, y: 0, width: Constants.DeviceWidth, height: 594.0)))
         layer.path = path.cgPath
         self.containerView.layer.mask = layer
+    }
+    
+    private func writeButtonTapped() {
+        switch self.currentType {
+        case .category:
+            self.dismissActionSheet()
+        case .write:
+            self.writePost()
+        }
+    }
+    
+    private func writePost() {
+        guard !self.writeView.keywordTextField.text.isNilOrEmpty && self.writeView.starView.score != 0 else {
+            self.emptyAlertLabel.isHidden = false
+            return
+        }
+        
+        PostServices.createPost(creatingPost: CreatingPost(
+            category: self.writeView.currentSense ?? .dontKnow,
+            keyword: self.writeView.keywordTextField.text ?? "",
+            star: self.writeView.starView.score,
+            content: self.getContentText()
+        )).subscribe(onNext: { [weak self]  in
+            if $0 != nil {
+                self?.showWriteFinishAlert()
+            }
+        })
+        .disposed(by: disposeBag)
+    }
+    
+    private func getContentText() -> String {
+        if self.writeView.memoTextView.text == "함께 기억하고 싶은 이야기가 있다면 \n기록해주세요. (선택 / 최대 100자)" {
+            return ""
+        } else {
+            return self.writeView.memoTextView.text ?? ""
+        }
+    }
+    
+    private func showWriteFinishAlert() {
+        let alert = CategoryReselectAlert(title: "기록 완료", content: "취향 입력이 완료되었어요.", okButtonTitle: "보관함 가기", cancelButtonTitle: "계속쓰기")
+        alert.modalPresentationStyle = .overCurrentContext
+        alert.modalTransitionStyle = .crossDissolve
+        alert.isBackgroundDismissOn = false
+        
+        alert.cancelButton.rx.tap
+            .bind { [weak self] in
+                alert.dismiss(animated: true)
+                self?.setCategoryView()
+            }.disposed(by: disposeBag)
+        alert.okButton.rx.tap
+            .bind { [weak self] in
+                alert.dismiss(animated: true)
+                self?.dismissActionSheet()
+            }.disposed(by: disposeBag)
+        self.present(alert, animated: true)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
     }
 }
 

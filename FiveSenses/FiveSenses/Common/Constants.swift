@@ -171,3 +171,7 @@ enum FiveSenses: Codable, CaseIterable {
         return UIImage(named: self.name + footer)
     }
 }
+
+extension Notification.Name {
+    static let didWriteViewDismiss = Notification.Name("didWriteViewDismiss")
+}

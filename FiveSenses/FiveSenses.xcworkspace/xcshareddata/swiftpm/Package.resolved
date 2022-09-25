@@ -91,6 +91,15 @@
       }
     },
     {
+      "identity" : "pull-to-refresh",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/eggswift/pull-to-refresh",
+      "state" : {
+        "revision" : "a858aaeb44abc6428af916e8496429d244fac053",
+        "version" : "2.9.3"
+      }
+    },
+    {
       "identity" : "reactiveswift",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ReactiveCocoa/ReactiveSwift.git",

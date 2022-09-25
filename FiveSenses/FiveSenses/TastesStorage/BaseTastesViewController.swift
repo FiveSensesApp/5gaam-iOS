@@ -7,6 +7,8 @@
 
 import UIKit
 
+import ESPullToRefresh
+
 class BaseTastesViewController: UIViewController {
     enum Model {
         case header(String)

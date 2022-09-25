@@ -7,6 +7,7 @@ target 'FiveSenses' do
 
   # Pods for FiveSenses 
   pod 'FSCalendar'
+  pod 'Refreshable'
 
   target 'FiveSensesTests' do
     inherit! :search_paths

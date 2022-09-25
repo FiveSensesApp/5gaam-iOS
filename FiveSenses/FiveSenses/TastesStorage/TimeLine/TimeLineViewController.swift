@@ -8,6 +8,7 @@
 import UIKit
 
 import RxSwift
+import ESPullToRefresh
 
 final class TimeLineViewController: BaseTastesViewController {
     let filterTitles = ["최신순", "오래된순"]
@@ -52,10 +53,6 @@ final class TimeLineViewController: BaseTastesViewController {
         self.tastesCollectionView.delegate = self.adapter
         self.tastesCollectionView.dataSource = self.adapter
         
-        self.viewModel.loadPosts()
-        
-        self.adapter.reload(sections: self.viewModel.toCollectionSections(cellType: ContentTastesCell.self))
-        
         self.viewModel.output?.numberOfPosts
             .debug("포스트 갯수")
             .bind { [weak self] in
@@ -65,6 +62,27 @@ final class TimeLineViewController: BaseTastesViewController {
                 }
             }
             .disposed(by: disposeBag)
+        
+        self.viewModel.output?.tastePosts
+            .bind { [weak self] _ in
+                self?.adapter.reload(sections: self?.viewModel.toCollectionSections(cellType: ContentTastesCell.self) ?? [])
+            }
+            .disposed(by: disposeBag)
+        
+        self.tastesCollectionView.es.addInfiniteScrolling(animator: RefreshFooterView(frame: .zero), handler: {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5, execute: { [weak self] in
+                guard let self = self else { return }
+                
+                self.viewModel.loadPosts(loadingType: .more)
+                self.tastesCollectionView.es.stopLoadingMore()
+            })
+        })
+        
+//        self.tastesCollectionView.es.addInfiniteScrolling {
+//            self.viewModel.loadPosts(loadingType: .more)
+//            self.tastesCollectionView.es.stopLoadingMore()
+//            self.tastesCollectionView.es.noticeNoMoreData()
+//        }
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -72,6 +90,7 @@ final class TimeLineViewController: BaseTastesViewController {
         
         if self.filterCollectionView.indexPathsForSelectedItems.isNilOrEmpty {
             self.filterCollectionView.selectItem(at: IndexPath(item: 0, section: 0), animated: false, scrollPosition: .left)
+            self.viewModel.loadPosts()
         }
     }
 }
