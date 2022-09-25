@@ -264,7 +264,7 @@ extension JSONDecoder {
     static var defaultJSONDecoder: JSONDecoder {
         let decoder = JSONDecoder()
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        dateFormatter.dateFormat = DateFormatType.Server.rawValue
         
         // Date format이 다른 경우 대응
         decoder.dateDecodingStrategy = .custom({ (decoder) -> Date in

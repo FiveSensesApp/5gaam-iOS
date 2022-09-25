@@ -195,6 +195,16 @@ final class WriteBottomSheetViewController: BaseBottomSheetController {
         return true
     }
     
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        let touch: UITouch? = touches.first
+        
+        if touch?.view != containerView && self.isBackgroundDismissOn {
+            self.dismissActionSheet()
+        } else if !(touch?.view is UITextField) {
+            self.view.endEditing(true)
+        }
+    }
+    
     private func setCategoryButtons() {
         Observable.merge(
             self.writeCategorySelectView.sightButton.rx.tapGesture().when(.recognized).map { _ in return FiveSenses.sight },
