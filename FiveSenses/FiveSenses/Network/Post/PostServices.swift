@@ -88,4 +88,14 @@ class PostServices: Networkable {
                 return $0.statusCode == 200
             }
     }
+    
+    static func modifyPost(id: Int, creatingPost: CreatingPost)  -> Observable<Post?> {
+        PostServices.provider
+            .rx.request(.modifyPost(id: id, creatingPost: creatingPost))
+            .asObservable()
+            .map {
+                let response = $0.data.decode(CreatePostResponse.self)
+                return response?.data
+            }
+    }
 }

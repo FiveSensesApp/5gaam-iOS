@@ -30,6 +30,7 @@ enum PostAPI {
     )
     case createPost(creatingPost: CreatingPost)
     case deletePost(post: Post)
+    case modifyPost(id: Int, creatingPost: CreatingPost)
 }
 
 extension PostAPI: TargetType, AccessTokenAuthorizable {
@@ -47,6 +48,8 @@ extension PostAPI: TargetType, AccessTokenAuthorizable {
             return ""
         case .deletePost(let post):
             return "/\(post.id)"
+        case .modifyPost(let id, _):
+            return "/\(id)"
         }
     }
     
@@ -60,6 +63,8 @@ extension PostAPI: TargetType, AccessTokenAuthorizable {
             return .post
         case .deletePost:
             return .delete
+        case .modifyPost:
+            return .patch
         }
     }
     
@@ -98,6 +103,8 @@ extension PostAPI: TargetType, AccessTokenAuthorizable {
             return .requestJSONEncodable(creatingPost)
         case .deletePost:
             return .requestPlain
+        case .modifyPost(_, let creatingPost):
+            return .requestJSONEncodable(creatingPost)
         }
     }
     

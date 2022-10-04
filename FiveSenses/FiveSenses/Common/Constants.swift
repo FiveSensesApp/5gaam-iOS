@@ -170,6 +170,10 @@ enum FiveSenses: Codable, CaseIterable {
         let footer = isEmpty ? " 빈별점" : " 별점"
         return UIImage(named: self.name + footer)
     }
+    
+    var backButtonImage: UIImage? {
+        return UIImage(named: "\(self.name)_뒤로가기")
+    }
 }
 
 extension Notification.Name {

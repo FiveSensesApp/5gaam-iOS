@@ -80,12 +80,23 @@ final class TimeLineViewController: BaseTastesViewController {
        
         self.postMenuView.deleteButtonTapped
             .asObservable()
-            .debug()
             .bind { [weak self] _ in
                 self?.dismissPostMenu()
                 self?.showDeleteAlert()
             }
             .disposed(by: disposeBag)
+        
+        self.postMenuView.modifyButtonTapped
+            .asObservable()
+            .bind { [weak self] _ in
+                let vc = ModifyPostViewController()
+                vc.currentPost = self?.postMenuView.post
+                vc.modalPresentationStyle = .fullScreen
+                self?.present(vc, animated: true)
+                self?.dismissPostMenu()
+            }
+            .disposed(by: disposeBag)
+            
     }
     
     override func viewDidAppear(_ animated: Bool) {

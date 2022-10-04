@@ -176,6 +176,8 @@ enum DateFormatType: String {
     case WriteView = "yyyy.MM.dd"
     /// 2022-08-05T14:54:43.19
     case Server = "yyyy-MM-dd'T'HH:mm:ss"
+    /// 12월 11일
+    case ModifyPost = "MM월 dd일"
 }
 
 extension String {
