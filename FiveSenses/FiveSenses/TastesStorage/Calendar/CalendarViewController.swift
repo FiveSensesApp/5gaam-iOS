@@ -212,15 +212,16 @@ extension CalendarViewController: FSCalendarDelegate, FSCalendarDataSource {
     
     func calendar(_ calendar: FSCalendar, boundingRectWillChange bounds: CGRect, animated: Bool) {
         if bounds.size.height > 140.0 {
-            let calendarFrame = CGRect(x: 0, y: calendar.fs_top, width: bounds.size.width, height: 400.0)
+            let calendarFrame = CGRect(x: 0, y: calendar.fs_top, width: Constants.DeviceWidth, height: 400.0)
             calendarView.frame = calendarFrame
             
         } else {
-            let calendarFrame = CGRect(x: 0, y: calendar.fs_top, width: bounds.size.width, height: 141.0)
+            let calendarFrame = CGRect(x: 0, y: calendar.fs_top, width: Constants.DeviceWidth, height: 141.0)
             calendarView.frame = calendarFrame
 //            calendarView.rowHeight = 44.0
         }
         
+        calendarView.superview?.layoutIfNeeded()
         calendarView.reloadData()
 //        self.calendarExpandButton.setNeedsLayout()
     }

@@ -29,6 +29,7 @@ enum PostAPI {
         createdDate: String? = nil
     )
     case createPost(creatingPost: CreatingPost)
+    case deletePost(post: Post)
 }
 
 extension PostAPI: TargetType, AccessTokenAuthorizable {
@@ -44,6 +45,8 @@ extension PostAPI: TargetType, AccessTokenAuthorizable {
             return "/count"
         case .createPost:
             return ""
+        case .deletePost(let post):
+            return "/\(post.id)"
         }
     }
     
@@ -55,6 +58,8 @@ extension PostAPI: TargetType, AccessTokenAuthorizable {
             return .get
         case .createPost:
             return .post
+        case .deletePost:
+            return .delete
         }
     }
     
@@ -91,6 +96,8 @@ extension PostAPI: TargetType, AccessTokenAuthorizable {
             )
         case .createPost(let creatingPost):
             return .requestJSONEncodable(creatingPost)
+        case .deletePost:
+            return .requestPlain
         }
     }
     

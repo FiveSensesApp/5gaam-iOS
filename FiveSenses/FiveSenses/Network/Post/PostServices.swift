@@ -79,4 +79,13 @@ class PostServices: Networkable {
                 return response?.data
             }
     }
+    
+    static func deletePost(post: Post) -> Observable<Bool> {
+        PostServices.provider
+            .rx.request(.deletePost(post: post))
+            .asObservable()
+            .map {
+                return $0.statusCode == 200
+            }
+    }
 }

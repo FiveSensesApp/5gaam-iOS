@@ -77,12 +77,15 @@ final class TimeLineViewController: BaseTastesViewController {
                 self.tastesCollectionView.es.stopLoadingMore()
             })
         })
-        
-//        self.tastesCollectionView.es.addInfiniteScrolling {
-//            self.viewModel.loadPosts(loadingType: .more)
-//            self.tastesCollectionView.es.stopLoadingMore()
-//            self.tastesCollectionView.es.noticeNoMoreData()
-//        }
+       
+        self.postMenuView.deleteButtonTapped
+            .asObservable()
+            .debug()
+            .bind { [weak self] _ in
+                self?.dismissPostMenu()
+                self?.showDeleteAlert()
+            }
+            .disposed(by: disposeBag)
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -92,6 +95,35 @@ final class TimeLineViewController: BaseTastesViewController {
             self.filterCollectionView.selectItem(at: IndexPath(item: 0, section: 0), animated: false, scrollPosition: .left)
             self.viewModel.loadPosts(loadingType: .refresh)
         }
+    }
+    
+    private func showDeleteAlert() {
+        self.view.endEditing(true)
+        
+        let alert = TwoButtonAlertController(title: "정말 삭제하시겠어요?", content: "삭제한 취향은 복구할 수 없어요.", okButtonTitle: "뒤로 가기", cancelButtonTitle: "삭제 하기")
+        alert.modalPresentationStyle = .overCurrentContext
+        alert.modalTransitionStyle = .crossDissolve
+        
+        alert.okButton.rx.tap
+            .bind {
+                alert.dismiss(animated: true)
+            }.disposed(by: disposeBag)
+        alert.cancelButton.rx.tap
+            .flatMap { [weak self] _ -> Observable<Bool> in
+                guard let self = self, let post = self.postMenuView.post else { return Observable.just(false) }
+                
+                return PostServices.deletePost(post: post)
+            }
+            .bind { [weak self] in
+                guard let self = self else { return }
+                if $0 {
+                    self.viewModel.loadPosts(loadingType: .refresh)
+                }
+                self.dismissPostMenu()
+                alert.dismiss(animated: true)
+            }
+            .disposed(by: disposeBag)
+        self.present(alert, animated: true)
     }
 }
 
@@ -104,13 +136,20 @@ extension TimeLineViewController: AdapterDelegate {
             view.totalCountLabel.text = "총 \(count)개"
         case (.post(let post), let cell as ContentTastesCell):
             cell.configure(tastePost: post)
+            cell.tastesView.menuButton
+                .rx.tapGesture()
+                .when(.recognized)
+                .bind { [weak self] _ in
+                    self?.showPostMenu(menuButtonFrame: cell.frame, post: post)
+                }
+                .disposed(by: cell.disposeBag)
         default:
             break
         }
     }
     
     func select(model: Any) {
-        
+        self.dismissPostMenu()
     }
     
     func size(model: Any, containerSize: CGSize) -> CGSize {
