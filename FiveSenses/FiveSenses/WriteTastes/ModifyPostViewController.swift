@@ -18,6 +18,8 @@ class ModifyPostViewController: CMViewController {
     
     var disposeBag = DisposeBag()
     
+    var dismissCompletion: ((_ post: Post) -> Void)?
+    
     override func loadView() {
         super.loadView()
         
@@ -81,6 +83,7 @@ class ModifyPostViewController: CMViewController {
             }
             .bind { [weak self] in
                 if $0 != nil {
+                    self?.dismissCompletion?($0!)
                     self?.dismiss(animated: true)
                 }
             }

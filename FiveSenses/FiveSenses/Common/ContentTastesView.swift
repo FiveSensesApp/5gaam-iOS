@@ -7,6 +7,9 @@
 
 import UIKit
 
+import RxSwift
+import RxCocoa
+
 class ContentTastesView: UIView {
     var menuButton = BaseButton()
     var senseImageView = UIImageView()
@@ -93,5 +96,173 @@ class ContentTastesView: UIView {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+}
+
+class DetailTastesViewController: UIViewController {
+    var tastePost: Post? {
+        didSet {
+            setPostView()
+        }
+    }
+    var contentTastesView = ContentTastesView()
+    var backgroundView = UIView()
+    var postMenuView = PostMenuView()
+    
+    private var disposeBag = DisposeBag()
+    var isPostMenuOpen = false
+    
+    private var closeButton = BaseButton()
+    
+    convenience init(post: Post) {
+        self.init()
+        self.tastePost = post
+    }
+    
+    override func loadView() {
+        self.view = UIView()
+        
+        self.setPostView()
+        
+        self.view.addSubview(backgroundView)
+        self.backgroundView.backgroundColor = UIColor(hex: "000000", alpha: 0.7)
+        backgroundView.snp.makeConstraints { $0.edges.equalToSuperview() }
+        self.view.addSubview(contentTastesView)
+       
+        
+        self.contentTastesView.snp.makeConstraints {
+            $0.left.right.equalToSuperview().inset(20.0)
+            $0.centerY.equalToSuperview()
+        }
+        
+        self.contentTastesView.addSubview(closeButton)
+        self.closeButton.then {
+            $0.setImage(UIImage(named: "닫기"), for: .normal)
+        }.snp.makeConstraints {
+            $0.width.height.equalTo(30.0)
+            $0.top.equalToSuperview().inset(17.0)
+            $0.left.equalToSuperview().inset(11.0)
+        }
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        self.closeButton.rx.tapGesture()
+            .when(.recognized)
+            .bind { [weak self] _ in
+                self?.dismiss(animated: true)
+            }
+            .disposed(by: disposeBag)
+        
+        self.contentTastesView.menuButton
+            .rx.tap
+            .bind { [weak self] in
+                self?.showPostMenu()
+            }
+            .disposed(by: disposeBag)
+        
+        self.postMenuView.deleteButtonTapped
+            .asObservable()
+            .bind { [weak self] _ in
+                self?.dismissPostMenu()
+                self?.showDeleteAlert()
+            }
+            .disposed(by: disposeBag)
+        
+        self.postMenuView.modifyButtonTapped
+            .asObservable()
+            .bind { [weak self] _ in
+                let vc = ModifyPostViewController()
+                vc.dismissCompletion = {
+                    self?.tastePost = $0
+                }
+                vc.currentPost = self?.postMenuView.post
+                vc.modalPresentationStyle = .fullScreen
+                self?.present(vc, animated: true)
+                self?.dismissPostMenu()
+            }
+            .disposed(by: disposeBag)
+    }
+    
+    private func setPostView() {
+        guard let tastePost = self.tastePost else { return }
+        
+        self.contentTastesView.menuButton.setImage(UIImage(named: "메뉴(공유,수정,삭제)")?.withTintColor(tastePost.category.color), for: .normal)
+        self.contentTastesView.senseImageView.image = tastePost.category.characterImage
+        self.contentTastesView.dateLabel.textColor = tastePost.category.color
+        self.contentTastesView.dateLabel.text = tastePost.createdDate.toString(format: .WriteView)
+        self.contentTastesView.starView.setStar(score: tastePost.star, sense: tastePost.category)
+        
+        self.contentTastesView.keywordLabel.text = tastePost.keyword
+        self.contentTastesView.contentTextView.text = tastePost.content
+        
+        if tastePost.content == "" {
+            self.contentTastesView.contentTextView.snp.updateConstraints {
+                $0.height.equalTo(0)
+            }
+        } else {
+            self.contentTastesView.contentTextView.snp.updateConstraints {
+                $0.height.equalTo(134.0)
+            }
+        }
+    }
+    
+    func showPostMenu() {
+        guard !isPostMenuOpen else {
+            self.dismissPostMenu()
+            return
+        }
+        
+        let menuButtonFrame = self.contentTastesView.frame
+        
+        self.postMenuView.post = tastePost
+        self.postMenuView.removeFromSuperview()
+        isPostMenuOpen = true
+        
+        postMenuView.frame = CGRect(
+            x: menuButtonFrame.maxX - 126.0,
+            y: menuButtonFrame.origin.y + 58.0,
+            width: 112.0,
+            height: 150.0
+        )
+        
+        self.view.addSubview(postMenuView)
+    }
+    
+    func dismissPostMenu() {
+        if self.isPostMenuOpen {
+            self.postMenuView.removeFromSuperview()
+            self.isPostMenuOpen = false
+        }
+    }
+    
+    private func showDeleteAlert() {
+        self.view.endEditing(true)
+        
+        let alert = TwoButtonAlertController(title: "정말 삭제하시겠어요?", content: "삭제한 취향은 복구할 수 없어요.", okButtonTitle: "뒤로 가기", cancelButtonTitle: "삭제 하기")
+        alert.modalPresentationStyle = .overCurrentContext
+        alert.modalTransitionStyle = .crossDissolve
+        
+        alert.okButton.rx.tap
+            .bind {
+                alert.dismiss(animated: true)
+            }.disposed(by: disposeBag)
+        alert.cancelButton.rx.tap
+            .flatMap { [weak self] _ -> Observable<Bool> in
+                guard let self = self, let post = self.postMenuView.post else { return Observable.just(false) }
+                
+                return PostServices.deletePost(post: post)
+            }
+            .bind { [weak self] in
+                guard let self = self else { return }
+                if $0 {
+                    self.dismissPostMenu()
+                    alert.dismiss(animated: true)
+                    self.dismiss(animated: true)
+                }
+            }
+            .disposed(by: disposeBag)
+        self.present(alert, animated: true)
     }
 }

@@ -83,7 +83,17 @@ extension ScoreViewController: AdapterDelegate {
     }
     
     func select(model: Any) {
+        guard let model = model as? Model else { return }
         
+        switch (model, view) {
+        case (.post(let post), _):
+            let detailViewController = DetailTastesViewController(post: post)
+            detailViewController.modalPresentationStyle = .overFullScreen
+            detailViewController.modalTransitionStyle = .crossDissolve
+            self.present(detailViewController, animated: true)
+        default:
+            break
+        }
     }
     
     func size(model: Any, containerSize: CGSize) -> CGSize {
