@@ -89,11 +89,24 @@ final class TimeLineViewController: BaseTastesViewController {
         self.postMenuView.modifyButtonTapped
             .asObservable()
             .bind { [weak self] _ in
+                guard let self = self else { return }
+                let post = self.postMenuView.post
+                
                 let vc = ModifyPostViewController()
-                vc.currentPost = self?.postMenuView.post
+                vc.currentPost = post
                 vc.modalPresentationStyle = .fullScreen
-                self?.present(vc, animated: true)
-                self?.dismissPostMenu()
+                vc.dismissCompletion = { newPost in
+                    guard let index = self.viewModel.output?.tastePosts.value.firstIndex(where: {
+                        post?.id == $0.id
+                    }) else {
+                        return
+                    }
+                    var array = self.viewModel.output!.tastePosts.value
+                    array[index] = newPost
+                    self.viewModel.output?.tastePosts.accept(array)
+                }
+                self.present(vc, animated: true)
+                self.dismissPostMenu()
             }
             .disposed(by: disposeBag)
             
@@ -126,10 +139,19 @@ final class TimeLineViewController: BaseTastesViewController {
                 return PostServices.deletePost(post: post)
             }
             .bind { [weak self] in
-                guard let self = self else { return }
-                if $0 {
-                    self.viewModel.loadPosts(loadingType: .refresh)
+                guard let self = self, let post = self.postMenuView.post else { return }
+                
+                guard $0, let index = self.viewModel.output?.tastePosts.value.firstIndex(where: {
+                    post.id == $0.id
+                }) else {
+                    self.dismissPostMenu()
+                    alert.dismiss(animated: true)
+                    return
                 }
+                
+                var array = self.viewModel.output!.tastePosts.value
+                array.remove(at: index)
+                self.viewModel.output?.tastePosts.accept(array)
                 self.dismissPostMenu()
                 alert.dismiss(animated: true)
             }

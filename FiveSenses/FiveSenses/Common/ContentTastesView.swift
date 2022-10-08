@@ -114,6 +114,13 @@ class DetailTastesViewController: UIViewController {
     
     private var closeButton = BaseButton()
     
+    var postArray: [Post] = [] {
+        didSet {
+            self.changedPostArray.accept(self.postArray)
+        }
+    }
+    lazy var changedPostArray = BehaviorRelay<[Post]>(value: self.postArray)
+    
     convenience init(post: Post) {
         self.init()
         self.tastePost = post
@@ -137,7 +144,7 @@ class DetailTastesViewController: UIViewController {
         
         self.contentTastesView.addSubview(closeButton)
         self.closeButton.then {
-            $0.setImage(UIImage(named: "닫기"), for: .normal)
+            $0.setImage(UIImage(named: "개별 키워드 닫기"), for: .normal)
         }.snp.makeConstraints {
             $0.width.height.equalTo(30.0)
             $0.top.equalToSuperview().inset(17.0)
@@ -173,14 +180,18 @@ class DetailTastesViewController: UIViewController {
         self.postMenuView.modifyButtonTapped
             .asObservable()
             .bind { [weak self] _ in
+                guard let self = self else { return }
                 let vc = ModifyPostViewController()
                 vc.dismissCompletion = {
-                    self?.tastePost = $0
+                    if let index = self.postArray.firstIndex(where: { $0.id == self.tastePost?.id }) {
+                        self.tastePost = $0
+                        self.postArray[index] = $0
+                    }
                 }
-                vc.currentPost = self?.postMenuView.post
+                vc.currentPost = self.postMenuView.post
                 vc.modalPresentationStyle = .fullScreen
-                self?.present(vc, animated: true)
-                self?.dismissPostMenu()
+                self.present(vc, animated: true)
+                self.dismissPostMenu()
             }
             .disposed(by: disposeBag)
     }
@@ -255,8 +266,15 @@ class DetailTastesViewController: UIViewController {
                 return PostServices.deletePost(post: post)
             }
             .bind { [weak self] in
-                guard let self = self else { return }
+                guard let self = self, let post = self.postMenuView.post  else { return }
                 if $0 {
+                    
+                    if let index = self.postArray.firstIndex(where: {
+                        post.id == $0.id
+                    }) {
+                        self.postArray.remove(at: index)
+                    }
+                    
                     self.dismissPostMenu()
                     alert.dismiss(animated: true)
                     self.dismiss(animated: true)

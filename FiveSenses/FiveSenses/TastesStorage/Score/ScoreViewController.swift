@@ -50,6 +50,7 @@ class ScoreViewController: BaseTastesViewController {
         self.tastesCollectionView.dataSource = self.adapter
         
         self.viewModel.output?.tastePosts
+            .debug()
             .bind { [weak self] _ in
                 guard let self = self else { return }
                 
@@ -90,6 +91,10 @@ extension ScoreViewController: AdapterDelegate {
             let detailViewController = DetailTastesViewController(post: post)
             detailViewController.modalPresentationStyle = .overFullScreen
             detailViewController.modalTransitionStyle = .crossDissolve
+            detailViewController.postArray = self.viewModel.output!.tastePosts.value
+            detailViewController.changedPostArray
+                .bind(to: self.viewModel.output!.tastePosts)
+                .disposed(by: disposeBag)
             self.present(detailViewController, animated: true)
         default:
             break

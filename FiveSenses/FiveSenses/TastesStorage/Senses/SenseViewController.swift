@@ -87,6 +87,10 @@ extension SenseViewController: AdapterDelegate {
             let detailViewController = DetailTastesViewController(post: post)
             detailViewController.modalPresentationStyle = .overFullScreen
             detailViewController.modalTransitionStyle = .crossDissolve
+            detailViewController.postArray = self.viewModel.output!.tastePosts.value
+            detailViewController.changedPostArray
+                .bind(to: self.viewModel.output!.tastePosts)
+                .disposed(by: disposeBag)
             self.present(detailViewController, animated: true)
         default:
             break
