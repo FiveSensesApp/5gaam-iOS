@@ -183,6 +183,13 @@ class LoginViewController: UIViewController {
             }
             .disposed(by: disposeBag)
         
+        self.forgetButton
+            .rx.tapGesture()
+            .when(.recognized)
+            .bind { [weak self] _ in
+                self?.navigationController?.pushViewController(FindPasswordViewController(), animated: true)
+            }
+            .disposed(by: disposeBag)
     }
     
     override var prefersStatusBarHidden: Bool {

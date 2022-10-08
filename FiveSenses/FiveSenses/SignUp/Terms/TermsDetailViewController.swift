@@ -22,6 +22,7 @@ class TermsBottomSheetController: BaseBottomSheetController {
         super.loadView()
         
         self.cancelButton.isHidden = true
+        self.view.backgroundColor = .white.withAlphaComponent(0.8)
         
         let subtitleLabel = UILabel()
         self.containerView.addSubview(subtitleLabel)

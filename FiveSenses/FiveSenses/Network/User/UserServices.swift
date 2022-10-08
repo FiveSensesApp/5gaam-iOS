@@ -53,4 +53,13 @@ class UserServices: Networkable {
         var meta: APIMeta
         var data: String?
     }
+    
+    static func lostPassword(email: String) -> Observable<Bool> {
+        UserServices.provider
+            .rx.request(.lostPassword(email: email))
+            .asObservable()
+            .map {
+                return $0.statusCode == 200
+            }
+    }
 }

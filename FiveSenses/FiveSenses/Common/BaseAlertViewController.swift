@@ -20,6 +20,8 @@ class BaseAlertViewController: UIViewController {
     
     var disposeBag = DisposeBag()
     
+    var dismissAction: (() -> Void)?
+    
     convenience init(title: String?, content: String?, buttonTitle: String?) {
         self.init()
         
@@ -31,7 +33,7 @@ class BaseAlertViewController: UIViewController {
     override func loadView() {
         self.view = UIView()
         
-        self.view.backgroundColor = .black.withAlphaComponent(0.7)
+        self.view.backgroundColor = UIColor(hex: "000000").withAlphaComponent(0.7)
         self.view.addSubview(contentView)
         self.contentView.then {
             $0.makeCornerRadius(radius: 12.0)
@@ -83,6 +85,7 @@ class BaseAlertViewController: UIViewController {
         self.okButton.rx.tap
             .bind { [weak self] in
                 self?.dismiss(animated: true)
+                self?.dismissAction?()
             }
             .disposed(by: disposeBag)
     }
@@ -109,13 +112,15 @@ class BaseAlertViewController: UIViewController {
         
         if touch?.view != contentView && self.isBackgroundDismissOn {
             self.dismiss(animated: true)
+            self.dismissAction?()
         }
     }
     
-    class func showAlert(viewController: UIViewController, title: String, content: String, buttonTitle: String) {
+    class func showAlert(viewController: UIViewController, title: String, content: String, buttonTitle: String, dismissAction: (() -> Void)? = nil) {
         let vc = BaseAlertViewController(title: title, content: content, buttonTitle: buttonTitle)
         vc.modalPresentationStyle = .overFullScreen
         vc.modalTransitionStyle = .crossDissolve
+        vc.dismissAction = dismissAction
         viewController.present(vc, animated: true)
     }
 }
