@@ -79,4 +79,49 @@ class PostServices: Networkable {
                 return response?.data
             }
     }
+    
+    static func deletePost(post: Post) -> Observable<Bool> {
+        PostServices.provider
+            .rx.request(.deletePost(post: post))
+            .asObservable()
+            .map {
+                return $0.statusCode == 200
+            }
+    }
+    
+    static func modifyPost(id: Int, creatingPost: CreatingPost)  -> Observable<Post?> {
+        PostServices.provider
+            .rx.request(.modifyPost(id: id, creatingPost: creatingPost))
+            .asObservable()
+            .map {
+                let response = $0.data.decode(CreatePostResponse.self)
+                return response?.data
+            }
+    }
+    
+    struct PostPresentResponse: Codable {
+        struct Data: Codable {
+            var date: Date
+            var isPresent: Bool
+            
+            init(from decoder: Decoder) throws {
+                let values = try decoder.container(keyedBy: CodingKeys.self)
+                date = try values.decode(Date.self, forKey: .date)
+                isPresent = try values.decode(Bool.self, forKey: .isPresent)
+            }
+        }
+        
+        var meta: APIMeta
+        var data: [Data]
+    }
+    
+    static func getIfPostPresent(startDate: Date, endDate: Date) -> Observable<[PostPresentResponse.Data]> {
+        PostServices.provider
+            .rx.request(.getIfPostPresent(startDate: startDate, endDate: endDate))
+            .asObservable()
+            .map {
+                let response = $0.data.decode(PostPresentResponse.self)
+                return response?.data ?? []
+            }
+    }
 }

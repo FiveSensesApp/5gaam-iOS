@@ -274,6 +274,11 @@ extension JSONDecoder {
                 if let date = dateFormatter.date(from: dateStr) {
                     return date
                 } else {
+                    dateFormatter.dateFormat = DateFormatType.Parameter.rawValue
+                    if let date = dateFormatter.date(from: dateStr) {
+                        return date
+                    }
+                    
                     return Date(timeIntervalSince1970: Double(dateStr) ?? 0.0)
                 }
             } else {

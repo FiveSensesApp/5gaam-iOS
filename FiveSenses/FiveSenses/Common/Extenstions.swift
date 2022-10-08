@@ -176,6 +176,10 @@ enum DateFormatType: String {
     case WriteView = "yyyy.MM.dd"
     /// 2022-08-05T14:54:43.19
     case Server = "yyyy-MM-dd'T'HH:mm:ss"
+    /// 12월 11일
+    case ModifyPost = "MM월 dd일"
+    /// 2022-09-11
+    case Parameter = "yyyy-MM-dd"
 }
 
 extension String {
@@ -201,6 +205,35 @@ extension Date {
     func addComponent(value: Int, component: Calendar.Component) -> Date {
         let calendar = Calendar.current
         return calendar.date(byAdding: component, value: value, to: self) ?? self
+    }
+    
+    func isEqual(to date: Date, toGranularity component: Calendar.Component, in calendar: Calendar = .current) -> Bool {
+        calendar.isDate(self, equalTo: date, toGranularity: component)
+    }
+    
+    func isInSameYear(as date: Date) -> Bool { isEqual(to: date, toGranularity: .year) }
+    func isInSameMonth(as date: Date) -> Bool { isEqual(to: date, toGranularity: .month) }
+    func isInSameWeek(as date: Date) -> Bool { isEqual(to: date, toGranularity: .weekOfYear) }
+    
+    func isInSameDay(as date: Date) -> Bool { Calendar.current.isDate(self, inSameDayAs: date) }
+    
+    var isInThisYear:  Bool { isInSameYear(as: Date()) }
+    var isInThisMonth: Bool { isInSameMonth(as: Date()) }
+    var isInThisWeek:  Bool { isInSameWeek(as: Date()) }
+    
+    var isInYesterday: Bool { Calendar.current.isDateInYesterday(self) }
+    var isInToday:     Bool { Calendar.current.isDateInToday(self) }
+    var isInTomorrow:  Bool { Calendar.current.isDateInTomorrow(self) }
+    
+    var isInTheFuture: Bool { self > Date() }
+    var isInThePast:   Bool { self < Date() }
+    
+    func startOfMonth() -> Date {
+        return Calendar.current.date(from: Calendar.current.dateComponents([.year, .month], from: Calendar.current.startOfDay(for: self)))!
+    }
+    
+    func endOfMonth() -> Date {
+        return Calendar.current.date(byAdding: DateComponents(month: 1, day: -1), to: self.startOfMonth())!
     }
 }
 

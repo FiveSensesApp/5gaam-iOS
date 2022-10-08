@@ -20,6 +20,9 @@ class BaseTastesViewController: UIViewController {
     
     var firstWriteView = FirstWriteView()
     
+    var postMenuView = PostMenuView()
+    var isPostMenuOpen = false
+    
     var filterCollectionViewFlowLayout: UICollectionViewFlowLayout? {
         didSet {
             if let layout = filterCollectionViewFlowLayout {
@@ -102,6 +105,36 @@ class BaseTastesViewController: UIViewController {
         
         userNickname.append((self.firstWriteView.titleLabel.attributedText ?? NSMutableAttributedString()))
         self.firstWriteView.titleLabel.attributedText = userNickname
+    }
+    
+    func showPostMenu(menuButtonFrame: CGRect, post: Post) {
+        guard !isPostMenuOpen else { return }
+        
+        self.postMenuView.post = post
+        self.postMenuView.removeFromSuperview()
+        isPostMenuOpen = true
+        
+        postMenuView.frame = CGRect(
+            x: menuButtonFrame.maxX - 126.0,
+            y: menuButtonFrame.origin.y + 58.0,
+            width: 112.0,
+            height: 150.0
+        )
+        
+        self.tastesCollectionView.addSubview(postMenuView)
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let _ = touches.first?.view else { return }
+        
+        self.dismissPostMenu()
+    }
+    
+    func dismissPostMenu() {
+        if self.isPostMenuOpen {
+            self.postMenuView.removeFromSuperview()
+            self.isPostMenuOpen = false
+        }
     }
 }
 

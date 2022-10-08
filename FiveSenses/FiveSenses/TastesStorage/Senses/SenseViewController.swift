@@ -80,7 +80,21 @@ extension SenseViewController: AdapterDelegate {
     }
     
     func select(model: Any) {
+        guard let model = model as? Model else { return }
         
+        switch (model, view) {
+        case (.post(let post), _):
+            let detailViewController = DetailTastesViewController(post: post)
+            detailViewController.modalPresentationStyle = .overFullScreen
+            detailViewController.modalTransitionStyle = .crossDissolve
+            detailViewController.postArray = self.viewModel.output!.tastePosts.value
+            detailViewController.changedPostArray
+                .bind(to: self.viewModel.output!.tastePosts)
+                .disposed(by: disposeBag)
+            self.present(detailViewController, animated: true)
+        default:
+            break
+        }
     }
     
     func size(model: Any, containerSize: CGSize) -> CGSize {
