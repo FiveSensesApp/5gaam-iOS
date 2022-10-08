@@ -1,20 +1,24 @@
 PODS:
   - FSCalendar (2.8.4)
   - Refreshable (1.2.0)
+  - Toaster (2.3.0)
 
 DEPENDENCIES:
   - FSCalendar
   - Refreshable
+  - Toaster
 
 SPEC REPOS:
   trunk:
     - FSCalendar
     - Refreshable
+    - Toaster
 
 SPEC CHECKSUMS:
   FSCalendar: 2d1d0d9398f12d439f55c1fe0f01525b151b8260
   Refreshable: 0f76b6d198178e6cd2823a553fbf4e84a3dba527
+  Toaster: c3473963c78e8cabbf6ea6f11ad0fdaae6f54987
 
-PODFILE CHECKSUM: f5db945eecaa5fc05860e194cde51561694574e3
+PODFILE CHECKSUM: c57115c6f4792e40a4cf11628e8df95b699f6ea0
 
 COCOAPODS: 1.11.3

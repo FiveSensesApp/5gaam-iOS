@@ -9,6 +9,7 @@ import UIKit
 
 import RxSwift
 import RxCocoa
+import Toaster
 
 enum SignTextFieldType {
     case email
@@ -76,7 +77,10 @@ class SignTextField: CMTextField {
                 .flatMap { text -> Observable<Bool> in
                     if pred.evaluate(with: text) {
                         return UserServices.validateDuplicate(email: text).map {
-                            $0?.meta.code == 200
+                            if $0?.meta.code != 200 {
+                                Toast(text: $0?.meta.msg ?? "").show()
+                            }
+                            return $0?.meta.code == 200
                         }
                     } else {
                         return Observable.just(false)
