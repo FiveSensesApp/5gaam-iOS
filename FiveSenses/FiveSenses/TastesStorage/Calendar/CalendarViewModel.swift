@@ -13,11 +13,12 @@ import RxCocoa
 class CalendarViewModel: BaseViewModel {
     struct Input {
         var currentDate = BehaviorRelay<Date>(value: Date())
-        var currentStar = BehaviorRelay<Int>(value: 5)
+        var currentPageDate = BehaviorRelay<Date>(value: Date())
     }
     struct Output {
         var tastePosts = BehaviorRelay<[Post]>(value: [])
         var numberOfPosts = BehaviorRelay<Int>(value: 0)
+        var presentPosts = BehaviorRelay<[PostServices.PostPresentResponse.Data]>(value: [])
     }
     
     var input: Input?
@@ -28,12 +29,13 @@ class CalendarViewModel: BaseViewModel {
     
     private var disposeBag = DisposeBag()
     
+    
     init() {
         self.input = Input()
         
         NotificationCenter.default.addObserver(self, selector: #selector(writeBottomSheetDidDismiss), name: .didWriteViewDismiss, object: nil)
 
-        self.input?.currentStar
+        self.input?.currentDate
             .bind { [weak self] _ in
                 self?.currentPage = 0
                 self?.output!.tastePosts.accept([])
@@ -46,6 +48,16 @@ class CalendarViewModel: BaseViewModel {
                 self?.load()
             }
             .disposed(by: disposeBag)
+        
+        self.input?.currentPageDate
+            .distinctUntilChanged {
+                $0.isInSameMonth(as: $1)
+            }
+            .flatMap {
+                PostServices.getIfPostPresent(startDate: $0.startOfMonth(), endDate: $0.endOfMonth())
+            }
+            .bind(to: self.output!.presentPosts)
+            .disposed(by: disposeBag)
     }
     
     @objc private func writeBottomSheetDidDismiss() {
@@ -55,7 +67,7 @@ class CalendarViewModel: BaseViewModel {
     func loadPosts(loadingType: PostLoadingType = .more) {
         self.currentLoadingType = loadingType
         
-        PostServices.getCountOfPost(sense: nil, star: self.input!.currentStar.value)
+        PostServices.getCountOfPost(sense: nil, createdDate: self.input!.currentDate.value.toString(format: .Parameter))
            .bind(to: self.output!.numberOfPosts)
            .disposed(by: self.disposeBag)
     }
@@ -68,8 +80,8 @@ class CalendarViewModel: BaseViewModel {
             size: 10,
             sort: .desc,
             category: nil,
-            star: self.input!.currentStar.value,
-            createdDate: nil)
+            star: nil,
+            createdDate: self.input!.currentDate.value.toString(format: .Parameter))
         .map { [weak self] in
             guard let self = self else { return [] }
             switch self.currentLoadingType {

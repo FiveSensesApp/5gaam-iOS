@@ -31,6 +31,7 @@ enum PostAPI {
     case createPost(creatingPost: CreatingPost)
     case deletePost(post: Post)
     case modifyPost(id: Int, creatingPost: CreatingPost)
+    case getIfPostPresent(startDate: Date, endDate: Date)
 }
 
 extension PostAPI: TargetType, AccessTokenAuthorizable {
@@ -50,6 +51,8 @@ extension PostAPI: TargetType, AccessTokenAuthorizable {
             return "/\(post.id)"
         case .modifyPost(let id, _):
             return "/\(id)"
+        case .getIfPostPresent:
+            return "/present-between"
         }
     }
     
@@ -65,6 +68,8 @@ extension PostAPI: TargetType, AccessTokenAuthorizable {
             return .delete
         case .modifyPost:
             return .patch
+        case .getIfPostPresent:
+            return .get
         }
     }
     
@@ -105,6 +110,14 @@ extension PostAPI: TargetType, AccessTokenAuthorizable {
             return .requestPlain
         case .modifyPost(_, let creatingPost):
             return .requestJSONEncodable(creatingPost)
+        case .getIfPostPresent(let startDate, let endDate):
+            return .requestParameters(
+                parameters: [
+                    "startDate": startDate.toString(format: .Parameter) ?? "",
+                    "endDate": endDate.toString(format: .Parameter) ?? ""
+                ],
+                encoding: URLEncoding.default
+            )
         }
     }
     

@@ -98,4 +98,30 @@ class PostServices: Networkable {
                 return response?.data
             }
     }
+    
+    struct PostPresentResponse: Codable {
+        struct Data: Codable {
+            var date: Date
+            var isPresent: Bool
+            
+            init(from decoder: Decoder) throws {
+                let values = try decoder.container(keyedBy: CodingKeys.self)
+                date = try values.decode(Date.self, forKey: .date)
+                isPresent = try values.decode(Bool.self, forKey: .isPresent)
+            }
+        }
+        
+        var meta: APIMeta
+        var data: [Data]
+    }
+    
+    static func getIfPostPresent(startDate: Date, endDate: Date) -> Observable<[PostPresentResponse.Data]> {
+        PostServices.provider
+            .rx.request(.getIfPostPresent(startDate: startDate, endDate: endDate))
+            .asObservable()
+            .map {
+                let response = $0.data.decode(PostPresentResponse.self)
+                return response?.data ?? []
+            }
+    }
 }

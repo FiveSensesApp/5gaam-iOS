@@ -13,7 +13,7 @@ import RxCocoa
 
 class CalendarViewController: BaseTastesViewController {
     lazy var adapter = Adapter(collectionView: self.tastesCollectionView)
-    var viewModel = TastesStorageViewModel()
+    var viewModel = CalendarViewModel()
     lazy var calendarView = FSCalendar(frame: CGRect(x: 0, y: 0, width: Constants.DeviceWidth, height: 141.0))
     
     var calendarLeftButton = UIButton()
@@ -91,9 +91,6 @@ class CalendarViewController: BaseTastesViewController {
         self.tastesCollectionView.delegate = self.adapter
         self.tastesCollectionView.dataSource = self.adapter
         
-        self.adapter.reload(sections: self.viewModel.toCollectionSections(cellType: KeywordTastesCell.self))
-        
-        
         self.calendarView.addSubview(calendarLeftButton)
         _ = self.calendarLeftButton.then {
             $0.setImage(UIImage(named: "왼쪽꺽쇠"), for: .normal)
@@ -150,12 +147,20 @@ class CalendarViewController: BaseTastesViewController {
                 }
             }
             .disposed(by: disposeBag)
+        
+        self.viewModel.output?.tastePosts
+            .bind { [weak self] _ in
+                guard let self = self else { return }
+                
+                self.adapter.reload(sections: self.viewModel.toCollectionSections(cellType: KeywordTastesCell.self))
+            }
+            .disposed(by: disposeBag)
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        self.viewModel.loadPosts()
+//        self.viewModel.loadPosts()
     }
     
     func calendarStyle() {
@@ -205,8 +210,27 @@ class CalendarViewController: BaseTastesViewController {
 }
 
 extension CalendarViewController: FSCalendarDelegate, FSCalendarDataSource {
+    func isPresentPost(on date: Date) -> Bool {
+        if let data = self.viewModel.output!.presentPosts.value.first(where: {
+            $0.date.isInSameDay(as: date)
+        }) {
+            return data.isPresent
+        } else {
+            return false
+        }
+    }
+    
+    func calendarCurrentPageDidChange(_ calendar: FSCalendar) {
+        self.viewModel.input!.currentPageDate.accept(calendar.currentPage)
+    }
+    
+    func calendar(_ calendar: FSCalendar, didSelect date: Date, at monthPosition: FSCalendarMonthPosition) {
+        self.viewModel.input!.currentDate.accept(date)
+    }
+    
     func calendar(_ calendar: FSCalendar, cellFor date: Date, at position: FSCalendarMonthPosition) -> FSCalendarCell {
         let cell = calendar.dequeueReusableCell(withIdentifier: CalendarCell.identifier, for: date, at: position) as! CalendarCell
+        cell.indicator.isHidden = !self.isPresentPost(on: date)
         return cell
     }
     
@@ -297,7 +321,21 @@ extension CalendarViewController: AdapterDelegate {
     }
     
     func select(model: Any) {
+        guard let model = model as? Model else { return }
         
+        switch (model, view) {
+        case (.post(let post), _):
+            let detailViewController = DetailTastesViewController(post: post)
+            detailViewController.modalPresentationStyle = .overFullScreen
+            detailViewController.modalTransitionStyle = .crossDissolve
+            detailViewController.postArray = self.viewModel.output!.tastePosts.value
+            detailViewController.changedPostArray
+                .bind(to: self.viewModel.output!.tastePosts)
+                .disposed(by: disposeBag)
+            self.present(detailViewController, animated: true)
+        default:
+            break
+        }
     }
     
     func size(model: Any, containerSize: CGSize) -> CGSize {

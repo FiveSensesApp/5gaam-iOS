@@ -50,7 +50,6 @@ class ScoreViewController: BaseTastesViewController {
         self.tastesCollectionView.dataSource = self.adapter
         
         self.viewModel.output?.tastePosts
-            .debug()
             .bind { [weak self] _ in
                 guard let self = self else { return }
                 
