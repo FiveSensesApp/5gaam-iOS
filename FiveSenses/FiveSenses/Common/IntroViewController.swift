@@ -60,14 +60,14 @@ class IntroViewController: UIViewController {
             } else {
                 Constants.CurrentToken = nil
             }
-            UIApplication.shared.keyWindow?.replaceRootViewController(OnBoardingViewController(), animated: true, completion: nil)
-//            self?.lottieView.play(completion: { _ in
-//                if Constants.CurrentToken == nil {
-//                    UIApplication.shared.keyWindow?.replaceRootViewController(OnBoardingViewController(), animated: true, completion: nil)
-//                } else {
-//                    UIApplication.shared.keyWindow?.replaceRootViewController(MainViewController.makeMainViewController(), animated: true, completion: nil)
-//                }
-//            })
+//            UIApplication.shared.keyWindow?.replaceRootViewController(OnBoardingViewController(), animated: true, completion: nil)
+            self?.lottieView.play(completion: { _ in
+                if Constants.CurrentToken == nil {
+                    UIApplication.shared.keyWindow?.replaceRootViewController(OnBoardingViewController(), animated: true, completion: nil)
+                } else {
+                    UIApplication.shared.keyWindow?.replaceRootViewController(MainViewController.makeMainViewController(), animated: true, completion: nil)
+                }
+            })
         })
     }
 }
