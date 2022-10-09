@@ -31,14 +31,13 @@ class SettingViewController: BaseSettingViewController {
         self.scrollView.addSubview(self.contentView)
         let contentView = self.contentView as! UIStackView
         contentView.then {
-            
             $0.backgroundColor = .white
             $0.spacing = 24.0
             $0.axis = .vertical
-        
         }.snp.makeConstraints {
             $0.edges.equalToSuperview()
             $0.width.equalToSuperview()
+            $0.height.greaterThanOrEqualToSuperview()
         }
         
         // MARK: - 알림 / 시간
@@ -202,6 +201,12 @@ class SettingViewController: BaseSettingViewController {
                 if let self = self {
                     TwoButtonAlertController.showAlert(viewController: self, title: "정말 탈퇴하실 건가요?", content: "그동안의 기록들이 모두 사라져요.", buttonTitle: "예", cancelButtonTitle: "아니요")
                 }
+            }
+            .disposed(by: disposeBag)
+        
+        self.navigationBarView.backButton.rx.tap
+            .bind { [weak self] in
+                self?.dismiss(animated: true)
             }
             .disposed(by: disposeBag)
     }

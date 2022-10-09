@@ -15,6 +15,8 @@ enum UserAPI {
     case validateEmail(_ email: String)
     case validateEmailSendCode(email: String, code: String)
     case lostPassword(email: String)
+    case getUserInfo
+    case updateUser(updatingUser: UpdatingUser)
     
     struct SendingEmail: Codable {
         var email: String
@@ -36,6 +38,10 @@ extension UserAPI: TargetType, AccessTokenAuthorizable {
             return "/validate-email-send-code"
         case .lostPassword:
             return "/lost-pw"
+        case .getUserInfo:
+            return "/\(Constants.CurrentToken?.userId ?? "-1")"
+        case .updateUser:
+            return "/\(Constants.CurrentToken?.userId ?? "-1")"
         }
     }
     
@@ -49,6 +55,10 @@ extension UserAPI: TargetType, AccessTokenAuthorizable {
             return .post
         case .lostPassword:
             return .post
+        case .getUserInfo:
+            return .get
+        case .updateUser:
+            return .put
         }
     }
     
@@ -62,6 +72,10 @@ extension UserAPI: TargetType, AccessTokenAuthorizable {
             return .requestParameters(parameters: ["email": email, "emailCode": code], encoding: URLEncoding.default)
         case .lostPassword(let email):
             return .requestParameters(parameters: ["userEmail": email], encoding: URLEncoding.default)
+        case .getUserInfo:
+            return .requestPlain
+        case .updateUser(let updatingUser):
+            return .requestJSONEncodable(updatingUser)
         }
     }
     
@@ -79,6 +93,10 @@ extension UserAPI: TargetType, AccessTokenAuthorizable {
             return .none
         case .lostPassword:
             return .none
+        case .getUserInfo:
+            return .bearer
+        case .updateUser:
+            return .bearer
         }
     }
 }

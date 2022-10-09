@@ -29,7 +29,7 @@ struct CreatedUser: Codable {
     var id: Int
     var nickname: String
     var isAlarmOn: Bool
-    var alarmDate: Date?
+    var alarmDate: String?
     var email: String
     var emailValidCode: String?
     var createdDate: Date
@@ -56,5 +56,19 @@ struct TokenContent: Codable, Claims {
         case userId = "sub"
         case auth
         case exp
+    }
+}
+
+struct UpdatingUser: Codable {
+    var userId: Int
+    var nickname: String
+    var isAlarmOn: Bool
+    var alarmDate: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case nickname
+        case isAlarmOn
+        case alarmDate
+        case userId
     }
 }

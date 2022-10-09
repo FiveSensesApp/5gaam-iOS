@@ -55,7 +55,7 @@ class PostServices: Networkable {
         var data: Int?
     }
     
-    static func getCountOfPost(sense: FiveSenses?, star: Int? = nil, createdDate: String? = nil) -> Observable<Int> {
+    static func getCountOfPost(sense: FiveSenses? = nil, star: Int? = nil, createdDate: String? = nil) -> Observable<Int> {
         PostServices.provider
             .rx.request(.getCountOfPost(sense: sense, star: star, createdDate: createdDate))
             .asObservable()

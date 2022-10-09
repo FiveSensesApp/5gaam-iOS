@@ -1,5 +1,5 @@
 //
-//  TastesStorageViewModel.swift
+//  TimeLineViewModel.swift
 //  FiveSenses
 //
 //  Created by Nam Jun Lee on 2022/08/21.
@@ -10,7 +10,7 @@ import UIKit
 import RxSwift
 import RxCocoa
 
-class TastesStorageViewModel: BaseViewModel {
+class TimeLineViewModel: BaseViewModel {
     struct Input {
         var currentSortType = BehaviorRelay<PostSortType>(value: .desc)
     }
@@ -45,9 +45,12 @@ class TastesStorageViewModel: BaseViewModel {
     }
     
     func loadPosts(loadingType: PostLoadingType = .more) {
-//        PostServices.getCountOfPost(sense: self.input?.currentCategory.value ?? .dontKnow)
-//           .bind(to: self.output!.numberOfPosts)
-//           .disposed(by: self.disposeBag)
+        PostServices.getCountOfPost()
+            .do {
+                Constants.TotalCountOfPost = $0
+            }
+            .bind(to: self.output!.numberOfPosts)
+            .disposed(by: self.disposeBag)
         
         let pageToLoad = (loadingType == .refresh) ? 0 : self.currentPage
         

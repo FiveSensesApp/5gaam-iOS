@@ -62,4 +62,42 @@ class UserServices: Networkable {
                 return $0.statusCode == 200
             }
     }
+    
+    struct UserInfoResponse: ResponseBase {
+        var meta: APIMeta
+        var data: UserInfo?
+    }
+    
+    static func getUserInfo() -> Observable<UserInfo?> {
+        UserServices.provider
+            .rx.request(.getUserInfo)
+            .asObservable()
+            .map {
+                let response = $0.data.decode(UserInfoResponse.self)
+                return response?.data
+            }
+    }
+    
+    static func updateUser(updatingUser: UpdatingUser) -> Observable<Bool> {
+        UserServices.provider
+            .rx.request(.updateUser(updatingUser: updatingUser))
+            .asObservable()
+            .map {
+                return $0.statusCode == 200
+            }
+    }
+}
+
+struct UserInfo: Codable {
+    var createdUser: CreatedUser
+    var badgeRepresent: String?
+    var isMarketingAllowed: Bool?
+    
+    
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        badgeRepresent = try values.decode(String?.self, forKey: .badgeRepresent)
+        isMarketingAllowed = try values.decode(Bool?.self, forKey: .isMarketingAllowed)
+        createdUser = try decoder.singleValueContainer().decode(CreatedUser.self)
+    }
 }
