@@ -14,7 +14,7 @@ final class TimeLineViewController: BaseTastesViewController {
     let filterTitles = ["최신순", "오래된순"]
     
     lazy var adapter = Adapter(collectionView: self.tastesCollectionView)
-    var viewModel = TastesStorageViewModel()
+    var viewModel = TimeLineViewModel()
     private var disposeBag = DisposeBag()
     
     override func loadView() {

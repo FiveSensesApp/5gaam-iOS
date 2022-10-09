@@ -304,7 +304,12 @@ extension JSONDecoder {
 
 extension Data {
     func decode<T: Decodable>(_ type: T.Type) -> T? {
-        return try? JSONDecoder.defaultJSONDecoder.decode(type, from: self)
+        do {
+            return try JSONDecoder.defaultJSONDecoder.decode(type, from: self)
+        } catch {
+            print(error)
+            return nil
+        }
     }
 }
 

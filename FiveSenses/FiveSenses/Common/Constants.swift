@@ -37,6 +37,7 @@ class Constants {
     
     static var CurrentUser: CreatedUser? = nil
     static var CurrentToken: TokenContent? = nil
+    static var TotalCountOfPost: Int = 0
 }
 
 enum StorageType: String {

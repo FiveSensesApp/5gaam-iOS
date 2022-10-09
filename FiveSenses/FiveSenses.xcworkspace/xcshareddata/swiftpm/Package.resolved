@@ -91,6 +91,15 @@
       }
     },
     {
+      "identity" : "pocketsvg",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pocketsvg/PocketSVG",
+      "state" : {
+        "revision" : "d30bf6678ae93763782a4e19973dc64762d42c4a",
+        "version" : "2.7.2"
+      }
+    },
+    {
       "identity" : "pull-to-refresh",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/eggswift/pull-to-refresh",
