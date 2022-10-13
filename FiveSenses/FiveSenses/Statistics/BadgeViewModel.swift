@@ -18,6 +18,7 @@ class BadgeViewModel: BaseViewModel {
     struct Output {
         var representBadge = BehaviorRelay<Badge?>(value: nil)
         var badges = BehaviorRelay<[Badge]>(value: [])
+        var numberOfBadges = BehaviorRelay<Int>(value: 0)
     }
     
     var input: Input?
@@ -46,6 +47,15 @@ class BadgeViewModel: BaseViewModel {
         
         BadgeServices.getUserBadgesByUser()
             .bind(to: self.output!.badges)
+            .disposed(by: disposeBag)
+        
+        self.output!.badges
+            .map {
+                return $0.filter {
+                    !$0.isBefore
+                }.count
+            }
+            .bind(to: self.output!.numberOfBadges)
             .disposed(by: disposeBag)
     }
 }

@@ -42,33 +42,25 @@ class BadgeViewController: CMViewController {
             $0.height.equalTo(0)
         }
         
-        let scrollView = UIScrollView()
-        self.view.addSubview(scrollView)
-        scrollView.then {
+        let topView = UIView()
+        self.contentView.addSubview(topView)
+        topView.then {
             $0.backgroundColor = .white
-            $0.bounces = false
         }.snp.makeConstraints {
-            $0.edges.equalToSuperview()
+            $0.top.equalToSuperview().inset(44.0)
+            $0.left.right.equalToSuperview()
         }
         
-        self.contentView.removeFromSuperview()
-        scrollView.addSubview(contentView)
-        self.contentView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
-            $0.width.equalToSuperview()
-            $0.height.greaterThanOrEqualToSuperview()
-        }
-        
-        self.contentView.addSubview(backButton)
+        topView.addSubview(backButton)
         self.backButton.then {
             $0.setImage(UIImage(named: "뒤로가기"), for: .normal)
         }.snp.makeConstraints {
             $0.width.height.equalTo(38.0)
-            $0.top.equalToSuperview().inset(44.0)
+            $0.top.equalToSuperview()
             $0.left.equalToSuperview().inset(21.0)
         }
         
-        self.contentView.addSubview(representBadgeImageView)
+        topView.addSubview(representBadgeImageView)
         self.representBadgeImageView.then {
             $0.image = UIImage(named: "대표뱃지) 없을 때")
         }.snp.makeConstraints {
@@ -77,14 +69,14 @@ class BadgeViewController: CMViewController {
             $0.centerX.equalToSuperview()
         }
         
-        self.contentView.addSubview(representBadgeTitleLabel)
+        topView.addSubview(representBadgeTitleLabel)
         self.representBadgeTitleLabel.snp.makeConstraints {
             $0.top.equalTo(self.representBadgeImageView.snp.bottom).offset(14.0)
             $0.height.equalTo(19.0)
             $0.centerX.equalToSuperview()
         }
         
-        self.contentView.addSubview(representBadgeDescriptionLabel)
+        topView.addSubview(representBadgeDescriptionLabel)
         self.representBadgeDescriptionLabel.then {
             $0.font = .medium(14.0)
             $0.textColor = .gray04
@@ -98,39 +90,20 @@ class BadgeViewController: CMViewController {
         
         let lineView = UIView()
         
-        self.contentView.addSubview(lineView)
+        topView.addSubview(lineView)
         lineView.then {
             $0.backgroundColor = .gray02
         }.snp.makeConstraints {
             $0.left.right.equalToSuperview().inset(20.0)
             $0.top.equalTo(self.representBadgeDescriptionLabel.snp.bottom).offset(22.2)
             $0.height.equalTo(1.0)
-        }
-        
-        self.contentView.addSubview(badgeCollectionTitleLabel)
-        self.badgeCollectionTitleLabel.then {
-            $0.font = .bold(20.0)
-            $0.textColor = .black
-            $0.text = "획득한 뱃지"
-        }.snp.makeConstraints {
-            $0.top.equalTo(lineView.snp.bottom).offset(25.0)
-            $0.left.equalToSuperview().inset(25.0)
-            $0.height.equalTo(24.0)
-        }
-        
-        self.contentView.addSubview(badgeCountLabel)
-        self.badgeCountLabel.then {
-            $0.font = .semiBold(16.0)
-            $0.textColor = .gray04
-        }.snp.makeConstraints {
-            $0.top.equalTo(lineView.snp.bottom).offset(30.0)
-            $0.right.equalToSuperview().inset(25.0)
-            $0.height.equalTo(16.0)
+            $0.bottom.equalToSuperview()
         }
         
         self.contentView.addSubview(badgeCollectionView)
         self.badgeCollectionView.then {
             $0.register(BadgeCollectionViewCell.self, forCellWithReuseIdentifier: BadgeCollectionViewCell.identifier)
+            $0.register(BadgeCollectionHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: BadgeCollectionHeaderView.identifier)
             $0.backgroundColor = .white
             _ = ($0.collectionViewLayout as! UICollectionViewFlowLayout).then {
                 // TODO: SE 분기처리
@@ -138,13 +111,15 @@ class BadgeViewController: CMViewController {
                 $0.minimumLineSpacing = 27.0
                 $0.minimumInteritemSpacing = 20.0
             }
+            $0.showsVerticalScrollIndicator = false
+            $0.isScrollEnabled = true
             $0.delegate = self
             $0.dataSource = self
         }.snp.makeConstraints {
-            $0.top.equalTo(badgeCountLabel.snp.bottom).offset(32.0)
+            $0.top.equalTo(topView.snp.bottom)
             $0.left.right.equalToSuperview().inset(41.0)
             $0.bottom.equalToSuperview()
-            $0.height.equalTo(825.0)
+//            $0.height.equalTo(825.0)
         }
     }
     
@@ -183,6 +158,17 @@ class BadgeViewController: CMViewController {
 }
 
 extension BadgeViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: BadgeCollectionHeaderView.identifier, for: indexPath) as! BadgeCollectionHeaderView
+        header.numberLabel.text = "(\(self.viewModel.output!.numberOfBadges.value)/16)"
+        
+        return header
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        return CGSize(width: Constants.DeviceWidth, height: 79.0)
+    }
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return self.viewModel.output!.badges.value.count
     }
@@ -190,7 +176,45 @@ extension BadgeViewController: UICollectionViewDataSource, UICollectionViewDeleg
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BadgeCollectionViewCell.identifier, for: indexPath) as! BadgeCollectionViewCell
         cell.badge = self.viewModel.output!.badges.value[indexPath.item]
-        print("@@@@@@@")
+    
         return cell
+    }
+}
+
+final class BadgeCollectionHeaderView: UICollectionReusableView {
+    static let identifier = "BadgeCollectionHeaderView"
+    
+    var titleLabel = UILabel()
+    var numberLabel = UILabel()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        
+        self.backgroundColor = .white
+        
+        self.addSubview(titleLabel)
+        self.titleLabel.then {
+            $0.font = .bold(20.0)
+            $0.textColor = .black
+            $0.text = "획득한 뱃지"
+        }.snp.makeConstraints {
+            $0.centerY.equalToSuperview()
+            $0.left.equalToSuperview()
+            $0.height.equalTo(24.0)
+        }
+        
+        self.addSubview(numberLabel)
+        self.numberLabel.then {
+            $0.font = .semiBold(16.0)
+            $0.textColor = .gray04
+        }.snp.makeConstraints {
+            $0.centerY.equalToSuperview()
+            $0.right.equalToSuperview()
+            $0.height.equalTo(16.0)
+        }
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }
