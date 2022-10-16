@@ -9,6 +9,7 @@ target 'FiveSenses' do
   pod 'FSCalendar'
   pod 'Refreshable'
   pod 'Toaster'
+  pod 'FSPagerView'
 
   target 'FiveSensesTests' do
     inherit! :search_paths

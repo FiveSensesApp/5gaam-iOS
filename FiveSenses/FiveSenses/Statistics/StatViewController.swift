@@ -10,9 +10,12 @@ import UIKit
 import RxSwift
 import RxCocoa
 import Kingfisher
+import FSPagerView
 
-class StatViewController: CMViewController {
+final class StatViewController: CMViewController {
     var userInfoView = StatUserInfoView()
+    var bannerPagerView = FSPagerView()
+    
     var viewModel = StatViewModel(input: StatViewModel.Input())
     
     private var disposeBag = DisposeBag()
@@ -48,6 +51,20 @@ class StatViewController: CMViewController {
             $0.top.equalToSuperview()
             $0.width.equalToSuperview()
             $0.height.equalTo(397.0)
+        }
+        
+        self.contentView.addSubview(bannerPagerView)
+        self.bannerPagerView.then {
+            $0.register(BannerPagerCell.self, forCellWithReuseIdentifier: BannerPagerCell.identifier)
+            $0.delegate = self
+            $0.dataSource = self
+            $0.automaticSlidingInterval = 2.5
+            $0.isInfinite = true
+            $0.backgroundColor = .clear
+        }.snp.makeConstraints {
+            $0.top.equalTo(self.userInfoView.snp.bottom).offset(20.0)
+            $0.left.right.equalToSuperview().inset(20.0)
+            $0.height.equalTo(self.bannerPagerView.snp.width).multipliedBy(100.0 / 335.0)
         }
     }
     
@@ -132,6 +149,20 @@ class StatViewController: CMViewController {
         super.viewDidLayoutSubviews()
         
         self.userInfoView.roundCorners(corners: [.bottomLeft, .bottomRight], radius: 30.0)
+    }
+}
+
+extension StatViewController: FSPagerViewDelegate, FSPagerViewDataSource {
+    func numberOfItems(in pagerView: FSPagerView) -> Int {
+        return 3
+    }
+    
+    func pagerView(_ pagerView: FSPagerView, cellForItemAt index: Int) -> FSPagerViewCell {
+        let cell = pagerView.dequeueReusableCell(withReuseIdentifier: BannerPagerCell.identifier, at: index) as! BannerPagerCell
+        
+        cell.bannerImageView.image = UIImage(named: "Banner\(index + 1)")
+        
+        return cell
     }
 }
 
