@@ -157,6 +157,10 @@ enum FiveSenses: Codable, CaseIterable {
         }
     }
     
+    var monthlyCharacterImage: UIImage {
+        return UIImage(named: "이달의 감각 - \(self.name)")!
+    }
+    
     static func senseByCategory(category: String) -> FiveSenses {
         for sense in FiveSenses.allCases {
             if category == sense.category {

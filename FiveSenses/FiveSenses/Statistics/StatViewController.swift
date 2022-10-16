@@ -16,6 +16,7 @@ final class StatViewController: CMViewController {
     var userInfoView = StatUserInfoView()
     var bannerPagerView = FSPagerView()
     var postDistributionView = PostDistributionView()
+    var monthlySenseView = MonthlySenseView()
     
     var viewModel = StatViewModel(input: StatViewModel.Input())
     
@@ -45,12 +46,15 @@ final class StatViewController: CMViewController {
             $0.edges.equalToSuperview()
             $0.width.equalToSuperview()
             $0.height.greaterThanOrEqualToSuperview()
+//            $0.center.equalToSuperview()
+//            $0.edges.equalTo(scrollView.contentLayoutGuide)
+//            $0.width.equalTo(scrollView.frameLayoutGuide)
+//            $0.height.equalTo(scrollView.frameLayoutGuide).priority(250.0)
         }
         
         self.contentView.addSubview(userInfoView)
-        userInfoView.snp.makeConstraints {
-            $0.top.equalToSuperview()
-            $0.width.equalToSuperview()
+        self.userInfoView.snp.makeConstraints {
+            $0.top.left.right.equalToSuperview()
             $0.height.equalTo(397.0)
         }
         
@@ -73,6 +77,14 @@ final class StatViewController: CMViewController {
             $0.top.equalTo(self.bannerPagerView.snp.bottom).offset(20.0)
             $0.left.right.equalToSuperview().inset(20.0)
             $0.height.equalTo(205.0)
+        }
+        
+        self.contentView.addSubview(monthlySenseView)
+        self.monthlySenseView.snp.makeConstraints {
+            $0.top.equalTo(self.postDistributionView.snp.bottom).offset(20.0)
+            $0.left.right.equalToSuperview().inset(20.0)
+            $0.height.equalTo(400.0)
+            $0.bottom.equalToSuperview().inset(20.0)
         }
     }
     
