@@ -19,10 +19,18 @@ class StatViewModel: BaseViewModel {
         var userInfo = BehaviorRelay<UserInfo?>(value: nil)
         var representBadgeUrl = BehaviorRelay<String?>(value: nil)
         var previewBadgesUrl = BehaviorRelay<[String]>(value: [])
+        var postDistribution = BehaviorRelay<[(sense: FiveSenses, count: Int)]>(value: [])
     }
     
     var input: Input?
     var output: Output? = Output()
+    private var postDistribution: [(sense: FiveSenses, count: Int)] = [] {
+        didSet {
+            if self.postDistribution.count == 6 {
+                self.output!.postDistribution.accept(self.postDistribution)
+            }
+        }
+    }
     
     private var disposeBag = DisposeBag()
     
@@ -46,6 +54,17 @@ class StatViewModel: BaseViewModel {
             }
             .bind(to: self.output!.previewBadgesUrl)
             .disposed(by: self.disposeBag)
+        
+        
+        
+        FiveSenses.allCases.forEach { sense in
+            PostServices.getCountOfPost(sense: sense)
+                .debug("!!!!!!")
+                .bind { [weak self] in
+                    self?.postDistribution.append((sense: sense, count: $0))
+                }
+                .disposed(by: self.disposeBag)
+        }
     }
     
     func reloadUserInfo() {
