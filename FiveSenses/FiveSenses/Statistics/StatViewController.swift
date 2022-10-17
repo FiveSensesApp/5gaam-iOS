@@ -22,6 +22,28 @@ final class StatViewController: CMViewController {
     
     private var disposeBag = DisposeBag()
     
+    var currentMonth = Date() {
+        didSet {
+            self.monthlySenseView.currentMonths = self.makeMonthlySense(monthlydata: self.viewModel.output!.monthlySenses.value)
+            
+            if currentMonth.isInSameMonth(as: self.viewModel.output!.monthlySenses.value[0].month) {
+                self.monthlySenseView.leftButton.isEnabled = false
+                self.monthlySenseView.leftButton.imageView?.tintColor = .gray02
+            } else {
+                self.monthlySenseView.leftButton.isEnabled = true
+                self.monthlySenseView.leftButton.imageView?.tintColor = .gray04
+            }
+            
+            if currentMonth.isInSameMonth(as: self.viewModel.output!.monthlySenses.value.last!.month) {
+                self.monthlySenseView.rightButton.isEnabled = false
+                self.monthlySenseView.rightButton.imageView?.tintColor = .gray02
+            } else {
+                self.monthlySenseView.rightButton.isEnabled = true
+                self.monthlySenseView.rightButton.imageView?.tintColor = .gray04
+            }
+        }
+    }
+    
     override func loadView() {
         super.loadView()
         
@@ -37,6 +59,7 @@ final class StatViewController: CMViewController {
         scrollView.then {
             $0.delaysContentTouches = false
             $0.backgroundColor = .gray01
+            $0.bounces = false
         }.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
@@ -46,10 +69,6 @@ final class StatViewController: CMViewController {
             $0.edges.equalToSuperview()
             $0.width.equalToSuperview()
             $0.height.greaterThanOrEqualToSuperview()
-//            $0.center.equalToSuperview()
-//            $0.edges.equalTo(scrollView.contentLayoutGuide)
-//            $0.width.equalTo(scrollView.frameLayoutGuide)
-//            $0.height.equalTo(scrollView.frameLayoutGuide).priority(250.0)
         }
         
         self.contentView.addSubview(userInfoView)
@@ -142,6 +161,24 @@ final class StatViewController: CMViewController {
             }
             .disposed(by: self.disposeBag)
         
+        self.viewModel.output!.thisMonthSense
+            .bind { [weak self] in
+                self?.monthlySenseView.sense = $0
+            }
+            .disposed(by: self.disposeBag)
+        
+        self.viewModel.output!.thisMonthPostCount
+            .bind { [weak self] in
+                self?.monthlySenseView.thisMonthSenseCountLabel.text = "신규 기록 \($0)개!"
+            }
+            .disposed(by: self.disposeBag)
+        
+        self.viewModel.output!.monthlySenses
+            .bind  { [weak self] in
+                self?.monthlySenseView.currentMonths = self?.makeMonthlySense(monthlydata: $0) ?? []
+            }
+            .disposed(by: self.disposeBag)
+        
         // MARK: - Button Actions
         self.userInfoView.nicknameChangeButton
             .rx.tap
@@ -171,6 +208,43 @@ final class StatViewController: CMViewController {
                 self?.present(vc, animated: true)
             }
             .disposed(by: disposeBag)
+        
+        self.monthlySenseView.leftButton
+            .rx.tap
+            .bind { [weak self] in
+                self?.currentMonth = self?.currentMonth.addComponent(value: -1, component: .month) ?? Date()
+            }
+            .disposed(by: disposeBag)
+        
+        self.monthlySenseView.rightButton
+            .rx.tap
+            .bind { [weak self] in
+                self?.currentMonth = self?.currentMonth.addComponent(value: 1, component: .month) ?? Date()
+            }
+            .disposed(by: disposeBag)
+        
+    }
+    
+    private func makeMonthlySense(monthlydata: [MonthlyCategory]) -> [MonthlyCategory?] {
+        var array: [MonthlyCategory?] = [nil, nil, nil]
+        
+        monthlydata.enumerated().forEach { (index, value) in
+            if value.month.isInSameMonth(as: currentMonth) {
+                array[1] = value
+                
+                if index - 1 >= 0 {
+                    array[0] = monthlydata[index - 1]
+                }
+                
+                if index + 1 < monthlydata.count {
+                    array[2] = monthlydata[index + 1]
+                }
+                
+                return
+            }
+        }
+        
+        return array
     }
     
     override func viewDidLayoutSubviews() {

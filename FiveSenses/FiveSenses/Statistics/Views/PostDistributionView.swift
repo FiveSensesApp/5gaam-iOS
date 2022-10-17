@@ -78,6 +78,10 @@ final class PostDistributionView: UIView {
         }
         
         for value in values {
+            guard value.count != 0 else {
+               return 
+            }
+            
             let countView = PostCountView(value: value)
             self.postCountStackView.addArrangedSubview(countView)
             countView.value = value
@@ -295,6 +299,9 @@ final class DistributionGraphView: UIView {
             self.imageViewArray[index].snp.updateConstraints {
                 let width = (Constants.DeviceWidth - 70.0) * ratio
                 $0.width.lessThanOrEqualTo(width)
+            }
+            if value.count == 0 {
+                self.labelArray[index].text = ""
             }
         }
     }

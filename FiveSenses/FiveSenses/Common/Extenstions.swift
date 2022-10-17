@@ -180,6 +180,8 @@ enum DateFormatType: String {
     case ModifyPost = "MM월 dd일"
     /// 2022-09-11
     case Parameter = "yyyy-MM-dd"
+    /// 5월
+    case OnlyMonth = "M월"
 }
 
 extension String {

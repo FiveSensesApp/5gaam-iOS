@@ -20,6 +20,9 @@ class StatViewModel: BaseViewModel {
         var representBadgeUrl = BehaviorRelay<String?>(value: nil)
         var previewBadgesUrl = BehaviorRelay<[String]>(value: [])
         var postDistribution = BehaviorRelay<[(sense: FiveSenses, count: Int)]>(value: [])
+        var thisMonthSense = PublishRelay<FiveSenses>()
+        var thisMonthPostCount = PublishRelay<Int>()
+        var monthlySenses = BehaviorRelay<[MonthlyCategory]>(value: [])
     }
     
     var input: Input?
@@ -70,6 +73,19 @@ class StatViewModel: BaseViewModel {
     func reloadUserInfo() {
         UserServices.getUserInfo()
             .bind(to: self.output!.userInfo)
+            .disposed(by: self.disposeBag)
+        
+        StatServices.getStat()
+            .compactMap { $0 }
+            .bind { [weak self] data in
+                guard let self = self else { return }
+                
+                self.output!.thisMonthPostCount.accept(data.countByMonthDtoList.filter { $0.month.isInSameMonth(as: Date()) }.first?.count ?? 0)
+                self.output!.thisMonthSense.accept(data.monthlyCategoryDtoList.filter { $0.month.isInSameMonth(as: Date()) }.first?.category ?? .dontKnow)
+                self.output!.monthlySenses.accept(data.monthlyCategoryDtoList)
+                
+                
+            }
             .disposed(by: self.disposeBag)
     }
 }
