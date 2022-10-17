@@ -23,6 +23,7 @@ class StatViewModel: BaseViewModel {
         var thisMonthSense = PublishRelay<FiveSenses>()
         var thisMonthPostCount = PublishRelay<Int>()
         var monthlySenses = BehaviorRelay<[MonthlyCategory]>(value: [])
+        var totalCount = PublishRelay<Int>()
     }
     
     var input: Input?
@@ -62,7 +63,6 @@ class StatViewModel: BaseViewModel {
         
         FiveSenses.allCases.forEach { sense in
             PostServices.getCountOfPost(sense: sense)
-                .debug("!!!!!!")
                 .bind { [weak self] in
                     self?.postDistribution.append((sense: sense, count: $0))
                 }
@@ -83,7 +83,7 @@ class StatViewModel: BaseViewModel {
                 self.output!.thisMonthPostCount.accept(data.countByMonthDtoList.filter { $0.month.isInSameMonth(as: Date()) }.first?.count ?? 0)
                 self.output!.thisMonthSense.accept(data.monthlyCategoryDtoList.filter { $0.month.isInSameMonth(as: Date()) }.first?.category ?? .dontKnow)
                 self.output!.monthlySenses.accept(data.monthlyCategoryDtoList)
-                
+                self.output!.totalCount.accept(data.totalPost)
                 
             }
             .disposed(by: self.disposeBag)

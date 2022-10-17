@@ -23,6 +23,8 @@ final class MonthlySenseView: UIView {
     
     private lazy var monthCardArray = [month1CardView, month2CardView, month3CardView]
     
+    var emptyImageView = UIImageView()
+    
     var currentMonths: [MonthlyCategory?] = [] {
         didSet {
             guard currentMonths.count == 3 else { return }
@@ -149,6 +151,13 @@ final class MonthlySenseView: UIView {
             $0.width.height.equalTo(44.0)
             $0.left.equalTo(self.monthCardStackView.snp.right).offset(5.0)
             $0.top.equalTo(lineView.snp.bottom).offset(36.0)
+        }
+        
+        self.addSubview(emptyImageView)
+        self.emptyImageView.then {
+            $0.image = UIImage(named: "Empty이 달의 감각")
+        }.snp.makeConstraints {
+            $0.edges.equalToSuperview()
         }
     }
     

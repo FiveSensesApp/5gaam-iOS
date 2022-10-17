@@ -12,6 +12,7 @@ final class PostDistributionView: UIView {
     var subtitleLabel = UILabel()
     var distributionGraphView = DistributionGraphView()
     var postCountStackView = UIStackView()
+    var emptyImageView = UIImageView()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -70,6 +71,13 @@ final class PostDistributionView: UIView {
             $0.left.right.equalToSuperview().inset(23.5)
             $0.height.equalTo(37.0)
         }
+        
+        self.addSubview(emptyImageView)
+        emptyImageView.then {
+            $0.image = UIImage(named: "Empty감각별 분포도")
+        }.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
     }
     
     func setPostCount(values: [(sense: FiveSenses, count: Int)]) {
@@ -79,7 +87,7 @@ final class PostDistributionView: UIView {
         
         for value in values {
             guard value.count != 0 else {
-               return 
+               return
             }
             
             let countView = PostCountView(value: value)

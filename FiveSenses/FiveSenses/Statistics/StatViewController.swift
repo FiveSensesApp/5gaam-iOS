@@ -47,10 +47,6 @@ final class StatViewController: CMViewController {
     override func loadView() {
         super.loadView()
         
-        self.navigationBarView.snp.updateConstraints {
-            $0.height.equalTo(0)
-        }
-        
         self.contentView.removeFromSuperview()
         self.contentView.backgroundColor = .gray01
         
@@ -58,7 +54,7 @@ final class StatViewController: CMViewController {
         self.view.addSubview(scrollView)
         scrollView.then {
             $0.delaysContentTouches = false
-            $0.backgroundColor = .gray01
+            $0.backgroundColor = .white
             $0.bounces = false
         }.snp.makeConstraints {
             $0.edges.equalToSuperview()
@@ -176,6 +172,13 @@ final class StatViewController: CMViewController {
         self.viewModel.output!.monthlySenses
             .bind  { [weak self] in
                 self?.monthlySenseView.currentMonths = self?.makeMonthlySense(monthlydata: $0) ?? []
+            }
+            .disposed(by: self.disposeBag)
+        
+        self.viewModel.output!.totalCount
+            .bind { [weak self] in
+                self?.postDistributionView.emptyImageView.isHidden = ($0 >= 10)
+                self?.monthlySenseView.emptyImageView.isHidden = ($0 >= 10)
             }
             .disposed(by: self.disposeBag)
         

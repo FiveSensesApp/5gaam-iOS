@@ -191,7 +191,20 @@ class SettingViewController: BaseSettingViewController {
         self.logoutButton.rx.tap
             .bind { [weak self] in
                 if let self = self {
-                    TwoButtonAlertController.showAlert(viewController: self, title: "로그아웃", content: "정말 로그아웃 하시겠습니까?", buttonTitle: "예", cancelButtonTitle: "아니요")
+                    let vc = TwoButtonAlertController(title: "로그아웃", content: "정말 로그아웃 하시겠습니까?", okButtonTitle: "예", cancelButtonTitle: "아니요")
+                    vc.modalPresentationStyle = .overFullScreen
+                    vc.modalTransitionStyle = .crossDissolve
+                    vc.disposeBag = DisposeBag()
+                    vc.dismissAction = {
+                        KeyChainController.shared.delete(Constants.ServiceString, account: "Token")
+                        UIApplication.shared.keyWindow?.replaceRootViewController(OnBoardingViewController(), animated: true, completion: nil)
+                    }
+                    vc.cancelButton.rx.tap
+                        .bind {
+                            vc.dismiss(animated: true)
+                        }
+                        .disposed(by: vc.disposeBag)
+                    self.present(vc, animated: true)
                 }
             }
             .disposed(by: disposeBag)
