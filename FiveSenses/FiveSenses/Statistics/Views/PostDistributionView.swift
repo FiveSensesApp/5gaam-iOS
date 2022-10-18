@@ -301,6 +301,7 @@ final class DistributionGraphView: UIView {
             }
             
             let ratio = Double(value.count) / totalCount
+            guard !ratio.isNaN else { return }
             self.imageViewArray[index].image = graphImage
             self.labelArray[index].textColor = value.sense.color
             self.labelArray[index].text = "\(Int(ratio * 100.0))%"

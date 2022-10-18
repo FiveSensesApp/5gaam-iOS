@@ -9,6 +9,7 @@ import UIKit
 
 import Lottie
 import SwiftJWT
+import SwiftyUserDefaults
 
 class IntroViewController: UIViewController {
     var lottieView = AnimationView(name: "Loading5gaam")
