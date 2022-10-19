@@ -7,6 +7,10 @@
 
 import UIKit
 
+import RxSwift
+import RxCocoa
+import SwiftyUserDefaults
+
 final class FirstWriteView: UIView {
     var titleLabel = UILabel()
     
@@ -17,13 +21,32 @@ final class FirstWriteView: UIView {
     var touchButton = WriteToSenseButtonView(image: UIImage(named: "원형) 촉각"), title: "촉각", color: .purple03)
     var dontKnowButton = WriteToSenseButtonView(image: UIImage(named: "원형) 모르겠어요"), title: "모르겠어요", color: .gray04)
     
+    let label = UILabel().then {
+        $0.text = "어떻게 쓰는지 모르겠다면? 👋"
+        $0.font = .bold(16.0)
+        $0.textAlignment = .center
+        $0.textColor = .white
+        $0.backgroundColor = .black
+        $0.makeCornerRadius(radius: 22.5)
+    }
+    
+    var disposeBag = DisposeBag()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        self.backgroundColor = .gray01
-        self.makeCornerRadius(radius: 10.0)
         
-        self.addSubview(titleLabel)
+        let containerView = UIView()
+        self.addSubview(containerView)
+        containerView.backgroundColor = .gray01
+        containerView.makeCornerRadius(radius: 10.0)
+        containerView.snp.makeConstraints {
+            $0.top.equalToSuperview()
+            $0.left.right.equalToSuperview().inset(20.0)
+            $0.height.equalTo(388.0)
+        }
+        
+        containerView.addSubview(titleLabel)
         self.titleLabel.then {
             let string = NSMutableAttributedString(string: "님,\n처음으로 취향을 감각해보세요!", attributes: [.font: UIFont.bold(20.0), .foregroundColor: UIColor.black])
             $0.attributedText = string
@@ -48,7 +71,7 @@ final class FirstWriteView: UIView {
         
         let stackView = UIStackView(arrangedSubviews: [horizontalStackView1, horizontalStackView2])
         
-        self.addSubview(stackView)
+        containerView.addSubview(stackView)
         stackView.then {
             $0.axis = .vertical
             $0.spacing = 8.0
@@ -56,6 +79,25 @@ final class FirstWriteView: UIView {
             $0.bottom.equalToSuperview().inset(24.0)
             $0.left.right.equalToSuperview().inset(13.0)
         }
+        
+        self.addSubview(label)
+        label.snp.makeConstraints {
+            $0.top.equalTo(containerView.snp.bottom).offset(55.0)
+            $0.left.right.equalToSuperview().inset(58.0)
+            $0.height.equalTo(44.0)
+            $0.bottom.equalToSuperview()
+        }
+        
+        self.label.rx.tapGesture()
+            .when(.recognized)
+            .bind { [weak self] _ in
+                if let url = URL(string: "https://www.notion.so/5gaam/5gaam-3b45d6083ad044ab869f0df6378933de") {
+                    UIApplication.shared.open(url)
+                    Defaults[\.hadSeenFirstView] = true
+                    self?.isHidden = true
+                }
+            }
+            .disposed(by: disposeBag)
     }
     
     required init?(coder: NSCoder) {

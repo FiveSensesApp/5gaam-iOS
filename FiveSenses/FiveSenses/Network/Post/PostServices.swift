@@ -10,6 +10,7 @@ import Foundation
 import Moya
 import RxSwift
 import RxMoya
+import SwiftyUserDefaults
 
 class PostServices: Networkable {
     typealias Target = PostAPI
@@ -76,6 +77,9 @@ class PostServices: Networkable {
             .asObservable()
             .map {
                 let response = $0.data.decode(CreatePostResponse.self)
+                if response?.data != nil {
+                    Defaults[\.hadSeenFirstView] = true
+                }
                 return response?.data
             }
     }

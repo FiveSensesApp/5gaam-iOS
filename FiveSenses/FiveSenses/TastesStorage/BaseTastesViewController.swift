@@ -8,6 +8,7 @@
 import UIKit
 
 import ESPullToRefresh
+import SwiftyUserDefaults
 
 class BaseTastesViewController: UIViewController {
     enum Model {
@@ -66,45 +67,23 @@ class BaseTastesViewController: UIViewController {
         self.view.addSubview(firstWriteView)
         self.firstWriteView.snp.makeConstraints {
             $0.top.equalTo(self.filterCollectionView.snp.bottom).offset(9.0)
-            $0.left.right.equalToSuperview().inset(20.0)
-            $0.height.equalTo(388.0)
+            $0.left.right.equalToSuperview()
         }
         
 //        showWritingManual()
     }
     
-    func showWritingManual() {
-        // TODO: 1회 클릭 후 뜨지 않도록
-        let view = UIView().then {
-            $0.backgroundColor = .black
-            $0.makeCornerRadius(radius: 22.5)
-        }
-        let label = UILabel().then {
-            $0.text = "어떻게 쓰는지 모르겠다면? 👋"
-            $0.font = .bold(16.0)
-            $0.textAlignment = .center
-            $0.textColor = .white
-        }
-        
-        view.addSubview(label)
-        label.snp.makeConstraints {
-            $0.left.right.centerY.equalToSuperview()
-        }
-        
-        self.view.addSubview(view)
-        view.snp.makeConstraints {
-            $0.bottom.equalTo(self.view.safeAreaLayoutGuide).inset(38.0)
-            $0.width.equalTo(259.0)
-            $0.height.equalTo(44.0)
-            $0.centerX.equalToSuperview()
-        }
-    }
-    
     func setFirstWriteView(userNickname: String) {
-        let userNickname = NSMutableAttributedString(string: userNickname, attributes: [.font: UIFont.bold(20.0), .foregroundColor: UIColor.gray04])
+        guard !Defaults[\.hadSeenFirstView] else {
+            self.firstWriteView.isHidden = true
+            return
+        }
         
-        userNickname.append((self.firstWriteView.titleLabel.attributedText ?? NSMutableAttributedString()))
+        let userNickname = NSMutableAttributedString(string: userNickname, attributes: [.font: UIFont.bold(20.0), .foregroundColor: UIColor.gray04])
+        let string = NSMutableAttributedString(string: "님,\n처음으로 취향을 감각해보세요!", attributes: [.font: UIFont.bold(20.0), .foregroundColor: UIColor.black])
+        userNickname.append(string)
         self.firstWriteView.titleLabel.attributedText = userNickname
+        self.firstWriteView.isHidden = false
     }
     
     func showPostMenu(menuButtonFrame: CGRect, post: Post) {

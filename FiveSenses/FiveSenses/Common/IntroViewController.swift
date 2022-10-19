@@ -7,6 +7,7 @@
 
 import UIKit
 
+import RxSwift
 import Lottie
 import SwiftJWT
 import SwiftyUserDefaults
@@ -14,6 +15,8 @@ import SwiftyUserDefaults
 class IntroViewController: UIViewController {
     var lottieView = AnimationView(name: "Loading5gaam")
     var copylightImageView = UIImageView()
+    
+    private var disposeBag = DisposeBag()
     
     override func loadView() {
         super.loadView()
@@ -56,16 +59,27 @@ class IntroViewController: UIViewController {
         mainViewController.viewControllers = [vc1, vc2, vc3]
         
         self.lottieView.play(completion: { [weak self] _ in
+            
+            guard let self = self else {
+                UIApplication.shared.keyWindow?.replaceRootViewController(OnBoardingViewController(), animated: true, completion: nil)
+                return
+            }
+            
             if let string = KeyChainController.shared.read(Constants.ServiceString, account: "Token") {
                 Constants.CurrentToken = (try? JWT<TokenContent>(jwtString: string))?.claims
             } else {
                 Constants.CurrentToken = nil
             }
 //            UIApplication.shared.keyWindow?.replaceRootViewController(OnBoardingViewController(), animated: true, completion: nil)
-            self?.lottieView.play(completion: { _ in
+            self.lottieView.play(completion: { _ in
                 if Constants.CurrentToken == nil {
                     UIApplication.shared.keyWindow?.replaceRootViewController(OnBoardingViewController(), animated: true, completion: nil)
                 } else {
+                    UserServices.getUserInfo()
+                        .bind {
+                            Constants.CurrentUser = $0?.createdUser
+                        }
+                        .disposed(by: self.disposeBag)
                     UIApplication.shared.keyWindow?.replaceRootViewController(MainViewController.makeMainViewController(), animated: true, completion: nil)
                 }
             })

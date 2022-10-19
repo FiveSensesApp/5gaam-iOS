@@ -9,6 +9,7 @@ import UIKit
 
 import RxSwift
 import ESPullToRefresh
+import SwiftyUserDefaults
 
 final class TimeLineViewController: BaseTastesViewController {
     let filterTitles = ["최신순", "오래된순"]
@@ -47,21 +48,25 @@ final class TimeLineViewController: BaseTastesViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.setFirstWriteView(userNickname: "워니버니")
-        
         self.adapter.delegate = self
         self.tastesCollectionView.delegate = self.adapter
         self.tastesCollectionView.dataSource = self.adapter
         
         self.viewModel.output?.numberOfPosts
-            .debug("포스트 갯수")
             .bind { [weak self] in
                 guard let self = self else { return }
+                if $0 == 0 {
+                    self.setFirstWriteView(userNickname: Constants.CurrentUser?.nickname ?? "")
+                } else {
+                    self.firstWriteView.isHidden = true
+                }
+                
                 if let headerView = self.tastesCollectionView.visibleSupplementaryViews(ofKind: UICollectionView.elementKindSectionHeader).first as? TastesTotalCountHeaderView {
                     headerView.totalCountLabel.text = "총 \($0)개"
                 }
             }
             .disposed(by: disposeBag)
+        
         
         self.viewModel.output?.tastePosts
             .bind { [weak self] _ in
@@ -110,6 +115,14 @@ final class TimeLineViewController: BaseTastesViewController {
             }
             .disposed(by: disposeBag)
             
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        if self.viewModel.output?.numberOfPosts.value == 0 {
+            self.setFirstWriteView(userNickname: Constants.CurrentUser?.nickname ?? "")
+        }
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -166,6 +179,11 @@ extension TimeLineViewController: AdapterDelegate {
         
         switch (model, view) {
         case (.header(let count), let view as TastesTotalCountHeaderView):
+            if !Defaults[\.hadSeenFirstView] && count == "0" {
+                view.totalCountLabel.isHidden = true
+            } else {
+                view.totalCountLabel.isHidden = false
+            }
             view.totalCountLabel.text = "총 \(count)개"
         case (.post(let post), let cell as ContentTastesCell):
             cell.configure(tastePost: post)

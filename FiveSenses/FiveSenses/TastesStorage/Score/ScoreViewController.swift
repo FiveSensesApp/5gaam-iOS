@@ -8,6 +8,7 @@
 import UIKit
 
 import RxSwift
+import SwiftyUserDefaults
 
 class ScoreViewController: BaseTastesViewController {
     let filters = [5, 4, 3, 2, 1]
@@ -56,6 +57,24 @@ class ScoreViewController: BaseTastesViewController {
                 self.adapter.reload(sections: self.viewModel.toCollectionSections(cellType: KeywordTastesCell.self))
             }
             .disposed(by: disposeBag)
+        
+        self.viewModel.output?.numberOfPosts
+            .bind { [weak self] in
+                if $0 == 0 {
+                    self?.setFirstWriteView(userNickname: Constants.CurrentUser?.nickname ?? "")
+                } else {
+                    self?.firstWriteView.isHidden = true
+                }
+            }
+            .disposed(by: disposeBag)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        if self.viewModel.output?.numberOfPosts.value == 0 {
+            self.setFirstWriteView(userNickname: Constants.CurrentUser?.nickname ?? "")
+        }
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -74,6 +93,11 @@ extension ScoreViewController: AdapterDelegate {
         
         switch (model, view) {
         case (.header(let count), let view as TastesTotalCountHeaderView):
+            if !Defaults[\.hadSeenFirstView] && count == "0" {
+                view.totalCountLabel.isHidden = true
+            } else {
+                view.totalCountLabel.isHidden = false
+            }
             view.totalCountLabel.text = "총 \(count)개"
         case (.post(let post), let cell as KeywordTastesCell):
             cell.configure(post: post)

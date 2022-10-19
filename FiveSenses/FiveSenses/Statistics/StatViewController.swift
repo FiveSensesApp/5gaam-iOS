@@ -269,4 +269,16 @@ extension StatViewController: FSPagerViewDelegate, FSPagerViewDataSource {
         
         return cell
     }
+    
+    func pagerView(_ pagerView: FSPagerView, didSelectItemAt index: Int) {
+        if index == 0 {
+            if let url = URL(string: "https://www.notion.so/5gaam/5gaam-3b45d6083ad044ab869f0df6378933de") {
+                UIApplication.shared.open(url)
+            }
+        } else if index == 2 {
+            if let url = URL(string: "https://www.instagram.com/5gaam_app") {
+                UIApplication.shared.open(url)
+            }
+        }
+    }
 }
