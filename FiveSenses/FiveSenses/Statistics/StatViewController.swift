@@ -17,6 +17,7 @@ final class StatViewController: CMViewController {
     var bannerPagerView = FSPagerView()
     var postDistributionView = PostDistributionView()
     var monthlySenseView = MonthlySenseView()
+    var postCountGraphView = PostCountGraphView()
     
     var viewModel = StatViewModel(input: StatViewModel.Input())
     
@@ -101,6 +102,14 @@ final class StatViewController: CMViewController {
             $0.height.equalTo(400.0)
             $0.bottom.equalToSuperview().inset(20.0)
         }
+        
+        self.contentView.addSubview(postCountGraphView)
+        self.postCountGraphView.snp.makeConstraints {
+            $0.top.equalTo(self.monthlySenseView.snp.bottom).offset(20.0)
+            $0.left.right.equalToSuperview().inset(20.0)
+            $0.height.equalTo(380.0)
+            $0.bottom.equalToSuperview().inset(20.0)
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -158,16 +167,13 @@ final class StatViewController: CMViewController {
             .disposed(by: self.disposeBag)
         
         self.viewModel.output!.thisMonthSense
+            .compactMap { $0 }
             .bind { [weak self] in
-                self?.monthlySenseView.sense = $0
+                self?.monthlySenseView.sense = $0.category
+                self?.monthlySenseView.thisMonthSenseCountLabel.text = "신규 기록 \($0.cnt)개!"
             }
             .disposed(by: self.disposeBag)
         
-        self.viewModel.output!.thisMonthPostCount
-            .bind { [weak self] in
-                self?.monthlySenseView.thisMonthSenseCountLabel.text = "신규 기록 \($0)개!"
-            }
-            .disposed(by: self.disposeBag)
         
         self.viewModel.output!.monthlySenses
             .bind  { [weak self] in

@@ -22,12 +22,19 @@ class BadgeServices: Networkable {
     }
     
     static func getUserBadgesByUser() -> Observable<[Badge]> {
-        BadgeServices.provider
-            .rx.request(.getUserBadgesByUser)
-            .asObservable()
-            .map {
-                let response = $0.data.decode(BadgesResponse.self)
-                return response?.data ?? []
+        BadgeServices.checkUpdate()
+            .flatMap { val -> Observable<[Badge]> in
+                if val == nil {
+                    return Observable.just([])
+                } else {
+                    return BadgeServices.provider
+                        .rx.request(.getUserBadgesByUser)
+                        .asObservable()
+                        .map {
+                            let response = $0.data.decode(BadgesResponse.self)
+                            return response?.data ?? []
+                        }
+                }
             }
     }
     
@@ -52,6 +59,16 @@ class BadgeServices: Networkable {
             .asObservable()
             .map {
                 let response = $0.data.decode(BadgeResponse.self)
+                return response?.data
+            }
+    }
+    
+    static func checkUpdate() -> Observable<[Badge]?> {
+        BadgeServices.provider
+            .rx.request(.checkUpdate)
+            .asObservable()
+            .map {
+                let response = $0.data.decode(BadgesResponse.self)
                 return response?.data
             }
     }

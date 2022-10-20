@@ -20,8 +20,7 @@ class StatViewModel: BaseViewModel {
         var representBadgeUrl = BehaviorRelay<String?>(value: nil)
         var previewBadgesUrl = BehaviorRelay<[String]>(value: [])
         var postDistribution = BehaviorRelay<[(sense: FiveSenses, count: Int)]>(value: [])
-        var thisMonthSense = PublishRelay<FiveSenses>()
-        var thisMonthPostCount = PublishRelay<Int>()
+        var thisMonthSense = PublishRelay<MonthlyCategory?>()
         var monthlySenses = BehaviorRelay<[MonthlyCategory]>(value: [])
         var totalCount = PublishRelay<Int>()
     }
@@ -40,7 +39,9 @@ class StatViewModel: BaseViewModel {
     
     init(input: Input) {
         self.input = input
-        
+    }
+    
+    func reloadUserInfo() {
         self.output!.userInfo
             .compactMap {
                 $0?.badgeRepresent
@@ -68,9 +69,7 @@ class StatViewModel: BaseViewModel {
                 }
                 .disposed(by: self.disposeBag)
         }
-    }
-    
-    func reloadUserInfo() {
+        
         UserServices.getUserInfo()
             .bind(to: self.output!.userInfo)
             .disposed(by: self.disposeBag)
@@ -80,8 +79,7 @@ class StatViewModel: BaseViewModel {
             .bind { [weak self] data in
                 guard let self = self else { return }
                 
-                self.output!.thisMonthPostCount.accept(data.countByMonthDtoList.filter { $0.month.isInSameMonth(as: Date()) }.first?.count ?? 0)
-                self.output!.thisMonthSense.accept(data.monthlyCategoryDtoList.filter { $0.month.isInSameMonth(as: Date()) }.first?.category ?? .dontKnow)
+                self.output!.thisMonthSense.accept(data.monthlyCategoryDtoList.filter { $0.month.isInSameMonth(as: Date()) }.first)
                 self.output!.monthlySenses.accept(data.monthlyCategoryDtoList)
                 self.output!.totalCount.accept(data.totalPost)
                 

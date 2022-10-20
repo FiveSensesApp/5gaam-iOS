@@ -12,7 +12,6 @@ class BadgeCollectionViewCell: UICollectionViewCell {
     
     var badgeImageView = UIImageView()
     var badgeTitleLabel = UILabel()
-    var newIndicatorImageView = UIImageView()
     
     var badge: Badge? {
         didSet {
@@ -40,14 +39,6 @@ class BadgeCollectionViewCell: UICollectionViewCell {
             $0.left.right.bottom.equalToSuperview()
             $0.height.equalTo(21.0)
             $0.top.equalTo(self.badgeImageView.snp.bottom).offset(10.0)
-        }
-        
-        self.contentView.addSubview(newIndicatorImageView)
-        self.newIndicatorImageView.then {
-            $0.image = UIImage(named: "신규 획득 알림")
-        }.snp.makeConstraints {
-            $0.width.height.equalTo(6.0)
-            $0.top.right.equalToSuperview()
         }
     }
     

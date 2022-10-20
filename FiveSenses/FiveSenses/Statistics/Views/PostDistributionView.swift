@@ -68,7 +68,8 @@ final class PostDistributionView: UIView {
             $0.distribution = .fillEqually
         }.snp.makeConstraints {
             $0.top.equalTo(lineView.snp.bottom).offset(15.0)
-            $0.left.right.equalToSuperview().inset(23.5)
+//            $0.left.right.equalToSuperview().inset(23.5)
+            $0.centerX.equalToSuperview()
             $0.height.equalTo(37.0)
         }
         

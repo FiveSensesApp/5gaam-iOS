@@ -9,7 +9,7 @@ import UIKit
 
 import RxSwift
 
-class MainViewController: UITabBarController {
+class MainViewController: UITabBarController, UITabBarControllerDelegate {
     var writeButton = BaseButton()
     var disposeBag = DisposeBag()
     
@@ -35,6 +35,8 @@ class MainViewController: UITabBarController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        self.delegate = self
         
         self.view.insertSubview(self.writeButton, aboveSubview: self.tabBar)
         self.writeButton.rx.tap
@@ -70,7 +72,9 @@ class MainViewController: UITabBarController {
             $0.tabBarItem.image = UIImage(named: "보관함 아이콘")
             $0.tabBarItem.imageInsets = UIEdgeInsets(top: 12.0, left: 0, bottom: -12.0, right: 0)
         }
-        let vc2 = UIViewController()
+        let vc2 = UIViewController().then {
+            $0.tabBarItem.isEnabled = false
+        }
         let vc3 = StatViewController().then {
             $0.tabBarItem.image = UIImage(named: "성향분석 아이콘")
             $0.tabBarItem.imageInsets = UIEdgeInsets(top: 12.0, left: 0, bottom: -12.0, right: 0)
@@ -78,5 +82,9 @@ class MainViewController: UITabBarController {
         mainViewController.viewControllers = [vc1, vc2, vc3]
         
         return mainViewController
+    }
+    
+    func tabBarController(_ tabBarController: UITabBarController, didEndCustomizing viewControllers: [UIViewController], changed: Bool) {
+        viewControllers[1].tabBarItem.isEnabled = false
     }
 }

@@ -12,6 +12,7 @@ import Moya
 enum BadgeAPI {
     case getBadge(name: String)
     case getUserBadgesByUser
+    case checkUpdate
 }
 
 extension BadgeAPI: TargetType, AccessTokenAuthorizable {
@@ -25,6 +26,8 @@ extension BadgeAPI: TargetType, AccessTokenAuthorizable {
             return "/users/\(Constants.CurrentToken?.userId ?? "")/badges"
         case .getBadge(let name):
             return "/badges/\(name)"
+        case .checkUpdate:
+            return "/badges/check-updates"
         }
     }
     
@@ -34,6 +37,8 @@ extension BadgeAPI: TargetType, AccessTokenAuthorizable {
             return .get
         case .getBadge:
             return .get
+        case .checkUpdate:
+            return .post
         }
     }
     
@@ -42,6 +47,8 @@ extension BadgeAPI: TargetType, AccessTokenAuthorizable {
         case .getUserBadgesByUser:
             return .requestPlain
         case .getBadge:
+            return .requestPlain
+        case .checkUpdate:
             return .requestPlain
         }
     }

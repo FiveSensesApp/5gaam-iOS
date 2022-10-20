@@ -52,10 +52,12 @@ struct PercentageOfCategory: Codable {
 struct MonthlyCategory: Codable {
     var month: Date
     var category: FiveSenses
+    var cnt: Int
     
     init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         month = try values.decode(Date.self, forKey: .month)
+        cnt = try values.decode(Int.self, forKey: .cnt)
         let categoryString = try values.decode(String.self, forKey: .category)
         switch categoryString {
         case "HEARING":
