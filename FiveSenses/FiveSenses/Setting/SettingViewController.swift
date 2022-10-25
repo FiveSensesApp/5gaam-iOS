@@ -31,6 +31,7 @@ class SettingViewController: BaseSettingViewController, MFMailComposeViewControl
     }
     var termsButtonView = SettingButtonView()
     var openSourceLicenseButtonView = SettingButtonView()
+    var donateListButtonView = SettingButtonView()
     
     var logoutButton = BaseButton()
     var withdrawalButton = BaseButton()
@@ -139,14 +140,32 @@ class SettingViewController: BaseSettingViewController, MFMailComposeViewControl
         }
         lastSectionStackView.addArrangedSubview(reviewButton)
         
-        
         lastSectionStackView.addArrangedSubview(goToSNS)
-        
         
         lastSectionStackView.addArrangedSubview(questionButtonView)
         
-        // MARK: - 로그아웃, 계정탈퇴
+        let donatetackView = makeButtonStackView().then {
+            $0.backgroundColor = .red02
+        }
+        contentView.addArrangedSubview(donatetackView)
+        donatetackView.addArrangedSubview(self.donateListButtonView)
+        _ = self.donateListButtonView.then {
+            let imageView = UIImageView(image: UIImage(named: "시각")?.withRenderingMode(.alwaysTemplate)).then {
+                $0.tintColor = .white
+            }
+            $0.addSubview(imageView)
+            imageView.snp.makeConstraints { make in
+                make.width.height.equalTo(22.0)
+                make.centerY.equalToSuperview()
+                make.left.equalToSuperview().inset(13.55)
+            }
+            $0.backgroundColor = .red02
+            $0.title = "     텀블벅 후원해주신 분들"
+            $0.titleColor = .white
+            $0.rightImageView.tintColor = .white
+        }
         
+        // MARK: - 로그아웃, 계정탈퇴
         contentView.setCustomSpacing(15.0, after: lastSectionStackView)
         contentView.addArrangedSubview(logoutButton)
         self.logoutButton.then {
@@ -269,6 +288,16 @@ class SettingViewController: BaseSettingViewController, MFMailComposeViewControl
                 self?.dismiss(animated: true)
             }
             .disposed(by: disposeBag)
+        
+        self.donateListButtonView
+            .rx.tapGesture()
+            .when(.recognized)
+            .bind { [weak self] _ in
+                let vc = DonateListViewController()
+                vc.modalPresentationStyle = .fullScreen
+                self?.present(vc, animated: true)
+            }
+            .disposed(by: disposeBag)
     }
     
     func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
@@ -317,7 +346,8 @@ class SettingButtonView: UIView {
         
         self.addSubview(rightImageView)
         self.rightImageView.then {
-            $0.image = UIImage(named: "우측화살표")
+            $0.image = UIImage(named: "우측화살표")?.withRenderingMode(.alwaysTemplate)
+            $0.tintColor = .black
         }.snp.makeConstraints {
             $0.width.height.equalTo(30.0)
             $0.right.equalToSuperview().inset(9.0)
