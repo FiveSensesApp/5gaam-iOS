@@ -1,4 +1,5 @@
 ${PODS_ROOT}/Target Support Files/Pods-FiveSenses/Pods-FiveSenses-frameworks.sh
+${BUILT_PRODUCTS_DIR}/Carte/Carte.framework
 ${BUILT_PRODUCTS_DIR}/FSCalendar/FSCalendar.framework
 ${BUILT_PRODUCTS_DIR}/FSPagerView/FSPagerView.framework
 ${BUILT_PRODUCTS_DIR}/Refreshable/Refreshable.framework

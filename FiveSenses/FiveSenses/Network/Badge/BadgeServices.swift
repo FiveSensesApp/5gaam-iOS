@@ -72,5 +72,14 @@ class BadgeServices: Networkable {
                 return response?.data
             }
     }
+    
+    static func createUserBadge(badge: Badge) -> Observable<Bool> {
+        BadgeServices.provider
+            .rx.request(.createUserBadge(badge: badge))
+            .asObservable()
+            .map {
+                return $0.statusCode == 200
+            }
+    }
 }
 

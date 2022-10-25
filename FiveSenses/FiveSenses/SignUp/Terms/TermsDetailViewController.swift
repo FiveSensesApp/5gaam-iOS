@@ -286,6 +286,8 @@ class TermsBottomSheetController: BaseBottomSheetController {
 
                 ‘오감’ 서비스를 운용함에 있어 각종 정보를 이메일, 앱푸시 등의 방법으로 회원에게 제공할 수 있으며, 결제안내 등 의무적으로 안내되어야 하는 정보성 내용 및 일부 혜택성 정보는 수신동의 여부와 무관하게 제공합니다.
 
+
+
                 """
                 )
                 vc.modalPresentationStyle = .fullScreen

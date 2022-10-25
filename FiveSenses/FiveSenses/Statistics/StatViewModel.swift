@@ -23,6 +23,8 @@ class StatViewModel: BaseViewModel {
         var thisMonthSense = PublishRelay<MonthlyCategory?>()
         var monthlySenses = BehaviorRelay<[MonthlyCategory]>(value: [])
         var totalCount = PublishRelay<Int>()
+        var countByDay = BehaviorRelay<[CountByDay]>(value: [])
+        var countByMonth = BehaviorRelay<[CountByMonth]>(value: [])
     }
     
     var input: Input?
@@ -82,7 +84,8 @@ class StatViewModel: BaseViewModel {
                 self.output!.thisMonthSense.accept(data.monthlyCategoryDtoList.filter { $0.month.isInSameMonth(as: Date()) }.first)
                 self.output!.monthlySenses.accept(data.monthlyCategoryDtoList)
                 self.output!.totalCount.accept(data.totalPost)
-                
+                self.output!.countByDay.accept(data.countByDayDtoList)
+                self.output!.countByMonth.accept(data.countByMonthDtoList)
             }
             .disposed(by: self.disposeBag)
     }

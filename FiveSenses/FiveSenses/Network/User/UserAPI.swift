@@ -17,31 +17,42 @@ enum UserAPI {
     case lostPassword(email: String)
     case getUserInfo
     case updateUser(updatingUser: UpdatingUser)
+    case changePassword(old: String, new: String)
+    case deleteUser
     
     struct SendingEmail: Codable {
         var email: String
+    }
+    
+    struct ChangePassword: Codable {
+        var ogPw: String
+        var newPw: String
     }
 }
 
 extension UserAPI: TargetType, AccessTokenAuthorizable {
     var baseURL: URL {
-        return URL(string: Constants.sourceURL + "/users")!
+        return URL(string: Constants.sourceURL)!
     }
     
     var path: String {
         switch self {
         case .validateDuplicate:
-            return "/validate-duplicate"
+            return "/users/validate-duplicate"
         case .validateEmail:
-            return "/validate-email"
+            return "/users/validate-email"
         case .validateEmailSendCode:
-            return "/validate-email-send-code"
+            return "/users/validate-email-send-code"
         case .lostPassword:
-            return "/lost-pw"
+            return "/users/lost-pw"
         case .getUserInfo:
-            return "/\(Constants.CurrentToken?.userId ?? "-1")"
+            return "/users/\(Constants.CurrentToken?.userId ?? "-1")"
         case .updateUser:
-            return "/\(Constants.CurrentToken?.userId ?? "-1")"
+            return "/users/\(Constants.CurrentToken?.userId ?? "-1")"
+        case .changePassword:
+            return "/users/change-pw"
+        case .deleteUser:
+            return "/admin/users/\(Constants.CurrentToken?.userId ?? "-1")"
         }
     }
     
@@ -59,6 +70,10 @@ extension UserAPI: TargetType, AccessTokenAuthorizable {
             return .get
         case .updateUser:
             return .put
+        case .changePassword:
+            return .post
+        case .deleteUser:
+            return .delete
         }
     }
     
@@ -76,6 +91,10 @@ extension UserAPI: TargetType, AccessTokenAuthorizable {
             return .requestPlain
         case .updateUser(let updatingUser):
             return .requestJSONEncodable(updatingUser)
+        case .changePassword(let old, let new):
+            return .requestJSONEncodable(ChangePassword(ogPw: old, newPw: new))
+        case .deleteUser:
+            return .requestPlain
         }
     }
     
@@ -96,6 +115,10 @@ extension UserAPI: TargetType, AccessTokenAuthorizable {
         case .getUserInfo:
             return .bearer
         case .updateUser:
+            return .bearer
+        case .changePassword:
+            return .bearer
+        case .deleteUser:
             return .bearer
         }
     }

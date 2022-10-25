@@ -73,18 +73,7 @@ class DailyMonthlySwitchView: UIView {
             .bind { [weak self] type in
                 guard let self = self else { return }
                 
-                switch type {
-                case .daily:
-                    self.dailyButton.titleLabel?.font = .bold(16.0)
-                    self.dailyButton.setTitleColor(.black, for: .normal)
-                    self.monthlyButton.titleLabel?.font = .medium(16.0)
-                    self.monthlyButton.setTitleColor(.gray04, for: .normal)
-                case .monthly:
-                    self.monthlyButton.titleLabel?.font = .bold(16.0)
-                    self.monthlyButton.setTitleColor(.black, for: .normal)
-                    self.dailyButton.titleLabel?.font = .medium(16.0)
-                    self.dailyButton.setTitleColor(.gray04, for: .normal)
-                }
+               
                 
                 
                 self.selectedBackgroundView.snp.remakeConstraints {
@@ -99,6 +88,19 @@ class DailyMonthlySwitchView: UIView {
                 
                 UIView.animate(withDuration: 0.25, animations: {
                     self.selectedBackgroundView.superview?.layoutIfNeeded()
+                }, completion: { _ in
+                    switch type {
+                    case .daily:
+                        self.dailyButton.titleLabel?.font = .bold(16.0)
+                        self.dailyButton.setTitleColor(.black, for: .normal)
+                        self.monthlyButton.titleLabel?.font = .medium(16.0)
+                        self.monthlyButton.setTitleColor(.gray04, for: .normal)
+                    case .monthly:
+                        self.monthlyButton.titleLabel?.font = .bold(16.0)
+                        self.monthlyButton.setTitleColor(.black, for: .normal)
+                        self.dailyButton.titleLabel?.font = .medium(16.0)
+                        self.dailyButton.setTitleColor(.gray04, for: .normal)
+                    }
                 })
             }
             .disposed(by: disposeBag)

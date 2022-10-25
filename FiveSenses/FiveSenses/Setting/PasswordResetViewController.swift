@@ -9,14 +9,16 @@ import UIKit
 
 import RxSwift
 import RxCocoa
+import Toaster
 
 class PasswordResetViewController: BaseSettingViewController {
     var originalPasswordInputView = PasswordInputView()
     var originalPasswordInfoLabel = UILabel()
-    var newPasswordInputView = PasswordInputView()
-    var newPasswordReInputview = PasswordInputView()
+    var newPasswordInputView = SignTextField(type: .password, placeHolder: "새로운 비밀번호를 입력해주세요.")
+    var newPasswordReInputview = SignTextField(type: .password, placeHolder: "새로운 비밀번호를 다시 확인해주세요!")
     var newPasswordInfoLabel = UILabel()
     var finishButton = BaseButton()
+    var passwordInfoLabel = UILabel()
     
     override func loadView() {
         super.loadView()
@@ -47,8 +49,6 @@ class PasswordResetViewController: BaseSettingViewController {
         self.view.addSubview(newPasswordInputView)
         self.newPasswordInputView.then {
             $0.backgroundColor = .gray01
-            $0.textField.attributedPlaceholder = NSAttributedString(string: "새로운 비밀번호를 입력해주세요.", attributes: [NSAttributedString.Key.foregroundColor : UIColor.gray03])
-            $0.textField.textColor = .gray04
         }.snp.makeConstraints {
             $0.top.equalTo(self.originalPasswordInfoLabel.snp.bottom).offset(7.5)
             $0.left.right.equalToSuperview().inset(20.0)
@@ -57,10 +57,7 @@ class PasswordResetViewController: BaseSettingViewController {
         
         self.view.addSubview(newPasswordReInputview)
         self.newPasswordReInputview.then {
-            $0.textField.placeholder = "새로운 비밀번호 재입력"
             $0.backgroundColor = .gray01
-            $0.textField.attributedPlaceholder = NSAttributedString(string: "새로운 비밀번호를 다시 확인해주세요!", attributes: [NSAttributedString.Key.foregroundColor : UIColor.gray03])
-            $0.textField.textColor = .gray04
         }.snp.makeConstraints {
             $0.top.equalTo(self.newPasswordInputView.snp.bottom).offset(10.0)
             $0.left.right.equalToSuperview().inset(20.0)
@@ -92,16 +89,67 @@ class PasswordResetViewController: BaseSettingViewController {
             $0.height.equalTo(38.0)
             $0.centerY.equalTo(self.navigationBarView.backButton)
         }
+        
+        self.contentView.addSubview(passwordInfoLabel)
+        self.passwordInfoLabel.then {
+            $0.font = .regular(12.0)
+            $0.textColor = .gray04
+            $0.text = "(영문, 숫자, 특수문자 중 2개 조합 10자 이상)"
+            $0.textAlignment = .center
+            $0.isHidden = true
+        }.snp.makeConstraints {
+            $0.top.equalTo(self.newPasswordReInputview.snp.bottom).offset(10.0)
+            $0.left.right.equalToSuperview()
+            $0.height.equalTo(19.0)
+        }
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        Observable.combineLatest(
+            self.newPasswordInputView
+                .rx.text
+                .orEmpty,
+            self.newPasswordReInputview
+                .rx.text
+                .orEmpty
+        )
+        .map { one, two -> Bool in
+            if one == "" || two == "" { return true }
+            return (one == two)
+        }
+        .bind { [weak self] in
+            guard let self = self else { return }
+            
+            if !$0 {
+                self.passwordInfoLabel.text = "* 비밀번호가 일치하지 않습니다!"
+                self.passwordInfoLabel.textColor = .red02
+            } else {
+                self.passwordInfoLabel.text = "(영문, 숫자, 특수문자 중 2개 조합 10자 이상)"
+                self.passwordInfoLabel.textColor = .gray04
+            }
+            
+            self.finishButton.isEnabled = $0
+        }
+        .disposed(by: disposeBag)
+        
         self.finishButton.rx.tap
+            .flatMap {
+                return UserServices.changePassword(old: self.originalPasswordInputView.textField.text ?? "", new: self.newPasswordInputView.text ?? "")
+            }
             .bind { [weak self] in
-                if let self = self {
-                    BaseAlertViewController.showAlert(viewController: self, title: "비밀번호 재설정 완료", content: "로그인 화면으로 이동합니다.", buttonTitle: "또 만나요!")
+                guard let self = self else { return }
+                if $0 == nil {
+                    BaseAlertViewController.showAlert(viewController: self, title: "비밀번호 재설정 완료", content: "로그인 화면으로 이동합니다.", buttonTitle: "또 만나요!", dismissAction: {
+                        KeyChainController.shared.delete(Constants.ServiceString, account: "Token")
+                        UIApplication.shared.keyWindow?.replaceRootViewController(OnBoardingViewController(), animated: true, completion: nil)
+                    })
+                } else {
+                    Toast(text: $0 ?? "").show()
                 }
+                
+                
             }
             .disposed(by: self.disposeBag)
     }

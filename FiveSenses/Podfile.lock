@@ -1,10 +1,12 @@
 PODS:
+  - Carte (2.2.1)
   - FSCalendar (2.8.4)
   - FSPagerView (0.8.3)
   - Refreshable (1.2.0)
   - Toaster (2.3.0)
 
 DEPENDENCIES:
+  - Carte
   - FSCalendar
   - FSPagerView
   - Refreshable
@@ -12,17 +14,19 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - Carte
     - FSCalendar
     - FSPagerView
     - Refreshable
     - Toaster
 
 SPEC CHECKSUMS:
+  Carte: 6bcff4eaa894ff5b979d646de833fec96e04a38c
   FSCalendar: 2d1d0d9398f12d439f55c1fe0f01525b151b8260
   FSPagerView: 670405b2f18e2a87fa37f20b00de783e562c25a8
   Refreshable: 0f76b6d198178e6cd2823a553fbf4e84a3dba527
   Toaster: c3473963c78e8cabbf6ea6f11ad0fdaae6f54987
 
-PODFILE CHECKSUM: 627bdd93ce9cdfbed501ed8e88cb5cf4e3512163
+PODFILE CHECKSUM: 496eac0b8e4be6fd2f685d9a30459e1d1e3ab088
 
 COCOAPODS: 1.11.3

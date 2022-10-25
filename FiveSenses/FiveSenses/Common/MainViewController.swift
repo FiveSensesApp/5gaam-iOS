@@ -65,7 +65,7 @@ class MainViewController: UITabBarController, UITabBarControllerDelegate {
         self.writeButton.frame = CGRect(x: self.tabBar.center.x - 34.5, y: self.view.bounds.height - 97.0, width: 69.0, height: 69.0)
     }
     
-    static func makeMainViewController() -> UIViewController {
+    static func makeMainViewController() -> MainViewController {
         let mainViewController = MainViewController()
         let vc1 = TastesStorageViewController().then {
             $0.view.backgroundColor = .white

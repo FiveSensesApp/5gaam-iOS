@@ -182,6 +182,8 @@ enum DateFormatType: String {
     case Parameter = "yyyy-MM-dd"
     /// 5월
     case OnlyMonth = "M월"
+    /// 8/21
+    case DailyGraph = "M/d"
 }
 
 extension String {

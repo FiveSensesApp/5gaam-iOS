@@ -23,6 +23,9 @@ final class StatViewController: CMViewController {
     
     private var disposeBag = DisposeBag()
     
+    private var isCellSelected = false
+    private var primeIndex = -1
+    
     var currentMonth = Date() {
         didSet {
             self.monthlySenseView.currentMonths = self.makeMonthlySense(monthlydata: self.viewModel.output!.monthlySenses.value)
@@ -121,6 +124,9 @@ final class StatViewController: CMViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        self.postCountGraphView.graphColletionView.delegate = self
+        self.postCountGraphView.graphColletionView.dataSource = self
+        
         self.viewModel.output!.userInfo
             .compactMap { $0 }
             .bind { [weak self] in
@@ -185,6 +191,22 @@ final class StatViewController: CMViewController {
             .bind { [weak self] in
                 self?.postDistributionView.emptyImageView.isHidden = ($0 >= 10)
                 self?.monthlySenseView.emptyImageView.isHidden = ($0 >= 10)
+                self?.postCountGraphView.emptyImageView.isHidden = ($0 >= 10)
+            }
+            .disposed(by: self.disposeBag)
+        
+        self.viewModel.output!.countByDay
+            .skip(1)
+            .take(1)
+            .bind { [weak self] _ in
+                self?.postCountGraphView.graphColletionView.reloadData()
+            }
+            .disposed(by: self.disposeBag)
+        
+        self.postCountGraphView.dailyMonthlySwitch.selectedType
+            .bind { [weak self] _ in
+                self?.isCellSelected = false
+                self?.postCountGraphView.graphColletionView.reloadData()
             }
             .disposed(by: self.disposeBag)
         
@@ -287,4 +309,129 @@ extension StatViewController: FSPagerViewDelegate, FSPagerViewDataSource {
             }
         }
     }
+}
+
+extension StatViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+//    self.viewModel.output!.countByDay
+//        .skip(1)
+//        .take(1)
+//        .bind { [weak self] _ in
+//            guard let self = self else { return }
+//
+//            self.postCountGraphView.dailyMonthlySwitch.selectedType
+//                .bind { [weak self] in
+//                    guard let self = self else { return }
+//
+//                    for view in self.postCountGraphView.graphStackView.arrangedSubviews {
+//                        view.removeFromSuperview()
+//                    }
+//
+//                    switch $0 {
+//                    case .daily:
+//                        let max = Double(self.viewModel.output!.countByDay.value.map { $0.count }.max()!)
+//                        self.postCountGraphView.graphStackView.spacing = 2.0
+//                        for count in self.viewModel.output!.countByDay.value {
+//                            let graph = PostCountGraph()
+//                            graph.titleLabel.text = count.day.toString(format: .DailyGraph)
+//                            graph.graphImageView.snp.updateConstraints {
+//                                $0.height.equalTo(165.0 * (Double(count.count) / max))
+//                            }
+//                            self.postCountGraphView.graphStackView.addArrangedSubview(graph)
+//                        }
+//                    case .monthly:
+//                        let max = Double(self.viewModel.output!.countByMonth.value.map { $0.count }.max()!)
+//                        self.postCountGraphView.graphStackView.spacing = 9.0
+//                        for count in self.viewModel.output!.countByMonth.value {
+//                            let graph = PostCountGraph()
+//                            graph.titleLabel.text = count.month.toString(format: .OnlyMonth)
+//                            graph.graphImageView.snp.updateConstraints {
+//                                $0.height.equalTo(165.0 * (Double(count.count) / max))
+//                            }
+//                            self.postCountGraphView.graphStackView.addArrangedSubview(graph)
+//                        }
+//                    }
+//
+//                }
+//                .disposed(by: self.disposeBag)
+//        }
+//        .disposed(by: self.disposeBag)
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        let type = self.postCountGraphView.dailyMonthlySwitch.selectedType.value
+        if type == .daily {
+            return self.viewModel.output!.countByDay.value.count
+        } else {
+            return self.viewModel.output!.countByMonth.value.count
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostCountGraph.identifier, for: indexPath) as! PostCountGraph
+        
+        let type = self.postCountGraphView.dailyMonthlySwitch.selectedType.value
+        
+        switch type {
+        case .daily:
+            let max = Double(self.viewModel.output!.countByDay.value.map { $0.count }.max()!)
+            let count = self.viewModel.output!.countByDay.value[indexPath.item]
+            cell.titleLabel.text = count.day.toString(format: .DailyGraph)
+            cell.countLabel.text = "\(count.count)개"
+            cell.graphImageView.snp.updateConstraints {
+                if max == 0 {
+                    $0.height.equalTo(0.0)
+                } else {
+                    $0.height.equalTo(165.0 * (Double(count.count) / max))
+                }
+            }
+            
+            if !self.isCellSelected && count.day.isInSameDay(as: Date()) {
+                cell.isPrime = true
+                self.isCellSelected = true
+            } else if primeIndex == indexPath.item {
+                cell.isPrime = true
+            } else {
+                cell.isPrime = false
+            }
+            return cell
+            
+        case .monthly:
+            let max = Double(self.viewModel.output!.countByMonth.value.map { $0.count }.max()!)
+            let count = self.viewModel.output!.countByMonth.value[indexPath.item]
+            cell.titleLabel.text = count.month.toString(format: .OnlyMonth)
+            cell.countLabel.text = "\(count.count)개"
+            cell.graphImageView.snp.updateConstraints {
+                if max == 0 {
+                    $0.height.equalTo(0.0)
+                } else {
+                    $0.height.equalTo(165.0 * (Double(count.count) / max))
+                }
+                
+            }
+            
+            if !self.isCellSelected && count.month.isInSameMonth(as: Date()) {
+                cell.isPrime = true
+                self.isCellSelected = true
+            } else if self.isCellSelected && primeIndex == indexPath.item {
+                cell.isPrime = true
+            } else {
+                cell.isPrime = false
+            }
+            return cell
+           
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostCountGraph.identifier, for: indexPath) as! PostCountGraph
+        
+//        for cellin in collectionView.visibleCells {
+//            if let cellin = cellin as? PostCountGraph {
+//                cellin.isPrime = false
+//            }
+//        }
+        self.isCellSelected = true
+        self.primeIndex = indexPath.item
+        collectionView.reloadData()
+    }
+    
 }

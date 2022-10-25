@@ -10,12 +10,25 @@ import UIKit
 import RxSwift
 import RxCocoa
 import RxGesture
+import MessageUI
 
-class SettingViewController: BaseSettingViewController {
+class SettingViewController: BaseSettingViewController, MFMailComposeViewControllerDelegate {
     var alertSwitch = UISwitch()
     var timePicker = ColoredDatePicker()
     
     var passwordResetButtonView = SettingButtonView()
+    let noticeButtonView = SettingButtonView().then {
+        $0.title = "공지사항 및 도움말"
+        $0.rightImageView.image = UIImage(named: "외부로가기")
+    }
+    let goToSNS = SettingButtonView().then {
+        $0.title = "공식 SNS이동"
+        $0.rightImageView.image = UIImage(named: "외부로가기")
+    }
+    let questionButtonView = SettingButtonView().then {
+        $0.title = "1:1 문의 / 요청"
+        $0.rightImageView.image = UIImage(named: "외부로가기")
+    }
     var termsButtonView = SettingButtonView()
     var openSourceLicenseButtonView = SettingButtonView()
     
@@ -42,7 +55,7 @@ class SettingViewController: BaseSettingViewController {
         
         // MARK: - 알림 / 시간
         let alertAndTimeStackView = makeButtonStackView()
-        contentView.addArrangedSubview(alertAndTimeStackView)
+//        contentView.addArrangedSubview(alertAndTimeStackView)
         
         let alertButtonView = SettingButtonView()
         alertAndTimeStackView.addArrangedSubview(alertButtonView)
@@ -97,10 +110,7 @@ class SettingViewController: BaseSettingViewController {
         let thirdSectionStackView = makeButtonStackView()
         contentView.addArrangedSubview(thirdSectionStackView)
         
-        let noticeButtonView = SettingButtonView().then {
-            $0.title = "공지사항 및 도움말"
-            $0.rightImageView.image = UIImage(named: "외부로가기")
-        }
+        
         thirdSectionStackView.addArrangedSubview(noticeButtonView)
         
         
@@ -129,16 +139,10 @@ class SettingViewController: BaseSettingViewController {
         }
         lastSectionStackView.addArrangedSubview(reviewButton)
         
-        let goToSNS = SettingButtonView().then {
-            $0.title = "공식 SNS이동"
-            $0.rightImageView.image = UIImage(named: "외부로가기")
-        }
+        
         lastSectionStackView.addArrangedSubview(goToSNS)
         
-        let questionButtonView = SettingButtonView().then {
-            $0.title = "1:1 문의 / 요청"
-            $0.rightImageView.image = UIImage(named: "외부로가기")
-        }
+        
         lastSectionStackView.addArrangedSubview(questionButtonView)
         
         // MARK: - 로그아웃, 계정탈퇴
@@ -169,22 +173,25 @@ class SettingViewController: BaseSettingViewController {
         
         self.passwordResetButtonView.rx.tapGesture()
             .when(.recognized)
+            .debug()
             .bind { [weak self] _ in
-                self?.navigationController?.pushViewController(PasswordResetViewController(), animated: true)
+                let vc = PasswordResetViewController()
+                vc.modalPresentationStyle = .fullScreen
+                self?.present(vc, animated: true)
             }
             .disposed(by: self.disposeBag)
         
         self.termsButtonView.rx.tapGesture()
             .when(.recognized)
             .bind { [weak self] _ in
-                self?.navigationController?.pushViewController(TermsViewController(), animated: true)
+                self?.present(TermsViewController(), animated: true)
             }
             .disposed(by: self.disposeBag)
         
         self.openSourceLicenseButtonView.rx.tapGesture()
             .when(.recognized)
             .bind { [weak self] _ in
-                self?.navigationController?.pushViewController(OpenSourceViewController(), animated: true)
+                self?.present(OpenSourceViewController(), animated: true)
             }
             .disposed(by: self.disposeBag)
         
@@ -209,10 +216,50 @@ class SettingViewController: BaseSettingViewController {
             }
             .disposed(by: disposeBag)
         
+        self.noticeButtonView.rx.tapGesture()
+            .when(.recognized)
+            .bind { _ in
+                if let url = URL(string: "https://5gaam.notion.site/a9d6cc445d4e4adab7bc50ab79969c7a") {
+                    UIApplication.shared.open(url)
+                }
+            }
+            .disposed(by: disposeBag)
+        
+        self.goToSNS.rx.tapGesture()
+            .when(.recognized)
+            .bind { _ in
+                if let url = URL(string: "https://www.instagram.com/5gaam_app") {
+                    UIApplication.shared.open(url)
+                }
+            }
+            .disposed(by: disposeBag)
+        
         self.withdrawalButton.rx.tap
             .bind { [weak self] in
                 if let self = self {
-                    TwoButtonAlertController.showAlert(viewController: self, title: "정말 탈퇴하실 건가요?", content: "그동안의 기록들이 모두 사라져요.", buttonTitle: "예", cancelButtonTitle: "아니요")
+                    DeleteUserAlert.showAlert(viewController: self, title: "정말 탈퇴하실 건가요?", content: "그동안의 기록들이 모두 사라져요.", buttonTitle: "예", cancelButtonTitle: "아니요", okAction: {
+                        UserServices.deleteUser()
+                    })
+                }
+            }
+            .disposed(by: disposeBag)
+        
+        self.questionButtonView
+            .rx.tapGesture()
+            .when(.recognized)
+            .bind { [weak self] _ in
+                
+                if let self = self, MFMailComposeViewController.canSendMail() {
+                    
+                    let compseVC = MFMailComposeViewController()
+                    compseVC.mailComposeDelegate = self
+                    
+                    compseVC.setToRecipients(["hi.mangpo@gmail.com"])
+                    compseVC.setSubject("[문의] '5감' 사용중 문의 사항")
+                    compseVC.setMessageBody("내용을 입력해주세요", isHTML: false)
+                    
+                    self.present(compseVC, animated: true, completion: nil)
+                    
                 }
             }
             .disposed(by: disposeBag)
@@ -222,6 +269,10 @@ class SettingViewController: BaseSettingViewController {
                 self?.dismiss(animated: true)
             }
             .disposed(by: disposeBag)
+    }
+    
+    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+        controller.dismiss(animated: true, completion: nil)
     }
     
     private func makeButtonStackView() -> UIStackView {
@@ -291,5 +342,33 @@ class ColoredDatePicker: UIDatePicker {
             self.setValue(UIColor.white, forKey: "textColor")
         }
         super.addSubview(view)
+    }
+}
+
+class DeleteUserAlert: TwoButtonAlertController {
+    var backgroundView = UIView()
+    
+    
+    class func showAlert(
+        viewController: UIViewController,
+        title: String,
+        content: String,
+        buttonTitle: String,
+        cancelButtonTitle: String,
+        okAction: @escaping () -> Void
+    ) {
+        let vc = DeleteUserAlert(title: title, content: content, okButtonTitle: buttonTitle, cancelButtonTitle: cancelButtonTitle)
+        vc.modalPresentationStyle = .overFullScreen
+        vc.modalTransitionStyle = .crossDissolve
+        vc.cancelButton.rx.tap.bind {
+            vc.dismiss(animated: true)
+        }
+        .disposed(by: vc.disposeBag)
+        vc.okButton.rx.tap
+            .bind {
+                okAction()
+            }
+            .disposed(by: vc.disposeBag)
+        viewController.present(vc, animated: true)
     }
 }

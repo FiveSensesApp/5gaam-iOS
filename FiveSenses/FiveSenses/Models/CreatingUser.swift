@@ -64,11 +64,15 @@ struct UpdatingUser: Codable {
     var nickname: String
     var isAlarmOn: Bool
     var alarmDate: String?
+    var badgeRepresent: String?
+    var isMarketingAllowed: Bool = true
     
     enum CodingKeys: String, CodingKey {
         case nickname
         case isAlarmOn
         case alarmDate
         case userId
+        case badgeRepresent
+        case isMarketingAllowed
     }
 }

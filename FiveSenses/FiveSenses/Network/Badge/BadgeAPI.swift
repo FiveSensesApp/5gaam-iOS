@@ -13,6 +13,12 @@ enum BadgeAPI {
     case getBadge(name: String)
     case getUserBadgesByUser
     case checkUpdate
+    case createUserBadge(badge: Badge)
+}
+
+struct UserBadeInput: Codable {
+    var userId: Int
+    var badgeId: String
 }
 
 extension BadgeAPI: TargetType, AccessTokenAuthorizable {
@@ -28,6 +34,8 @@ extension BadgeAPI: TargetType, AccessTokenAuthorizable {
             return "/badges/\(name)"
         case .checkUpdate:
             return "/badges/check-updates"
+        case .createUserBadge:
+            return "/users/\(Constants.CurrentToken?.userId ?? "")/badges"
         }
     }
     
@@ -38,6 +46,8 @@ extension BadgeAPI: TargetType, AccessTokenAuthorizable {
         case .getBadge:
             return .get
         case .checkUpdate:
+            return .post
+        case .createUserBadge:
             return .post
         }
     }
@@ -50,6 +60,8 @@ extension BadgeAPI: TargetType, AccessTokenAuthorizable {
             return .requestPlain
         case .checkUpdate:
             return .requestPlain
+        case .createUserBadge(let badge):
+            return .requestJSONEncodable(UserBadeInput(userId: Int(Constants.CurrentToken?.userId ?? "") ?? -1, badgeId: badge.badgeId))
         }
     }
     

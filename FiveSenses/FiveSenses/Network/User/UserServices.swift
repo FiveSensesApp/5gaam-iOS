@@ -9,11 +9,15 @@ import Foundation
 
 import Moya
 import RxSwift
+import UIKit
+import Toaster
 
 class UserServices: Networkable {
     typealias Target = UserAPI
     
     static let provider = makeProvider()
+    
+    static var disposeBag = DisposeBag()
     
     static func validateDuplicate(email: String) -> Observable<ValidateDuplicateResponse?> {
         UserServices.provider
@@ -85,6 +89,30 @@ class UserServices: Networkable {
             .map {
                 return $0.statusCode == 200
             }
+    }
+    
+    static func changePassword(old: String, new: String) -> Observable<String?> {
+        UserServices.provider
+            .rx.request(.changePassword(old: old, new: new))
+            .asObservable()
+            .map {
+                let response = $0.data.decode(ValidateDuplicateResponse.self)
+                return response?.meta.msg
+            }
+    }
+    
+    static func deleteUser() {
+        UserServices.provider
+            .rx.request(.deleteUser)
+            .asObservable()
+            .bind {
+                if $0.statusCode == 200 {
+                    UIApplication.shared.keyWindow?.replaceRootViewController(OnBoardingViewController(), animated: true, completion: nil)
+                } else {
+                    Toast(text: "회원 탈퇴에 실패했습니다. 잠시 후 다시 시도해주세요.").show()
+                }
+            }
+            .disposed(by: UserServices.disposeBag)
     }
 }
 

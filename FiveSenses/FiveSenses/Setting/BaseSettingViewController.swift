@@ -53,7 +53,8 @@ class BaseSettingViewController: UIViewController {
         
         self.navigationBarView.backButton.rx.tap
             .bind { [weak self] in
-                self?.navigationController?.popViewController(animated: true)
+//                self?.navigationController?.popViewController(animated: true)
+                self?.dismiss(animated: true)
             }
             .disposed(by: self.disposeBag)
     }

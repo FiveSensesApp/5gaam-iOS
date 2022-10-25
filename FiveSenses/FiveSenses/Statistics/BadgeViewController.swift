@@ -9,6 +9,7 @@ import UIKit
 
 import RxCocoa
 import RxSwift
+import Toaster
 
 class BadgeViewController: CMViewController {
     var backButton = BaseButton()
@@ -85,6 +86,7 @@ class BadgeViewController: CMViewController {
             $0.textAlignment = .center
         }.snp.makeConstraints {
             $0.top.equalTo(self.representBadgeTitleLabel.snp.bottom).offset(7.2)
+            $0.height.equalTo(42.0)
             $0.centerX.equalToSuperview()
         }
         
@@ -178,6 +180,238 @@ extension BadgeViewController: UICollectionViewDataSource, UICollectionViewDeleg
         cell.badge = self.viewModel.output!.badges.value[indexPath.item]
     
         return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let badge = self.viewModel.output!.badges.value[indexPath.item]
+        let vc = BadgeBottomSheet()
+        vc.modalPresentationStyle = .overFullScreen
+        vc.modalTransitionStyle = .crossDissolve
+        vc.contentHeight = 408.0
+        vc.badge = badge
+        self.present(vc, animated: true)
+    }
+}
+
+final class BadgeBottomSheet: BaseBottomSheetController {
+    var badgeNameLabel = UILabel()
+    var conditionLabel = UILabel()
+    var badgeImageView = UIImageView()
+    var descriptionLabel = UILabel()
+    
+    var representButton = BaseButton()
+    var imageSaveButton = BaseButton()
+    var writeButton = BaseButton()
+    
+    var badge: Badge? {
+        didSet {
+            if let badge = badge {
+                self.badgeNameLabel.text = badge.name
+                self.badgeImageView.kf.setImage(with: URL(string: badge.imgUrl), options: [.processor(SVGProcessor())])
+                self.conditionLabel.text = badge.reqConditionShort
+                self.descriptionLabel.text = badge.description
+                
+                self.representButton.isHidden = badge.isBefore
+                self.imageSaveButton.isHidden = badge.isBefore
+                
+                self.writeButton.isHidden = !badge.isBefore
+            }
+        }
+    }
+    
+    override func loadView() {
+        super.loadView()
+        
+        self.cancelButton.isHidden = true
+        self.cancelButton.snp.updateConstraints {
+            $0.height.equalTo(0.0)
+        }
+        
+        self.contentView.addSubview(badgeNameLabel)
+        self.badgeNameLabel.then {
+            $0.font = .bold(20.0)
+            $0.textColor = .black
+            $0.textAlignment = .center
+        }.snp.makeConstraints {
+            $0.top.equalToSuperview().inset(25.0)
+            $0.height.equalTo(24.0)
+            $0.left.right.equalToSuperview()
+        }
+        
+        self.contentView.addSubview(conditionLabel)
+        self.conditionLabel.then {
+            $0.font = .regular(12.0)
+            $0.textColor = .gray04
+            $0.textAlignment = .center
+        }.snp.makeConstraints {
+            $0.left.right.equalToSuperview()
+            $0.top.equalTo(self.badgeNameLabel.snp.bottom)
+            $0.height.equalTo(18.0)
+        }
+        
+        self.contentView.addSubview(badgeImageView)
+        self.badgeImageView.then {
+            $0.makeCornerRadius(radius: 162.0 / 2.0)
+        }.snp.makeConstraints {
+            $0.width.height.equalTo(162.0)
+            $0.top.equalTo(self.conditionLabel.snp.bottom).offset(20.0)
+            $0.centerX.equalToSuperview()
+        }
+        
+        self.contentView.addSubview(descriptionLabel)
+        self.descriptionLabel.then {
+            $0.font = .medium(14.0)
+            $0.textColor = .gray04
+            $0.textAlignment = .center
+        }.snp.makeConstraints {
+            $0.height.equalTo(21.0)
+            $0.top.equalTo(self.badgeImageView.snp.bottom).offset(20.0)
+            $0.left.right.equalToSuperview()
+        }
+        
+        self.contentView.addSubview(representButton)
+        self.representButton.then {
+            $0.setTitle("대표 뱃지로 설정", for: .normal)
+            $0.titleLabel?.font = .bold(18.0)
+            $0.setTitleColor(.white, for: .normal)
+            $0.backgroundColor = .gray04
+            $0.makeCornerRadius(radius: 22.0)
+        }.snp.makeConstraints {
+            $0.top.equalTo(self.descriptionLabel.snp.bottom).offset(30.0)
+            $0.left.equalToSuperview().inset(39.0)
+            $0.width.equalTo(161.0)
+            $0.height.equalTo(44.0)
+        }
+        
+        self.contentView.addSubview(imageSaveButton)
+        self.imageSaveButton.then {
+            $0.setTitle("이미지 저장", for: .normal)
+            $0.titleLabel?.font = .bold(18.0)
+            $0.setTitleColor(.white, for: .normal)
+            $0.backgroundColor = .black
+            $0.makeCornerRadius(radius: 22.0)
+        }.snp.makeConstraints {
+            $0.top.equalTo(self.descriptionLabel.snp.bottom).offset(30.0)
+            $0.right.equalToSuperview().inset(39.0)
+            $0.left.equalTo(self.representButton.snp.right).offset(12.0)
+            $0.height.equalTo(44.0)
+        }
+        
+        self.contentView.addSubview(writeButton)
+        self.writeButton.then {
+            $0.setTitle("기록 쓰러가기", for: .normal)
+            $0.titleLabel?.font = .bold(18.0)
+            $0.setTitleColor(.white, for: .normal)
+            $0.backgroundColor = .black
+            $0.makeCornerRadius(radius: 22.0)
+        }.snp.makeConstraints {
+            $0.top.equalTo(self.descriptionLabel.snp.bottom).offset(30.0)
+            $0.centerX.equalToSuperview()
+            $0.width.equalTo(161.0)
+            $0.height.equalTo(44.0)
+        }
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        self.representButton.rx.tap
+            .flatMap { _ -> Observable<Bool> in
+                return UserServices.updateUser(updatingUser: UpdatingUser(userId: Int((Constants.CurrentToken?.userId ?? "-1")) ?? -1, nickname: Constants.CurrentUser?.nickname ?? "", isAlarmOn: false, badgeRepresent: self.badge?.badgeId ?? "", isMarketingAllowed: true))
+            }
+            .bind { [weak self] in
+                if $0 {
+                    self?.dismissActionSheet()
+                }
+            }
+            .disposed(by: disposeBag)
+        
+        self.imageSaveButton
+            .rx.tap
+            .bind { [weak self] in
+                self?.renderViewAsImage()
+            }
+            .disposed(by: disposeBag)
+        
+        self.writeButton.rx.tap
+            .bind { [weak self] in
+                guard let self = self else { return }
+                let mainViewController = MainViewController.makeMainViewController()
+                UIApplication.shared.keyWindow?.replaceRootViewController(mainViewController, animated: true, completion: {
+                    WriteBottomSheetViewController.showBottomSheet(viewController: mainViewController.viewControllers![1], type: .category, tabBar: mainViewController.tabBar, writeButton: mainViewController.writeButton)
+                })
+            }
+            .disposed(by: disposeBag)
+    }
+    
+    override func viewDidLayoutSubviews() {
+        self.containerView.roundCorners(corners: [.topLeft, .topRight], radius: 30.0)
+        
+        if !isUp {
+            isUp = true
+            
+            self.contentView.snp.remakeConstraints {
+                $0.left.right.equalToSuperview()
+                $0.bottom.equalToSuperview()
+                $0.top.equalTo(self.cancelButton.snp.bottom)
+                $0.height.equalTo(self.contentHeight)
+            }
+            
+            self.containerView.snp.remakeConstraints {
+                //                $0.top.equalToSuperview()
+                $0.bottom.equalToSuperview()
+                $0.left.right.equalToSuperview()
+            }
+            
+            UIView.animate(withDuration: 0.2) { [weak self] in
+                self?.view.layoutIfNeeded()
+            }
+        }
+    }
+    
+    private func renderViewAsImage() {
+        let viewForCapture = UIView(frame: CGRect(x: 0, y: 0, width: 375.0, height: 375.0))
+        let imageview = UIImageView(frame: CGRect(x: 57.0, y: 47.0, width: 262.0, height: 262.0))
+        let logo = UIImageView(frame: CGRect(x: 12.0, y: 337.0, width: 59.0, height: 24.0))
+        let dateLabel = UILabel()
+        
+        viewForCapture.addSubview(imageview)
+        _ = imageview.then {
+            $0.kf.setImage(with: URL(string: badge!.imgUrl), options: [.processor(SVGProcessor())])
+            $0.backgroundColor = .clear
+        }
+        
+        viewForCapture.addSubview(logo)
+        logo.image = UIImage(named: "오감 로고 고정")
+        
+        viewForCapture.addSubview(dateLabel)
+        _ = dateLabel.then {
+            $0.font = .bold(14.0)
+            $0.textColor = .gray04
+            $0.text = self.badge!.name + " | " + (Date().toString(format: .WriteView) ?? "")
+            $0.sizeToFit()
+            $0.frame = CGRect(x: 355.0 - $0.frame.width, y: 341.0, width: $0.frame.width, height: 17.0)
+        }
+        
+        _ = viewForCapture.then {
+            $0.backgroundColor = .white
+        }
+        
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 375.0, height: 375.0))
+        let image = renderer.image { ctx in
+            viewForCapture.drawHierarchy(in: viewForCapture.bounds, afterScreenUpdates: true)
+        }
+        
+        UIImageWriteToSavedPhotosAlbum(image, self,
+                #selector(image(_:didFinishSavingWithError:contextInfo:)), nil)
+    }
+    
+    @objc func image(_ image: UIImage, didFinishSavingWithError error: NSError?, contextInfo: UnsafeRawPointer) {
+        if let error = error {
+            print(error.localizedDescription)
+        } else {
+            Toast(text: "이미지가 저장되었습니다.").show()
+        }
     }
 }
 
