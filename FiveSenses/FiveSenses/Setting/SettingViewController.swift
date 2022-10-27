@@ -127,6 +127,7 @@ class SettingViewController: BaseSettingViewController, MFMailComposeViewControl
         
         let versionView = SettingButtonView().then {
             $0.title = "ver \((Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String) ?? "")"
+            $0.rightImageView.isHidden = true
         }
         thirdSectionStackView.addArrangedSubview(versionView)
         
@@ -138,7 +139,7 @@ class SettingViewController: BaseSettingViewController, MFMailComposeViewControl
             $0.title = "앱 리뷰 남기기"
             $0.rightImageView.image = UIImage(named: "외부로가기")
         }
-        lastSectionStackView.addArrangedSubview(reviewButton)
+//        lastSectionStackView.addArrangedSubview(reviewButton)
         
         lastSectionStackView.addArrangedSubview(goToSNS)
         

@@ -78,9 +78,9 @@ class IntroViewController: UIViewController {
                     UserServices.getUserInfo()
                         .bind {
                             Constants.CurrentUser = $0?.createdUser
+                            UIApplication.shared.keyWindow?.replaceRootViewController(MainViewController.makeMainViewController(), animated: true, completion: nil)
                         }
                         .disposed(by: self.disposeBag)
-                    UIApplication.shared.keyWindow?.replaceRootViewController(MainViewController.makeMainViewController(), animated: true, completion: nil)
                 }
             })
         })

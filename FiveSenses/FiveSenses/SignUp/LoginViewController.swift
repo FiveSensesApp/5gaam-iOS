@@ -163,12 +163,20 @@ class LoginViewController: UIViewController {
                     $0?.meta.code == 200
                 }
             }
+            .flatMap {
+                if $0 {
+                    return UserServices.getUserInfo()
+                } else {
+                    return Observable.just(nil)
+                }
+            }
             .bind { [weak self] in
                 guard let self = self else { return }
                 
                 self.loginButton.isEnabled = true
                 
-                if $0 {
+                if $0 != nil {
+                    Constants.CurrentUser = $0?.createdUser
                     UIApplication.shared.keyWindow?.replaceRootViewController(MainViewController.makeMainViewController(), animated: true, completion: nil)
                 } else {
                     BaseAlertViewController.showAlert(viewController: self, title: "로그인 실패", content: "이메일 / 비밀번호를 확인해주세요.", buttonTitle: "확인")
