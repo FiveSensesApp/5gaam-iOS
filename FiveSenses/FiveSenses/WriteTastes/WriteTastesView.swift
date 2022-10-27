@@ -81,7 +81,7 @@ final class WriteTastesView: UIView {
         
         self.addSubview(starView)
         self.starView.snp.makeConstraints {
-            $0.width.equalTo(157.0)
+            $0.width.equalTo(155.0)
             $0.height.equalTo(34.0)
             $0.top.equalTo(self.keywordTextField.snp.bottom).offset(20.0)
             $0.centerX.equalToSuperview()
@@ -159,6 +159,11 @@ extension WriteTastesView: UITextViewDelegate {
     }
     
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        if(text == "\n") {
+            textView.resignFirstResponder()
+            return false
+        }
+        
         let inputString = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard let oldString = textView.text, let newRange = Range(range, in: oldString) else { return true }
         let newString = oldString.replacingCharacters(in: newRange, with: inputString).trimmingCharacters(in: .whitespacesAndNewlines)

@@ -73,7 +73,8 @@ final class StatViewController: CMViewController {
         
         self.contentView.addSubview(userInfoView)
         self.userInfoView.snp.makeConstraints {
-            $0.top.left.right.equalToSuperview()
+            $0.left.right.equalToSuperview()
+            $0.top.equalToSuperview()
             $0.height.equalTo(397.0)
         }
         
@@ -103,7 +104,6 @@ final class StatViewController: CMViewController {
             $0.top.equalTo(self.postDistributionView.snp.bottom).offset(20.0)
             $0.left.right.equalToSuperview().inset(20.0)
             $0.height.equalTo(400.0)
-            $0.bottom.equalToSuperview().inset(20.0)
         }
         
         self.contentView.addSubview(postCountGraphView)
@@ -200,6 +200,7 @@ final class StatViewController: CMViewController {
             .take(1)
             .bind { [weak self] _ in
                 self?.postCountGraphView.graphColletionView.reloadData()
+                self?.primeIndex = -1
             }
             .disposed(by: self.disposeBag)
         
@@ -207,6 +208,7 @@ final class StatViewController: CMViewController {
             .bind { [weak self] _ in
                 self?.isCellSelected = false
                 self?.postCountGraphView.graphColletionView.reloadData()
+                self?.primeIndex = -1
             }
             .disposed(by: self.disposeBag)
         
@@ -230,9 +232,20 @@ final class StatViewController: CMViewController {
             }
             .disposed(by: disposeBag)
         
+        self.userInfoView.badgeBackgroundImageView
+            .rx.tapGesture()
+            .when(.recognized)
+            .bind { [weak self] _ in
+                let vc = BadgeViewController()
+                vc.modalPresentationStyle = .fullScreen
+                
+                self?.present(vc, animated: true)
+            }
+            .disposed(by: disposeBag)
+        
         self.userInfoView.moreBadgeButton
             .rx.tap
-            .bind { [weak self] in
+            .bind { [weak self] _ in
                 let vc = BadgeViewController()
                 vc.modalPresentationStyle = .fullScreen
                 
@@ -374,6 +387,7 @@ extension StatViewController: UICollectionViewDataSource, UICollectionViewDelega
         case .daily:
             let max = Double(self.viewModel.output!.countByDay.value.map { $0.count }.max()!)
             let count = self.viewModel.output!.countByDay.value[indexPath.item]
+            cell.isPrime = false
             cell.titleLabel.text = count.day.toString(format: .DailyGraph)
             cell.countLabel.text = "\(count.count)개"
             cell.graphImageView.snp.updateConstraints {
@@ -397,6 +411,7 @@ extension StatViewController: UICollectionViewDataSource, UICollectionViewDelega
         case .monthly:
             let max = Double(self.viewModel.output!.countByMonth.value.map { $0.count }.max()!)
             let count = self.viewModel.output!.countByMonth.value[indexPath.item]
+            cell.isPrime = false
             cell.titleLabel.text = count.month.toString(format: .OnlyMonth)
             cell.countLabel.text = "\(count.count)개"
             cell.graphImageView.snp.updateConstraints {

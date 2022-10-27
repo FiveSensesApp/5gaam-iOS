@@ -326,6 +326,7 @@ final class WriteBottomSheetViewController: BaseBottomSheetController {
     }
     
     private func showWriteFinishAlert() {
+        self.emptyAlertLabel.isHidden = true
         let alert = CategoryReselectAlert(title: "기록 완료", content: "취향 입력이 완료되었어요.", okButtonTitle: "보관함 가기", cancelButtonTitle: "계속쓰기")
         alert.modalPresentationStyle = .overCurrentContext
         alert.modalTransitionStyle = .crossDissolve

@@ -63,7 +63,7 @@ class StatViewModel: BaseViewModel {
             .disposed(by: self.disposeBag)
         
         
-        
+        self.postDistribution.removeAll()
         FiveSenses.allCases.forEach { sense in
             PostServices.getCountOfPost(sense: sense)
                 .bind { [weak self] in

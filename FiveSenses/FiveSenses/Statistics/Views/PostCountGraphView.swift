@@ -183,6 +183,12 @@ final class PostCountGraph: UICollectionViewCell {
         
     }
     
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        self.isPrime = false
+    }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

@@ -64,7 +64,7 @@ class TermsViewController: BaseSettingViewController {
         self.view.addSubview(privacyButtonView)
         self.privacyButtonView.then {
             $0.backgroundColor = .white
-            $0.title = "개인정보 처리 방침"
+            $0.title = "마케팅 정보 수신"
         }.snp.makeConstraints {
             $0.top.equalTo(lineview.snp.bottom).offset(9.0)
             $0.left.right.equalToSuperview().inset(28.0)
@@ -142,7 +142,7 @@ class TermsViewController: BaseSettingViewController {
 
 """
                 
-                BaseBottomSheetController.showBottomSheet(viewController: self, title: "‘오감' 이용약관", content: self.termsLabel, contentHeight: 517.0)
+                TermsBottomSheet.showBottomSheet(viewController: self, title: "‘오감' 이용약관", label: self.termsLabel, contentHeight: 517.0)
             }
             .disposed(by: self.disposeBag)
         
@@ -232,9 +232,9 @@ class TermsViewController: BaseSettingViewController {
     ① 오감 은(는) 개인정보 처리에 관한 업무를 총괄해서 책임지고, 개인정보 처리와 관련한 정보주체의 불만처리 및 피해구제 등을 위하여 아래와 같이 개인정보 보호책임자를 지정하고 있습니다.
 
     ▶ 개인정보 보호책임자
-    성명 :이남준
-    직책 :iOS 개발자
-    직급 :iOS 개발자
+    성명 :최윤찬
+    직책 :서버 개발자
+    직급 :서버 개발자
     연락처 : hi.mangpo@gmail.com
     ※ 개인정보 보호 담당부서로 연결됩니다.
 
@@ -256,7 +256,7 @@ class TermsViewController: BaseSettingViewController {
 
 """
                 
-                BaseBottomSheetController.showBottomSheet(viewController: self, title: "개인정보처리방침", content: self.termsLabel, contentHeight: 517.0)
+                TermsBottomSheet.showBottomSheet(viewController: self, title: "개인정보처리방침", label: self.termsLabel, contentHeight: 517.0)
             }
             .disposed(by: self.disposeBag)
         
@@ -285,8 +285,81 @@ class TermsViewController: BaseSettingViewController {
 
 """
                 
-                BaseBottomSheetController.showBottomSheet(viewController: self, title: "마케팅 정보 수신", content: self.termsLabel, contentHeight: 517.0)
+                TermsBottomSheet.showBottomSheet(viewController: self, title: "마케팅 정보 수신", label: self.termsLabel, contentHeight: 517.0)
             }
             .disposed(by: self.disposeBag)
+    }
+}
+
+final class TermsBottomSheet: BaseBottomSheetController {
+    var label: UILabel?
+    
+    override func loadView() {
+        super.loadView()
+        
+        let scrollView = UIScrollView().then {
+            $0.backgroundColor = .white
+        }
+        
+        self.containerView.addSubview(scrollView)
+        scrollView.snp.makeConstraints {
+            $0.top.equalTo(self.cancelButton.snp.bottom).offset(7.0)
+            $0.left.right.equalToSuperview()
+            $0.bottom.equalToSuperview().inset(60.0)
+            $0.height.equalTo(self.contentHeight)
+        }
+        
+        let scrollContent = UIView().then {
+            $0.backgroundColor = .white
+        }
+        
+        scrollView.addSubview(scrollContent)
+        
+        scrollContent.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+            $0.width.equalToSuperview()
+            $0.height.greaterThanOrEqualToSuperview()
+        }
+        
+        self.contentView.removeFromSuperview()
+        
+        if let label = self.label {
+            scrollContent.addSubview(label)
+            label.snp.makeConstraints {
+                $0.top.bottom.equalToSuperview()
+                $0.left.right.equalToSuperview().inset(20.0)
+            }
+        }
+    }
+    
+    override func viewDidLayoutSubviews() {
+        self.containerView.roundCorners(corners: [.topLeft, .topRight], radius: 30.0)
+        
+        if !isUp {
+            isUp = true
+            
+            self.label?.snp.remakeConstraints {
+                $0.left.right.equalToSuperview().inset(21.0)
+                $0.bottom.equalToSuperview().inset(60.0)
+                $0.top.equalToSuperview()
+            }
+            
+            self.containerView.snp.remakeConstraints {
+                //                $0.top.equalToSuperview()
+                $0.bottom.equalToSuperview()
+                $0.left.right.equalToSuperview()
+            }
+            
+            UIView.animate(withDuration: 0.2) { [weak self] in
+                self?.view.layoutIfNeeded()
+            }
+        }
+    }
+    
+    class func showBottomSheet(viewController: UIViewController, title: String?, label: UILabel, contentHeight: CGFloat) {
+        let vc = TermsBottomSheet(title: title, content: UIView(), contentHeight: contentHeight)
+        vc.modalPresentationStyle = .overFullScreen
+        vc.label = label
+        viewController.present(vc, animated: false)
     }
 }

@@ -29,6 +29,10 @@ class BadgeViewModel: BaseViewModel {
     init(input: Input? = nil) {
         self.input = input
         
+        self.reload()
+    }
+    
+    func reload() {
         UserServices.getUserInfo()
             .compactMap { $0 }
             .map {

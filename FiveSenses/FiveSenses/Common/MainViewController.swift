@@ -59,6 +59,11 @@ class MainViewController: UITabBarController, UITabBarControllerDelegate {
         self.tabBar.frame = frame
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        viewControllers?[1].tabBarItem.isEnabled = false
+    }
+    
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         

@@ -34,6 +34,9 @@ final class MonthlySenseView: UIView {
                     self.monthCardArray[index].setEmpty()
                 } else {
                     self.monthCardArray[index].senseImageView.image = UIImage(named: "box icon-\(value!.category.name)")
+                    if value!.category == .dontKnow {
+                        self.monthCardArray[index].senseImageView.image = UIImage(named: "box icon-Empty")
+                    }
                     self.monthCardArray[index].monthLabel.text = value!.month.toString(format: .OnlyMonth)
                 }
             }

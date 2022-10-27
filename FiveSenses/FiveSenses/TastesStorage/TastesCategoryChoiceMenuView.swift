@@ -24,6 +24,8 @@ final class TastesCategoryChoiceMenuView: UIView {
         }
     }
     
+    let bottomView = UIView()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
@@ -48,7 +50,15 @@ final class TastesCategoryChoiceMenuView: UIView {
         }.snp.makeConstraints {
             $0.top.equalTo(self.lineView.snp.bottom).offset(7.0)
             $0.left.right.equalToSuperview()
-            $0.bottom.equalToSuperview()
+//            $0.bottom.equalToSuperview()
+        }
+        
+        self.addSubview(bottomView)
+        self.bottomView.then {
+            $0.backgroundColor = .clear
+        }.snp.makeConstraints {
+            $0.top.equalTo(self.categoryStackView.snp.bottom)
+            $0.left.right.bottom.equalToSuperview()
         }
         
         self.backgroundColor = .clear

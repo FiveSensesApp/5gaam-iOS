@@ -36,7 +36,7 @@ final class WriteCategorySelectView: UIView {
         self.addSubview(titleLabel)
         self.titleLabel.then {
             $0.textAlignment = .left
-            let string = NSMutableAttributedString(string: "님의 취향,\n어떤 감각으로 기록할까요?", attributes: [.font: UIFont.bold(26.0), .foregroundColor: UIColor.black])
+            let string = NSMutableAttributedString(string: "\(Constants.CurrentUser?.nickname ?? "")님의 취향,\n어떤 감각으로 기록할까요?", attributes: [.font: UIFont.bold(26.0), .foregroundColor: UIColor.black])
             $0.attributedText = string
             $0.numberOfLines = 2
         }.snp.makeConstraints {

@@ -19,7 +19,7 @@ final class StatUserInfoView: UIView {
     private var numberOfPostImageView = UIImageView()
     private var numberOfPostLabel = UILabel()
     
-    private var badgeBackgroundImageView = UIImageView()
+    var badgeBackgroundImageView = UIImageView()
     private var badgeTitleLabel = UILabel()
     var moreBadgeButton = BaseButton()
     var badgeStackView = UIStackView()
@@ -46,7 +46,7 @@ final class StatUserInfoView: UIView {
             $0.setImage(UIImage(named: "설정 아이콘"), for: .normal)
         }.snp.makeConstraints {
             $0.width.height.equalTo(38.0)
-            $0.top.equalToSuperview().inset(44.0)
+            $0.top.equalToSuperview()
             $0.right.equalToSuperview().inset(21.0)
         }
         

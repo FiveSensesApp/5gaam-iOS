@@ -82,7 +82,7 @@ class BadgeViewController: CMViewController {
             $0.font = .medium(14.0)
             $0.textColor = .gray04
             $0.text = "취향을 기록해 대표 뱃지를 설정해보세요!\n획득조건은 미리 볼 수 있어요."
-            $0.numberOfLines = 2
+            $0.numberOfLines = 0
             $0.textAlignment = .center
         }.snp.makeConstraints {
             $0.top.equalTo(self.representBadgeTitleLabel.snp.bottom).offset(7.2)
@@ -135,7 +135,7 @@ class BadgeViewController: CMViewController {
                 if let badge = $0 {
                     self.representBadgeImageView.kf.setImage(with: URL(string: badge.imgUrl), options: [.processor(SVGProcessor())])
                     self.representBadgeTitle = badge.name
-                    self.representBadgeDescriptionLabel.text = "\(badge.description ?? "")/n\(badge.reqCondition ?? "")"
+                    self.representBadgeDescriptionLabel.text = "\(badge.description ?? "")" + "\n" + "\(badge.reqConditionShort ?? "")"
                 } else {
                     self.representBadgeTitle = "비어있어요"
                     self.representBadgeImageView.image = UIImage(named: "대표뱃지) 없을 때")
@@ -189,6 +189,9 @@ extension BadgeViewController: UICollectionViewDataSource, UICollectionViewDeleg
         vc.modalTransitionStyle = .crossDissolve
         vc.contentHeight = 408.0
         vc.badge = badge
+        vc.representBadgeCompletion = { [weak self] in
+            self?.viewModel.reload()
+        }
         self.present(vc, animated: true)
     }
 }
@@ -202,6 +205,8 @@ final class BadgeBottomSheet: BaseBottomSheetController {
     var representButton = BaseButton()
     var imageSaveButton = BaseButton()
     var writeButton = BaseButton()
+    
+    var representBadgeCompletion: (() -> Void)?
     
     var badge: Badge? {
         didSet {
@@ -321,6 +326,7 @@ final class BadgeBottomSheet: BaseBottomSheetController {
             }
             .bind { [weak self] in
                 if $0 {
+                    self?.representBadgeCompletion?()
                     self?.dismissActionSheet()
                 }
             }

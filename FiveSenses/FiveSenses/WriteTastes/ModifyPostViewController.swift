@@ -76,18 +76,27 @@ class ModifyPostViewController: CMViewController {
                     category: post.category,
                     keyword: self.writeView.keywordTextField.text ?? "",
                     star: self.writeView.starView.score,
-                    content: self.writeView.memoTextView.text
+                    content: self.getContentText()
                 )
                 
                 return PostServices.modifyPost(id: post.id, creatingPost: creatingPost)
             }
             .bind { [weak self] in
                 if $0 != nil {
+                    print("@@@@@@", $0!.modifiedDate)
                     self?.dismissCompletion?($0!)
                     self?.dismiss(animated: true)
                 }
             }
             .disposed(by: disposeBag)
+    }
+    
+    private func getContentText() -> String {
+        if self.writeView.memoTextView.text == "함께 기억하고 싶은 이야기가 있다면 \n기록해주세요. (선택 / 최대 100자)" {
+            return ""
+        } else {
+            return self.writeView.memoTextView.text ?? ""
+        }
     }
     
     private func setPost() {

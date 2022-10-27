@@ -176,6 +176,8 @@ enum DateFormatType: String {
     case WriteView = "yyyy.MM.dd"
     /// 2022-08-05T14:54:43.19
     case Server = "yyyy-MM-dd'T'HH:mm:ss"
+    /// 2022-10-27T00:02:30.837195
+    case LongServer = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS"
     /// 12월 11일
     case ModifyPost = "MM월 dd일"
     /// 2022-09-11
@@ -203,6 +205,7 @@ extension Date {
     func toString(format: DateFormatType) -> String? {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = format.rawValue
+        dateFormatter.locale = Locale(identifier: "Ko_kr")
         return dateFormatter.string(from: self)
     }
     

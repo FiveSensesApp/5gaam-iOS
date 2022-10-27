@@ -235,9 +235,9 @@ class TermsBottomSheetController: BaseBottomSheetController {
                 ① 오감 은(는) 개인정보 처리에 관한 업무를 총괄해서 책임지고, 개인정보 처리와 관련한 정보주체의 불만처리 및 피해구제 등을 위하여 아래와 같이 개인정보 보호책임자를 지정하고 있습니다.
 
                 ▶ 개인정보 보호책임자
-                성명 :경은하
-                직책 :안드로이드 개발자
-                직급 :안드로이드 개발자
+                성명 :최윤찬
+                직책 :서버 개발자
+                직급 :서버 개발자
                 연락처 : hi.mangpo@gmail.com
                 ※ 개인정보 보호 담당부서로 연결됩니다.
 
@@ -256,7 +256,6 @@ class TermsBottomSheetController: BaseBottomSheetController {
                 제12조(개인정보 처리방침 변경)
 
                 ①     이 개인정보처리방침은 2022년 1월 31일부터 적용됩니다.
-
                 """
                 )
                 vc.modalPresentationStyle = .fullScreen
@@ -285,9 +284,6 @@ class TermsBottomSheetController: BaseBottomSheetController {
                 이용자의 회원 탈퇴 또는 마케팅 정보 수신 동의 철회 시까지 보유 및 이용합니다.
 
                 ‘오감’ 서비스를 운용함에 있어 각종 정보를 이메일, 앱푸시 등의 방법으로 회원에게 제공할 수 있으며, 결제안내 등 의무적으로 안내되어야 하는 정보성 내용 및 일부 혜택성 정보는 수신동의 여부와 무관하게 제공합니다.
-
-
-
                 """
                 )
                 vc.modalPresentationStyle = .fullScreen
@@ -390,7 +386,10 @@ class TermView: UIView {
     }
 }
 
-class TermDetailViewController: OpenSourceViewController {
+class TermDetailViewController: BaseSettingViewController {
+    var opensourceLabel = UILabel()
+    
+    
     private var barTitle: String = ""
     private var content: String = ""
     
@@ -406,6 +405,17 @@ class TermDetailViewController: OpenSourceViewController {
         
         self.navigationBarView.title = self.barTitle
         self.opensourceLabel.text = content
+        
+        self.contentView.addSubview(opensourceLabel)
+        self.opensourceLabel.then {
+            $0.numberOfLines = 0
+            $0.font = .regular(14.0)
+            $0.textColor = .gray04
+        }.snp.makeConstraints {
+            $0.left.right.equalToSuperview()
+            $0.top.equalToSuperview().inset(-3.0)
+            $0.bottom.equalToSuperview().inset(60.0)
+        }
     }
     
     override func viewDidLoad() {

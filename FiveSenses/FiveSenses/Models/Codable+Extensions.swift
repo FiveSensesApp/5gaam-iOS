@@ -265,7 +265,7 @@ extension JSONDecoder {
         let decoder = JSONDecoder()
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = DateFormatType.Server.rawValue
-        
+//        2022-10-27T00:02:30.837195
         // Date format이 다른 경우 대응
         decoder.dateDecodingStrategy = .custom({ (decoder) -> Date in
             let container = try decoder.singleValueContainer()
@@ -273,6 +273,11 @@ extension JSONDecoder {
             if let dateStr = try? container.decode(String.self) {
                 if let date = dateFormatter.date(from: dateStr) {
                     return date
+                } else if dateStr.count == "2022-10-27T00:02:30.837195".count {
+                    dateFormatter.dateFormat = DateFormatType.LongServer.rawValue
+                    if let date = dateFormatter.date(from: dateStr) {
+                        return date
+                    }
                 } else {
                     dateFormatter.dateFormat = DateFormatType.Parameter.rawValue
                     if let date = dateFormatter.date(from: dateStr) {

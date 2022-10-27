@@ -29,7 +29,7 @@ final class TastesStorageViewController: CMViewController {
     override func loadView() {
         super.loadView()
         
-        self.navigationBarView.rightButton.setImage(UIImage(named: "검색 닫혔을때"), for: .normal)
+        self.navigationBarView.rightButton.setImage(UIImage(named: "InfoIcon"), for: .normal)
         self.navigationBarView.titleView = titleView
         self.navigationBarView.titleView.snp.remakeConstraints {
             $0.bottom.equalToSuperview()
@@ -105,10 +105,32 @@ final class TastesStorageViewController: CMViewController {
                     }
                     .disposed(by: disposeBag)
             }
+        
+        self.navigationBarView.rightButton
+            .rx.tap
+            .bind {
+                if let url = URL(string: "https://www.notion.so/5gaam/5gaam-3b45d6083ad044ab869f0df6378933de") {
+                    UIApplication.shared.open(url)
+                }
+            }
+            .disposed(by: disposeBag)
+        
+        self.tastesCategoryChoiceMenuView.bottomView
+            .rx.tapGesture()
+            .when(.recognized)
+            .bind { [weak self] _ in
+                if let self = self {
+                    self.toggleMenu(buttonView: self.titleView.arrowImageView, titleView: self.titleView)
+                    UIView.animate(withDuration: 0.1) {
+                        self.titleView.arrowImageView.transform = self.titleView.arrowImageView.transform.rotated(by: .pi)
+                    }
+                }
+                
+            }
+            .disposed(by: disposeBag)
     }
     
     private func setCurrentViewController(type: StorageType) {
-        // TODO: 타입 선택하면 타입에 맞게 뷰모델에서 데이터 가공
         self.timeLineViewController.view.isHidden = true
         self.senseViewController.view.isHidden = true
         self.scoreViewController.view.isHidden = true
@@ -143,6 +165,7 @@ final class TastesStorageViewController: CMViewController {
             self.tastesCategoryChoiceMenuView.snp.remakeConstraints {
                 $0.top.equalTo(navigationBarView.snp.bottom).offset(4.0)
                 $0.left.right.equalToSuperview()
+                $0.bottom.equalToSuperview()
             }
             self.tastesCategoryChoiceMenuView.addShadow(location: .bottom, color: .lightGray, opacity: 0.1, radius: 1.0)
         } else {
