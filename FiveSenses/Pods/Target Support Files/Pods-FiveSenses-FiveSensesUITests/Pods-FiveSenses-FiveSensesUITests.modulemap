@@ -1,6 +1,0 @@
-framework module Pods_FiveSenses_FiveSensesUITests {
-  umbrella header "Pods-FiveSenses-FiveSensesUITests-umbrella.h"
-
-  export *
-  module * { export * }
-}

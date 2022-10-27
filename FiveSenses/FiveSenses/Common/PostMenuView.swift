@@ -83,14 +83,14 @@ class PostMenuView: UIView {
         lineView1.snp.makeConstraints {
             $0.height.equalTo(1.0)
         }
-        self.containerView.addArrangedSubview(shareButton)
-        let lineView2 = UIView().then {
-            $0.backgroundColor = .gray04
-        }
-        self.containerView.addArrangedSubview(lineView2)
-        lineView2.snp.makeConstraints {
-            $0.height.equalTo(1.0)
-        }
+//        self.containerView.addArrangedSubview(shareButton)
+//        let lineView2 = UIView().then {
+//            $0.backgroundColor = .gray04
+//        }
+//        self.containerView.addArrangedSubview(lineView2)
+//        lineView2.snp.makeConstraints {
+//            $0.height.equalTo(1.0)
+//        }
         self.containerView.addArrangedSubview(deleteButton)
         deleteButton.titleLabel.textColor = .red02
     }

@@ -73,13 +73,13 @@ final class WriteBottomSheetViewController: BaseBottomSheetController {
         if !isUp, let tabBar = self.tabBar {
             isUp = true
             
-            self.contentView.snp.remakeConstraints {
-                $0.edges.equalToSuperview()
-                $0.height.equalTo(593.0)
-            }
+//            self.contentView.snp.updateConstraints {
+//                $0.edges.equalToSuperview()
+//                $0.height.equalTo(593.0)
+//            }
             
             self.containerView.snp.remakeConstraints {
-                $0.bottom.equalTo(tabBar.snp.top).offset(-1.0)
+                $0.bottom.equalTo(tabBar.snp.top).offset(1.0)
                 $0.left.right.equalToSuperview()
             }
             
@@ -123,7 +123,9 @@ final class WriteBottomSheetViewController: BaseBottomSheetController {
         }
         
         self.contentView.snp.remakeConstraints {
-            $0.edges.equalToSuperview()
+            $0.top.bottom.equalToSuperview()
+            $0.width.equalTo(Constants.DeviceWidth)
+            $0.height.equalTo(593.0)
         }
         
         if let writeButton = writeButton {

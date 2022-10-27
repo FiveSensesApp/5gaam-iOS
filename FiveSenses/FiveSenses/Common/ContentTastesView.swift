@@ -235,7 +235,7 @@ class DetailTastesViewController: UIViewController {
             x: menuButtonFrame.maxX - 126.0,
             y: menuButtonFrame.origin.y + 58.0,
             width: 112.0,
-            height: 150.0
+            height: 102.0
         )
         
         self.view.addSubview(postMenuView)

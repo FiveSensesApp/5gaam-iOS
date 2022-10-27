@@ -74,7 +74,7 @@ final class WriteCategorySelectView: UIView {
             $0.textAlignment = .center
         }.snp.makeConstraints {
             $0.bottom.equalToSuperview().inset(32.0)
-            $0.centerX.equalToSuperview()
+            $0.left.right.equalToSuperview()
         }
     }
     
