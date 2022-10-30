@@ -52,7 +52,7 @@ class OnBoardingViewController: UIViewController {
             $0.numberOfLines = 2
         }.snp.makeConstraints {
             $0.centerX.equalToSuperview()
-            $0.top.equalTo(self.view.safeAreaLayoutGuide).inset(116.0)
+            $0.top.equalTo(self.view).inset(116.0)
         }
         
         self.view.addSubview(illustImageView)
