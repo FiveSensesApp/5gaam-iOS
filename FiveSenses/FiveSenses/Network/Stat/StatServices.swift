@@ -41,12 +41,12 @@ final class StatServices: Networkable {
 }
 
 struct PercentageOfCategory: Codable {
-    var HEARING: Int
-    var TOUCH: Int
-    var SMELL: Int
-    var TASTE: Int
-    var AMBIGUOUS: Int
-    var SIGHT: Int
+    var HEARING: Double
+    var TOUCH: Double
+    var SMELL: Double
+    var TASTE: Double
+    var AMBIGUOUS: Double
+    var SIGHT: Double
 }
 
 struct MonthlyCategory: Codable {
