@@ -10,7 +10,8 @@ target 'FiveSenses' do
   pod 'Refreshable'
   pod 'Toaster'
   pod 'FSPagerView'
-  pod 'Carte'
+  pod 'AcknowList'
+#  pod 'Carte'
 
   target 'FiveSensesTests' do
     inherit! :search_paths
@@ -21,9 +22,8 @@ target 'FiveSenses' do
     # Pods for testing
   end
 
-end
-
-post_install do |installer|
-  pods_dir = File.dirname(installer.pods_project.path)
-  at_exit { `ruby #{pods_dir}/Carte/Sources/Carte/carte.rb configure` }
+#  post_install do |installer|
+#    pods_dir = File.dirname(installer.pods_project.path)
+#    at_exit { `ruby #{pods_dir}/Carte/Sources/Carte/carte.rb configure` }
+#  end
 end

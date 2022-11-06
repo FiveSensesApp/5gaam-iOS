@@ -11,6 +11,7 @@ import RxSwift
 import RxCocoa
 import RxGesture
 import MessageUI
+import AcknowList
 
 class SettingViewController: BaseSettingViewController, MFMailComposeViewControllerDelegate {
     var alertSwitch = UISwitch()
@@ -211,7 +212,9 @@ class SettingViewController: BaseSettingViewController, MFMailComposeViewControl
         self.openSourceLicenseButtonView.rx.tapGesture()
             .when(.recognized)
             .bind { [weak self] _ in
-                self?.present(OpenSourceViewController(), animated: true)
+                let acknowList = AcknowListViewController()
+                self?.present(acknowList, animated: true)
+//                self?.navigationController?.pushViewController(acknowList, animated: true)
             }
             .disposed(by: self.disposeBag)
         

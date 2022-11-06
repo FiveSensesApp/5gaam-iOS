@@ -67,7 +67,7 @@ class MainViewController: UITabBarController, UITabBarControllerDelegate {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
-        self.writeButton.frame = CGRect(x: self.tabBar.center.x - 34.5, y: self.view.bounds.height - 97.0, width: 69.0, height: 69.0)
+        self.writeButton.frame = CGRect(x: self.tabBar.center.x - 34.5, y: self.view.bounds.height - self.tabBar.frame.height - 15.0, width: 69.0, height: 69.0)
     }
     
     static func makeMainViewController() -> MainViewController {

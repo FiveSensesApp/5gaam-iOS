@@ -71,7 +71,7 @@ class PushAllowViewController: SignUpBaseViewController {
                 
                 Constants.CurrentUser = response.data
                 
-                UIApplication.shared.keyWindow?.replaceRootViewController(MainViewController.makeMainViewController(), animated: true, completion: nil)
+                UIApplication.shared.keyWindow?.replaceRootViewController(LoginViewController(), animated: true, completion: nil)
             }
             .disposed(by: disposeBag)
     }

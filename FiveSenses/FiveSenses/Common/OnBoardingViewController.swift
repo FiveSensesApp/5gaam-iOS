@@ -170,7 +170,7 @@ class OnBoardingViewController: UIViewController {
             .bind { [weak self] in
                 guard let self = self else { return }
                 
-                if $0 == 5 {
+                if $0 >= 5 {
                     let vc = CMNavigationController(rootViewController: EmailPasswordViewController())
                     vc.modalPresentationStyle = .fullScreen
                     self.present(vc, animated: true)
