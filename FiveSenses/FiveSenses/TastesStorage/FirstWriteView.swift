@@ -35,7 +35,6 @@ final class FirstWriteView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        
         let containerView = UIView()
         self.addSubview(containerView)
         containerView.backgroundColor = .gray01
@@ -87,17 +86,6 @@ final class FirstWriteView: UIView {
             $0.height.equalTo(44.0)
             $0.bottom.equalToSuperview()
         }
-        
-        self.label.rx.tapGesture()
-            .when(.recognized)
-            .bind { [weak self] _ in
-                if let url = URL(string: "https://www.notion.so/5gaam/5gaam-3b45d6083ad044ab869f0df6378933de") {
-                    UIApplication.shared.open(url)
-                    Defaults[\.hadSeenFirstView] = true
-                    self?.isHidden = true
-                }
-            }
-            .disposed(by: disposeBag)
     }
     
     required init?(coder: NSCoder) {

@@ -36,9 +36,6 @@ class ScoreViewController: BaseTastesViewController {
         self.tastesCollectionViewFlowLayout = UICollectionViewFlowLayout().then {
             $0.sectionInset = UIEdgeInsets(top: 8.0, left: 0.0, bottom: 29.0, right: 0.0)
         }
-        
-        self.firstWriteView.isHidden = true
-        
         self.filterCollectionView.delegate = self
         self.filterCollectionView.dataSource = self
     }
@@ -58,24 +55,8 @@ class ScoreViewController: BaseTastesViewController {
             }
             .disposed(by: disposeBag)
         
-        self.viewModel.output?.numberOfPosts
-            .bind { [weak self] in
-                if $0 == 0 {
-                    self?.setFirstWriteView(userNickname: Constants.CurrentUser?.nickname ?? "")
-                } else {
-                    self?.firstWriteView.isHidden = true
-                }
-            }
-            .disposed(by: disposeBag)
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        if self.viewModel.output?.numberOfPosts.value == 0 {
-            self.setFirstWriteView(userNickname: Constants.CurrentUser?.nickname ?? "")
-        }
-    }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)

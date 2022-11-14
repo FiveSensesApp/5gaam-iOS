@@ -26,6 +26,8 @@ final class TastesStorageViewController: CMViewController {
     var maskView = UIView()
     var isMenuDropped = false
     
+    var firstViewBackgroundView = UIView()
+    
     override func loadView() {
         super.loadView()
         
@@ -35,6 +37,13 @@ final class TastesStorageViewController: CMViewController {
             $0.bottom.equalToSuperview()
             $0.left.equalToSuperview().inset(20.0)
             $0.height.equalTo(44.0)
+        }
+        
+        self.navigationBarView.addSubview(firstViewBackgroundView)
+        self.firstViewBackgroundView.then {
+            $0.backgroundColor = .white.withAlphaComponent(0.8)
+        }.snp.makeConstraints {
+            $0.edges.equalToSuperview()
         }
         
         self.contentView.addSubview(tastesContainerView)
@@ -60,6 +69,7 @@ final class TastesStorageViewController: CMViewController {
         self.senseViewController.didMove(toParent: self)
         
         self.addChild(timeLineViewController)
+        timeLineViewController.parentVC = self
         self.tastesContainerView.addSubview(timeLineViewController.view)
         self.timeLineViewController.view.snp.makeConstraints { $0.edges.equalToSuperview() }
         self.timeLineViewController.didMove(toParent: self)

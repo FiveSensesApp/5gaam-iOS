@@ -55,10 +55,16 @@ final class WriteBottomSheetViewController: BaseBottomSheetController {
         }
     }
     
-    class func showBottomSheet(viewController: UIViewController, type: WriteBottomSheetType, tabBar: UITabBar, writeButton: UIButton) {
+    class func showBottomSheet(viewController: UIViewController, type: WriteBottomSheetType, tabBar: UITabBar, writeButton: UIButton, selectedCategory: FiveSenses? = nil) {
         let vc = WriteBottomSheetViewController(type: type, tabBar: tabBar, writeButton: writeButton)
         vc.modalPresentationStyle = .overCurrentContext
         vc.isBackgroundDismissOn = false
+        
+        if let selectedCategory = selectedCategory {
+            vc.writeView = WriteTastesView(sense: selectedCategory)
+            vc.setWriteView()
+        }
+        
         viewController.present(vc, animated: false)
         switch type {
         case .category:

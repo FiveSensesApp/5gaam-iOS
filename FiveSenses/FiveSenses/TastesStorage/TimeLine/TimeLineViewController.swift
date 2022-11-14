@@ -17,6 +17,8 @@ final class TimeLineViewController: BaseTastesViewController {
     lazy var adapter = Adapter(collectionView: self.tastesCollectionView)
     var viewModel = TimeLineViewModel()
     private var disposeBag = DisposeBag()
+    weak var parentVC: TastesStorageViewController?
+    let firstWriteViewBackgroundView = UIView()
     
     override func loadView() {
         super.loadView()
@@ -41,8 +43,17 @@ final class TimeLineViewController: BaseTastesViewController {
             $0.sectionInset = UIEdgeInsets(top: 8.0, left: 0.0, bottom: 29.0, right: 0.0)
         }
         
-        self.firstWriteView.isHidden = true
+        self.view.addSubview(firstWriteViewBackgroundView)
+        firstWriteViewBackgroundView.then {
+            $0.backgroundColor = .white.withAlphaComponent(0.8)
+        }.snp.makeConstraints {
+            $0.top.equalToSuperview().inset(-136.0)
+            $0.left.right.equalToSuperview()
+            $0.width.equalTo(Constants.DeviceWidth)
+            $0.height.equalTo(Constants.DeviceHeight)
+        }
         
+        self.view.bringSubviewToFront(self.firstWriteView)
     }
     
     override func viewDidLoad() {
@@ -59,6 +70,8 @@ final class TimeLineViewController: BaseTastesViewController {
                     self.setFirstWriteView(userNickname: Constants.CurrentUser?.nickname ?? "")
                 } else {
                     self.firstWriteView.isHidden = true
+                self.firstWriteViewBackgroundView.isHidden = true
+                self.parentVC?.firstViewBackgroundView.isHidden = true
                 }
                 
                 if let headerView = self.tastesCollectionView.visibleSupplementaryViews(ofKind: UICollectionView.elementKindSectionHeader).first as? TastesTotalCountHeaderView {
@@ -114,7 +127,54 @@ final class TimeLineViewController: BaseTastesViewController {
                 self.dismissPostMenu()
             }
             .disposed(by: disposeBag)
+     
+        
+        self.firstWriteView.label.rx.tapGesture()
+            .when(.recognized)
+            .bind { [weak self] _ in
+                if let url = URL(string: "https://www.notion.so/5gaam/5gaam-3b45d6083ad044ab869f0df6378933de") {
+                    UIApplication.shared.open(url)
+                    Defaults[\.hadSeenFirstView] = true
+                    self?.firstWriteView.isHidden = true
+                    self?.firstWriteViewBackgroundView.isHidden = true
+                    self?.parentVC?.firstViewBackgroundView.isHidden = true
+                }
+            }
+            .disposed(by: disposeBag)
+        
+        Observable.merge(
+            self.firstWriteView.sightButton.rx.tapGesture()
+                .when(.recognized)
+                .map { _ in FiveSenses.sight },
+            self.firstWriteView.hearingButton.rx.tapGesture()
+                .when(.recognized)
+                .map { _ in FiveSenses.hearing },
+            self.firstWriteView.smellButton.rx.tapGesture()
+                .when(.recognized)
+                .map { _ in FiveSenses.smell },
+            self.firstWriteView.tasteButton.rx.tapGesture()
+                .when(.recognized)
+                .map { _ in FiveSenses.taste },
+            self.firstWriteView.touchButton.rx.tapGesture()
+                .when(.recognized)
+                .map { _ in FiveSenses.touch },
+            self.firstWriteView.dontKnowButton.rx.tapGesture()
+                .when(.recognized)
+                .map { _ in FiveSenses.dontKnow }
+        )
+        .bind { [weak self] in
             
+            if let self = self, let mainVC = self.parentVC?.tabBarController as? MainViewController{
+                self.firstWriteView.isHidden = true
+                self.firstWriteViewBackgroundView.isHidden = true
+                self.parentVC?.firstViewBackgroundView.isHidden = true
+                
+                WriteBottomSheetViewController.showBottomSheet(viewController: self, type: .write, tabBar: mainVC.tabBar, writeButton: mainVC.writeButton, selectedCategory: $0)
+            }
+        }
+        .disposed(by: disposeBag)
+        
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -123,6 +183,23 @@ final class TimeLineViewController: BaseTastesViewController {
         if self.viewModel.output?.numberOfPosts.value == 0 {
             self.setFirstWriteView(userNickname: Constants.CurrentUser?.nickname ?? "")
         }
+    }
+    
+    func setFirstWriteView(userNickname: String) {
+        guard !Defaults[\.hadSeenFirstView] else {
+            self.firstWriteView.isHidden = true
+            self.firstWriteViewBackgroundView.isHidden = true
+            self.parentVC?.firstViewBackgroundView.isHidden = true
+            return
+        }
+        
+        let userNickname = NSMutableAttributedString(string: userNickname, attributes: [.font: UIFont.bold(20.0), .foregroundColor: UIColor.gray04])
+        let string = NSMutableAttributedString(string: "님,\n처음으로 취향을 감각해보세요!", attributes: [.font: UIFont.bold(20.0), .foregroundColor: UIColor.black])
+        userNickname.append(string)
+        self.firstWriteView.titleLabel.attributedText = userNickname
+        self.firstWriteView.isHidden = false
+        self.firstWriteViewBackgroundView.isHidden = false
+        self.parentVC?.firstViewBackgroundView.isHidden = false
     }
     
     override func viewDidAppear(_ animated: Bool) {

@@ -72,20 +72,6 @@ class BaseTastesViewController: UIViewController {
         
 //        showWritingManual()
     }
-    
-    func setFirstWriteView(userNickname: String) {
-        guard !Defaults[\.hadSeenFirstView] else {
-            self.firstWriteView.isHidden = true
-            return
-        }
-        
-        let userNickname = NSMutableAttributedString(string: userNickname, attributes: [.font: UIFont.bold(20.0), .foregroundColor: UIColor.gray04])
-        let string = NSMutableAttributedString(string: "님,\n처음으로 취향을 감각해보세요!", attributes: [.font: UIFont.bold(20.0), .foregroundColor: UIColor.black])
-        userNickname.append(string)
-        self.firstWriteView.titleLabel.attributedText = userNickname
-        self.firstWriteView.isHidden = false
-    }
-    
     func showPostMenu(menuButtonFrame: CGRect, post: Post) {
         guard !isPostMenuOpen else { return }
         
