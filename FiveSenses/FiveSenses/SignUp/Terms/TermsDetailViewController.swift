@@ -77,11 +77,50 @@ class TermsBottomSheetController: BaseBottomSheetController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.allView.isConfirmed
+        self.allView.disposeBag = DisposeBag()
+        
+        self.allView.confirmButton.rx.tap
             .bind { [weak self] in
-                self?.ruleView.isConfirmed.accept($0)
-                self?.privacyView.isConfirmed.accept($0)
-                self?.marketingView.isConfirmed.accept($0)
+                guard let self = self else { return }
+                let allowed = !self.allView.isConfirmed.value
+                
+                self.allView.isConfirmed.accept(allowed)
+                
+                self.ruleView.isConfirmed.accept(allowed)
+                self.privacyView.isConfirmed.accept(allowed)
+                self.marketingView.isConfirmed.accept(allowed)
+            }
+            .disposed(by: disposeBag)
+        
+        self.allView.isConfirmed
+            .distinctUntilChanged()
+            .bind { [weak self] in
+                if $0 {
+                    self?.allView.confirmButton.setImage(UIImage(named: "체크완료"), for: .normal)
+                } else {
+                    self?.allView.confirmButton.setImage(UIImage(named: "체크"), for: .normal)
+                }
+                
+                if let vc = self?.viewController as? EmailPasswordViewController {
+                    vc.isRuleConfirmed.accept($0)
+                }
+            }
+            .disposed(by: disposeBag)
+        
+        Observable.combineLatest(self.ruleView.isConfirmed, self.privacyView.isConfirmed, self.marketingView.isConfirmed)
+            .map {
+                $0 && $1 && $2
+            }
+            .distinctUntilChanged()
+            .bind(to: self.allView.isConfirmed)
+            .disposed(by: disposeBag)
+        
+        self.marketingView.isConfirmed
+            .distinctUntilChanged()
+            .bind { [weak self] in
+                if !$0 {
+                    self?.allView.isConfirmed.accept(false)
+                }
             }
             .disposed(by: disposeBag)
         
@@ -310,7 +349,9 @@ class TermsBottomSheetController: BaseBottomSheetController {
             self.dismissActionSheet()
             
             if let vc = viewController as? EmailPasswordViewController {
-                vc.isRuleConfirmed.accept(self.allView.isConfirmed.value)
+                vc.ruleConfirmed.accept(self.ruleView.isConfirmed.value)
+                vc.privacyConfirmed.accept(self.privacyView.isConfirmed.value)
+                vc.marketingConfirmed.accept(self.marketingView.isConfirmed.value)
             }
         }
     }
@@ -375,6 +416,7 @@ class TermView: UIView {
             .disposed(by: disposeBag)
         
         self.isConfirmed
+            .distinctUntilChanged()
             .bind { [weak self] in
                 if $0 {
                     self?.confirmButton.setImage(UIImage(named: "체크완료"), for: .normal)

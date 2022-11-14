@@ -28,6 +28,9 @@ class EmailPasswordViewController: SignUpBaseViewController {
     private var isPasswordCorrect = PublishRelay<Bool>()
     
     var isRuleConfirmed = BehaviorRelay<Bool>(value: false)
+    var ruleConfirmed = BehaviorRelay<Bool>(value: false)
+    var privacyConfirmed = BehaviorRelay<Bool>(value: false)
+    var marketingConfirmed = BehaviorRelay<Bool>(value: false)
     
     override func loadView() {
         super.loadView()
@@ -233,6 +236,9 @@ class EmailPasswordViewController: SignUpBaseViewController {
                 
                 let vc = TermsBottomSheetController(title: "약관 확인하기", content: UIView(), contentHeight: 559.0)
                 vc.allView.isConfirmed.accept(self.isRuleConfirmed.value)
+                vc.ruleView.isConfirmed.accept(self.ruleConfirmed.value)
+                vc.privacyView.isConfirmed.accept(self.privacyConfirmed.value)
+                vc.marketingView.isConfirmed.accept(self.marketingConfirmed.value)
                 vc.viewController = self
                 vc.modalPresentationStyle = .overCurrentContext
                 self.present(vc, animated: false)
@@ -244,8 +250,16 @@ class EmailPasswordViewController: SignUpBaseViewController {
             .bind { [weak self] in
                 guard let self = self else { return }
                 
-                self.isRuleConfirmed.accept(!self.isRuleConfirmed.value)
+                self.ruleConfirmed.accept(!self.isRuleConfirmed.value)
+                self.privacyConfirmed.accept(!self.isRuleConfirmed.value)
+                self.marketingConfirmed.accept(!self.isRuleConfirmed.value)
             }
+            .disposed(by: disposeBag)
+        
+        Observable.combineLatest(self.ruleConfirmed, self.privacyConfirmed, self.marketingConfirmed)
+            .map { $0 && $1 && $2 }
+            .distinctUntilChanged()
+            .bind(to: self.isRuleConfirmed)
             .disposed(by: disposeBag)
         
         self.isRuleConfirmed
@@ -281,9 +295,11 @@ class EmailPasswordViewController: SignUpBaseViewController {
         Observable.combineLatest(
             self.emailTextfield.isConfirmed,
             self.isPasswordCorrect,
-            self.isRuleConfirmed
+            self.ruleConfirmed,
+            self.privacyConfirmed
         )
-        .map { $0 && $1 && $2 }
+        .map { $0 && $1 && $2 && $3 }
+        .distinctUntilChanged()
         .bind { [weak self] in
             self?.navigationBarView.nextButton.isEnabled = $0
         }
