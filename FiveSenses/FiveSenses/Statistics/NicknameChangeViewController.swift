@@ -106,6 +106,9 @@ class NicknameChangeViewController: BaseSettingViewController {
             }
             .bind { [weak self] in
                 if $0 {
+                    if let nickname = self?.nicknameTextField.text {
+                        Constants.CurrentUser?.nickname = nickname
+                    }
                     self?.dismiss(animated: true)
                 }
             }
