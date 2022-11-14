@@ -70,18 +70,13 @@ final class WriteBottomSheetViewController: BaseBottomSheetController {
     
     override func viewDidLayoutSubviews() {
         self.mask()
+        
         if !isUp, let tabBar = self.tabBar {
+            self.containerView.layoutIfNeeded()
             isUp = true
             
-//            self.contentView.snp.updateConstraints {
-//                $0.edges.equalToSuperview()
-//                $0.height.equalTo(593.0)
-//            }
-            
             self.containerView.snp.remakeConstraints {
-//                CGRect(x: self.tabBar.center.x - 34.5, y: self.view.bounds.height - 97.0, width: 69.0, height: 69.0)
                 $0.bottom.equalTo(tabBar.snp.top).offset(-1.0)
-//                $0.bottom.equalTo(tabBar.snp.top).offset(97.0 - (self.tabBar?.frame.height ?? 0))
                 $0.left.right.equalToSuperview()
             }
             

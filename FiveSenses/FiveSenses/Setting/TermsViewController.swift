@@ -336,6 +336,7 @@ final class TermsBottomSheet: BaseBottomSheetController {
         self.containerView.roundCorners(corners: [.topLeft, .topRight], radius: 30.0)
         
         if !isUp {
+            self.containerView.layoutIfNeeded()
             isUp = true
             
             self.label?.snp.remakeConstraints {

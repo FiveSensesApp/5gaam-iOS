@@ -331,12 +331,6 @@ class TermsBottomSheetController: BaseBottomSheetController {
             .disposed(by: disposeBag)
     }
     
-    override class func showBottomSheet(viewController: UIViewController, title: String?, content: UIView, contentHeight: CGFloat) {
-        let vc = BaseBottomSheetController(title: title, content: content, contentHeight: contentHeight)
-        vc.modalPresentationStyle = .fullScreen
-        viewController.present(vc, animated: false)
-    }
-    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touchView = touches.first?.view else { return }
         
@@ -352,6 +346,31 @@ class TermsBottomSheetController: BaseBottomSheetController {
                 vc.ruleConfirmed.accept(self.ruleView.isConfirmed.value)
                 vc.privacyConfirmed.accept(self.privacyView.isConfirmed.value)
                 vc.marketingConfirmed.accept(self.marketingView.isConfirmed.value)
+            }
+        }
+    }
+    
+    override func viewDidLayoutSubviews() {
+        self.containerView.roundCorners(corners: [.topLeft, .topRight], radius: 30.0)
+        
+        if !isUp {
+            self.containerView.layoutIfNeeded()
+            isUp = true
+            
+            self.contentView.snp.remakeConstraints {
+                $0.left.right.equalToSuperview().inset(21.0)
+                $0.bottom.equalToSuperview().inset(60.0)
+                $0.top.equalTo(self.cancelButton.snp.bottom).offset(7.0)
+                $0.height.equalTo(self.contentHeight)
+            }
+            
+            self.containerView.snp.remakeConstraints {
+                $0.bottom.equalToSuperview()
+                $0.left.right.equalToSuperview()
+            }
+            
+            UIView.animate(withDuration: 0.2) { [weak self] in
+                self?.view.layoutIfNeeded()
             }
         }
     }

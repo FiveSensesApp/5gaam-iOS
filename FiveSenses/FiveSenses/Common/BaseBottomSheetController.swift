@@ -84,6 +84,7 @@ class BaseBottomSheetController: UIViewController {
         self.containerView.roundCorners(corners: [.topLeft, .topRight], radius: 30.0)
         
         if !isUp {
+            self.contentView.layoutIfNeeded()
             isUp = true
             
             self.contentView.snp.remakeConstraints {
