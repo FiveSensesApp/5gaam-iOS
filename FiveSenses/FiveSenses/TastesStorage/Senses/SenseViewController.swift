@@ -42,6 +42,8 @@ class SenseViewController: BaseTastesViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        self.firstWriteView.isHidden = true
+        
         self.adapter.delegate = self
         self.tastesCollectionView.delegate = self.adapter
         self.tastesCollectionView.dataSource = self.adapter

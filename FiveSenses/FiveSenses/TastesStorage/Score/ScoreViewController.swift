@@ -21,6 +21,8 @@ class ScoreViewController: BaseTastesViewController {
     override func loadView() {
         super.loadView()
         
+        self.firstWriteView.isHidden = true
+        
         self.filterCollectionView.snp.remakeConstraints {
             $0.height.equalTo(60.0)
             $0.top.equalToSuperview()

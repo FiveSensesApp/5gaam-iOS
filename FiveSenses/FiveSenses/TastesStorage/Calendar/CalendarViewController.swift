@@ -29,6 +29,8 @@ class CalendarViewController: BaseTastesViewController {
     override func loadView() {
         super.loadView()
         
+        self.firstWriteView.isHidden = true
+        
         self.view.addSubview(calendarView)
         calendarStyle()
         _ = self.calendarView.then {
