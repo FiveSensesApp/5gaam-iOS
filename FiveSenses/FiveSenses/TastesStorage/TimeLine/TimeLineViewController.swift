@@ -127,6 +127,20 @@ final class TimeLineViewController: BaseTastesViewController {
                 self.dismissPostMenu()
             }
             .disposed(by: disposeBag)
+        
+        self.postMenuView.shareButtonTapped
+            .asObservable()
+            .bind { [weak self] _ in
+                guard let self = self else { return }
+                
+                let prepareShareViewController = PrepareShareViewController()
+                prepareShareViewController.tastePost = self.postMenuView.post
+                let navigationController = CMNavigationController(rootViewController: prepareShareViewController)
+                navigationController.modalPresentationStyle = .fullScreen
+                self.present(navigationController, animated: true)
+                
+            }
+            .disposed(by: disposeBag)
      
         
         self.firstWriteView.label.rx.tapGesture()
@@ -183,6 +197,66 @@ final class TimeLineViewController: BaseTastesViewController {
         if self.viewModel.output?.numberOfPosts.value == 0 {
             self.setFirstWriteView(userNickname: Constants.CurrentUser?.nickname ?? "")
         }
+    }
+    
+    private func renderViewAsImage() -> UIImage? {
+//        let viewForCapture = UIView(frame: CGRect(x: 0, y: 0, width: 335.0, height: 335.0))
+//        let imageview = UIImageView(frame: CGRect(x: 57.0, y: 47.0, width: 262.0, height: 262.0))
+//        let logo = UIImageView(frame: CGRect(x: 12.0, y: 337.0, width: 59.0, height: 24.0))
+//        let dateLabel = UILabel()
+        
+        guard let tastePost = self.postMenuView.post else { return nil }
+        let contentView = ContentTastesView().then {
+            $0.menuButton.setImage(UIImage(named: "오감 로고 고정")?.withTintColor(tastePost.category.color), for: .normal)
+            $0.menuButton.snp.remakeConstraints {
+                $0.top.equalToSuperview().inset(29.0)
+                $0.right.equalToSuperview().inset(14.0)
+            }
+            $0.senseImageView.image = tastePost.category.characterImage
+            $0.dateLabel.textColor = tastePost.category.color
+            $0.dateLabel.text = tastePost.createdDate.toString(format: .WriteView)
+            $0.starView.setStar(score: tastePost.star, sense: tastePost.category)
+            
+            $0.keywordLabel.text = tastePost.keyword
+            $0.contentTextView.text = tastePost.content
+        }
+        
+        contentView.layoutIfNeeded()
+        
+//        viewForCapture.addSubview(contentView)
+        contentView.frame = CGRect(x: 0, y: 0, width: 335.0, height: 335.0)
+        
+//        viewForCapture.addSubview(imageview)
+//        _ = imageview.then {
+//            $0.kf.setImage(with: URL(string: badge!.imgUrl), options: [.processor(SVGProcessor())])
+//            $0.backgroundColor = .clear
+//        }
+//
+//        viewForCapture.addSubview(logo)
+//        logo.image = UIImage(named: "오감 로고 고정")
+//
+//        viewForCapture.addSubview(dateLabel)
+//        _ = dateLabel.then {
+//            $0.font = .bold(14.0)
+//            $0.textColor = .gray04
+//            $0.text = self.badge!.name + " | " + (Date().toString(format: .WriteView) ?? "")
+//            $0.sizeToFit()
+//            $0.frame = CGRect(x: 355.0 - $0.frame.width, y: 341.0, width: $0.frame.width, height: 17.0)
+//        }
+//
+//        _ = viewForCapture.then {
+//            $0.backgroundColor = .white
+//        }
+        
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 335.0, height: 335.0))
+        let image = renderer.image { ctx in
+            contentView.drawHierarchy(in: contentView.bounds, afterScreenUpdates: true)
+        }
+        
+        return image
+        
+//        UIImageWriteToSavedPhotosAlbum(image, self,
+//                #selector(image(_:didFinishSavingWithError:contextInfo:)), nil)
     }
     
     func setFirstWriteView(userNickname: String) {

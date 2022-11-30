@@ -17,6 +17,7 @@ class ContentTastesView: UIView {
     var contentTextView = UITextView()
     var dateLabel = UILabel()
     var starView = ContentTastesStarView()
+    let keywordBackgroundImageView = UIImageView(image: UIImage(named: "키워드배경"))
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -42,7 +43,6 @@ class ContentTastesView: UIView {
             $0.top.equalToSuperview().inset(57.0)
         }
         
-        let keywordBackgroundImageView = UIImageView(image: UIImage(named: "키워드배경"))
         self.addSubview(keywordBackgroundImageView)
         keywordBackgroundImageView.snp.makeConstraints {
             $0.right.equalToSuperview().inset(14.0)
@@ -194,6 +194,20 @@ class DetailTastesViewController: UIViewController {
                 self.dismissPostMenu()
             }
             .disposed(by: disposeBag)
+        
+        self.postMenuView.shareButtonTapped
+            .asObservable()
+            .bind { [weak self] _ in
+                guard let self = self else { return }
+                
+                let prepareShareViewController = PrepareShareViewController()
+                prepareShareViewController.tastePost = self.postMenuView.post
+                let navigationController = CMNavigationController(rootViewController: prepareShareViewController)
+                navigationController.modalPresentationStyle = .fullScreen
+                self.present(navigationController, animated: true)
+                
+            }
+            .disposed(by: disposeBag)
     }
     
     private func setPostView() {
@@ -235,7 +249,7 @@ class DetailTastesViewController: UIViewController {
             x: menuButtonFrame.maxX - 126.0,
             y: menuButtonFrame.origin.y + 58.0,
             width: 112.0,
-            height: 102.0
+            height: 146.0
         )
         
         self.view.addSubview(postMenuView)

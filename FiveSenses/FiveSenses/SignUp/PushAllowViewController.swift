@@ -14,6 +14,8 @@ class PushAllowViewController: SignUpBaseViewController {
     var imageView = UIImageView()
     var nextButton = BaseButton()
     
+    private var permissionShowed = false
+    
     override func loadView() {
         super.loadView()
         
@@ -49,21 +51,33 @@ class PushAllowViewController: SignUpBaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+       
+        
         self.nextButton.rx.tap
             .flatMap { [weak self] _ -> Observable<AuthServices.CreateUserResponse?> in
                 
                 guard let self = self else { return Observable.just(nil) }
                 
-                if self.title == "꾸준하게 기록해보세요." {
-                    self.title = "바로 써볼까요?"
-                    self.subtitle = "가입이 완료되었어요. 나만의 취향을 감각해보세요!"
-                    self.nextButton.setTitle("시작하기", for: .normal)
-                    self.imageView.image = UIImage(named: "시작하기 일러스트")
-                    return Observable.just(nil)
+                if self.permissionShowed {
+                    if self.title == "꾸준하게 기록해보세요." {
+                        self.title = "바로 써볼까요?"
+                        self.subtitle = "가입이 완료되었어요. 나만의 취향을 감각해보세요!"
+                        self.nextButton.setTitle("시작하기", for: .normal)
+                        self.imageView.image = UIImage(named: "시작하기 일러스트")
+                        return Observable.just(nil)
+                    } else {
+                        EmailPasswordViewController.creatingUser.isAlarmOn = false
+                        
+                        return AuthServices.createUser(creatingUser: EmailPasswordViewController.creatingUser)
+                    }
                 } else {
-                    EmailPasswordViewController.creatingUser.isAlarmOn = false
+                    UNUserNotificationCenter.current().delegate = self
+                    UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { [weak self] _, _ in
+                        
+                        self?.permissionShowed = true
+                    }
                     
-                    return AuthServices.createUser(creatingUser: EmailPasswordViewController.creatingUser)
+                    return Observable.just(nil)
                 }
             }
             .bind {
@@ -74,5 +88,15 @@ class PushAllowViewController: SignUpBaseViewController {
                 UIApplication.shared.keyWindow?.replaceRootViewController(LoginViewController(), animated: true, completion: nil)
             }
             .disposed(by: disposeBag)
+    }
+}
+
+extension PushAllowViewController: UNUserNotificationCenterDelegate {
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler([.alert, .badge, .sound])
+    }
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        completionHandler()
     }
 }

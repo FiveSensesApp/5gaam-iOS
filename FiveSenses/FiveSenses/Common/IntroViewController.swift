@@ -75,14 +75,29 @@ class IntroViewController: UIViewController {
                 if Constants.CurrentToken == nil {
                     UIApplication.shared.keyWindow?.replaceRootViewController(OnBoardingViewController(), animated: true, completion: nil)
                 } else {
-                    UserServices.getUserInfo()
-                        .bind {
-                            Constants.CurrentUser = $0?.createdUser
-                            UIApplication.shared.keyWindow?.replaceRootViewController(MainViewController.makeMainViewController(), animated: true, completion: nil)
-                        }
-                        .disposed(by: self.disposeBag)
+                    UNUserNotificationCenter.current().delegate = self
+                    UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { [weak self] _, _ in
+                        guard let self = self else { return }
+                        
+                        UserServices.getUserInfo()
+                            .bind {
+                                Constants.CurrentUser = $0?.createdUser
+                                UIApplication.shared.keyWindow?.replaceRootViewController(MainViewController.makeMainViewController(), animated: true, completion: nil)
+                            }
+                            .disposed(by: self.disposeBag)
+                    }
                 }
             })
         })
+    }
+}
+
+extension IntroViewController: UNUserNotificationCenterDelegate {
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler([.alert, .badge, .sound])
+    }
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        completionHandler()
     }
 }
