@@ -70,23 +70,27 @@ class IntroViewController: UIViewController {
             } else {
                 Constants.CurrentToken = nil
             }
-//            UIApplication.shared.keyWindow?.replaceRootViewController(OnBoardingViewController(), animated: true, completion: nil)
-            self.lottieView.play(completion: { _ in
-                if Constants.CurrentToken == nil {
-                    UIApplication.shared.keyWindow?.replaceRootViewController(OnBoardingViewController(), animated: true, completion: nil)
-                } else {
-                    UNUserNotificationCenter.current().delegate = self
-                    UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { [weak self] _, _ in
-                        guard let self = self else { return }
-                        
-                        UserServices.getUserInfo()
-                            .bind {
-                                Constants.CurrentUser = $0?.createdUser
+            
+            self.lottieView.play(completion: { [weak self] _ in
+                guard let self else { return }
+                
+                UserServices.getUserInfo()
+                    .observe(on: MainScheduler.asyncInstance)
+                    .bind {
+                        guard let userInfo = $0 else {
+                            UIApplication.shared.keyWindow?.replaceRootViewController(OnBoardingViewController(), animated: true, completion: nil)
+                            return
+                        }
+                        UNUserNotificationCenter.current().delegate = self
+                        Constants.CurrentUser = userInfo.createdUser
+                        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { [weak self] _, _ in
+                            guard let self = self else { return }
+                            DispatchQueue.main.async {
                                 UIApplication.shared.keyWindow?.replaceRootViewController(MainViewController.makeMainViewController(), animated: true, completion: nil)
                             }
-                            .disposed(by: self.disposeBag)
+                        }
                     }
-                }
+                    .disposed(by: self.disposeBag)
             })
         })
     }

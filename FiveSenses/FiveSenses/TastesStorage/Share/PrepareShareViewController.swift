@@ -10,6 +10,7 @@ import UIKit
 import RxSwift
 import RxCocoa
 import EmojiPicker
+import PhotosUI
 
 final class PrepareShareViewController: CMViewController {
     private var closeButton = BaseButton()
@@ -18,6 +19,14 @@ final class PrepareShareViewController: CMViewController {
     
     var customButton = BaseButton()
     var shareButton = BaseButton()
+    var backgroundImageView = UIImageView()
+    var backgroundImageAddView = UIView()
+    private var plusImageView = UIImageView()
+    private var backgroundImageAddLabel = UILabel()
+    
+    let imagePicker = UIImagePickerController()
+    
+    var configuration = PHPickerConfiguration()
     
     var tastePost: Post? {
         didSet {
@@ -58,6 +67,14 @@ final class PrepareShareViewController: CMViewController {
         self.navigationBarView.snp.remakeConstraints {
             $0.height.equalTo(0)
             $0.top.left.right.equalToSuperview()
+        }
+        
+        self.view.addSubview(backgroundImageView)
+        self.backgroundImageView.then {
+            $0.contentMode = .scaleAspectFill
+            $0.backgroundColor = .clear
+        }.snp.makeConstraints {
+            $0.edges.equalToSuperview()
         }
         
         self.view.addSubview(closeButton)
@@ -123,10 +140,46 @@ final class PrepareShareViewController: CMViewController {
             $0.left.equalTo(self.view.snp.centerX).offset(8.0)
             $0.top.equalTo(self.contentTastesView.snp.bottom).offset(38.0)
         }
+        
+        self.view.addSubview(backgroundImageAddView)
+        self.backgroundImageAddView.then {
+            $0.layer.borderColor = UIColor.gray03.cgColor
+            $0.layer.borderWidth = 1.0
+            $0.layer.cornerRadius = 17.0
+            $0.layer.masksToBounds = true
+        }.snp.makeConstraints {
+            $0.right.equalToSuperview().inset(20.0)
+            $0.centerY.equalTo(self.titleLabel)
+            $0.width.equalTo(104.0)
+            $0.height.equalTo(34.0)
+        }
+        
+        self.backgroundImageAddView.addSubview(plusImageView)
+        self.plusImageView.then {
+            $0.image = UIImage(named: "배경추가")
+        }.snp.makeConstraints {
+            $0.left.equalToSuperview().inset(12.0)
+            $0.centerY.equalToSuperview()
+            $0.width.height.equalTo(11.0)
+        }
+        
+        self.backgroundImageAddView.addSubview(backgroundImageAddLabel)
+        self.backgroundImageAddLabel.then {
+            $0.font = .semiBold(16.0)
+            $0.text = "배경 추가"
+            $0.textColor = .gray04
+        }.snp.makeConstraints {
+            $0.right.equalToSuperview().inset(12.0)
+            $0.centerY.equalToSuperview()
+        }
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        self.imagePicker.delegate = self
+        configuration.selectionLimit = 1
+        configuration.filter = .images
         
         self.closeButton.rx.tap
             .bind { [weak self] in
@@ -151,6 +204,40 @@ final class PrepareShareViewController: CMViewController {
                 self?.shareButtonTapped()
             }
             .disposed(by: disposeBag)
+        
+        self.backgroundImageAddView
+            .rx.tapGesture()
+            .when(.recognized)
+            .bind { [weak self] _ in
+                guard let self else { return }
+                
+                let alert = UIAlertController(title: "선택", message: nil, preferredStyle: .actionSheet)
+                let library = UIAlertAction(title: "앨범", style: .default) { action in
+                    self.openLibrary()
+                }
+                let camera = UIAlertAction(title: "카메라", style: .default) { action in
+                    self.openCamera()
+                }
+                let cancel = UIAlertAction(title: "취소", style: .cancel, handler: nil)
+                
+                alert.addAction(library)
+                alert.addAction(camera)
+                alert.addAction(cancel)
+                
+                self.present(alert, animated: true)
+            }
+            .disposed(by: disposeBag)
+    }
+    
+    private func openCamera() {
+        imagePicker.sourceType = .camera
+        self.present(imagePicker, animated: true)
+    }
+    
+    private func openLibrary() {
+        let picker = PHPickerViewController(configuration: configuration)
+        picker.delegate = self
+        self.present(picker, animated: true, completion: nil)
     }
     
     private func setPostView() {
@@ -277,6 +364,15 @@ final class PrepareShareViewController: CMViewController {
         
         let view = UIView(frame: CGRect(x: 0, y: 0, width: Constants.DeviceWidth, height: Constants.DeviceHeight))
         
+        let backgroundImageView = UIImageView().then {
+            $0.contentMode = .scaleAspectFill
+            $0.image = self.backgroundImageView.image
+            $0.backgroundColor = .white
+        }
+        
+        view.addSubview(backgroundImageView)
+        backgroundImageView.frame = CGRect(x: 0, y: 0, width: Constants.DeviceWidth, height: Constants.DeviceHeight)
+        
         let tastesView = ContentTastesView()
         self.setPostView(view: tastesView)
         view.addSubview(tastesView)
@@ -287,6 +383,31 @@ final class PrepareShareViewController: CMViewController {
         view.layoutIfNeeded()
         
         return view.getImage()
+    }
+}
+
+extension PrepareShareViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        if let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
+            self.backgroundImageView.image = image
+            dismiss(animated: true)
+        }
+    }
+}
+
+extension PrepareShareViewController: PHPickerViewControllerDelegate {
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        picker.dismiss(animated: true, completion: nil)
+        
+        let itemProvider = results.first?.itemProvider
+        if let itemProvider = itemProvider,
+           itemProvider.canLoadObject(ofClass: UIImage.self) {
+            itemProvider.loadObject(ofClass: UIImage.self) { image, error in
+                DispatchQueue.main.sync {
+                    self.backgroundImageView.image = image as? UIImage
+                }
+            }
+        }
     }
 }
 
