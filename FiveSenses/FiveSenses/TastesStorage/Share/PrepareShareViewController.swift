@@ -264,6 +264,7 @@ final class PrepareShareViewController: CMViewController {
             string.append(string4)
             
             $0.attributedText = string
+            $0.backgroundColor = .gray01
         }.snp.makeConstraints {
             $0.right.equalToSuperview().inset(24.0)
             $0.centerY.equalTo(self.contentTastesView.dateLabel)
@@ -342,10 +343,12 @@ final class PrepareShareViewController: CMViewController {
         view.contentTextView.text = tastePost.content
         
         if tastePost.content == "" {
+            view.contentTextView.backgroundColor = .gray01
             view.contentTextView.snp.updateConstraints {
                 $0.height.equalTo(0)
             }
         } else {
+            view.contentTextView.backgroundColor = .white
             view.contentTextView.snp.updateConstraints {
                 $0.height.equalTo(134.0)
             }
@@ -514,6 +517,28 @@ final class CustomBottomSheetViewController: BaseBottomSheetController {
             UIView.animate(withDuration: 0.2) { [weak self] in
                 self?.view.layoutIfNeeded()
             }
+        }
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        let keyWindow = UIApplication.shared.windows.filter {$0.isKeyWindow}.first
+
+        if var topController = keyWindow?.rootViewController {
+            while let presentedViewController = topController.presentedViewController {
+                topController = presentedViewController
+            }
+
+            if topController != self {
+                return
+            }
+        }
+        
+        let touch: UITouch? = touches.first
+        
+        if let touchView = touch?.view,
+            touchView != containerView
+            && self.isBackgroundDismissOn {
+            self.dismissActionSheet()
         }
     }
     
