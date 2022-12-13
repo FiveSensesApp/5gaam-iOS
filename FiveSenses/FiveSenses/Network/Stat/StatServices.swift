@@ -73,7 +73,7 @@ struct MonthlyCategory: Codable {
         case "SIGHT":
             self.category = .sight
         default:
-            self.category = .dontKnow
+            self.category = .none
         }
     }
 }

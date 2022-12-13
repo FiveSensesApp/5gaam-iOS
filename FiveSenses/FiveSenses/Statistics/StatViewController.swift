@@ -177,6 +177,9 @@ final class StatViewController: CMViewController {
             .bind { [weak self] in
                 self?.monthlySenseView.sense = $0.category
                 self?.monthlySenseView.thisMonthSenseCountLabel.text = "신규 기록 \($0.cnt)개!"
+                if $0.category == .none {
+                    self?.monthlySenseView.thisMonthSenseCountLabel.text = "아직 이번 달에 작성한 기록이 없어요"
+                }
             }
             .disposed(by: self.disposeBag)
         

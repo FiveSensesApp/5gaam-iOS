@@ -299,6 +299,8 @@ final class DistributionGraphView: UIView {
                 graphImage = UIImage(named: "감각 분포 막대 그래프-촉각")
             case .dontKnow:
                 graphImage = UIImage(named: "감각 분포 막대 그래프-모르겠어요")
+            case .none:
+                break
             }
             
             let ratio = Double(value.count) / totalCount

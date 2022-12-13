@@ -48,6 +48,9 @@ final class MonthlySenseView: UIView {
             if let sense = sense {
                 self.thisMonthSenseImageView.image = sense.monthlyCharacterImage
                 self.thisMonthSenseNameLabel.text = "\(sense.name) | "
+                if sense == .none {
+                    self.thisMonthSenseNameLabel.text = ""
+                }
                 self.thisMonthSenseNameLabel.textColor = sense.color
             }
         }
