@@ -64,7 +64,7 @@ final class WriteBottomSheetViewController: BaseBottomSheetController {
             vc.writeView = WriteTastesView(sense: selectedCategory)
             vc.setWriteView()
         }
-        
+        writeButton.isUserInteractionEnabled = false
         viewController.present(vc, animated: false)
         switch type {
         case .category:
@@ -96,7 +96,7 @@ final class WriteBottomSheetViewController: BaseBottomSheetController {
         super.dismissActionSheet()
         
         NotificationCenter.default.post(name: .didWriteViewDismiss, object: nil)
-        
+        self.writeButton?.isUserInteractionEnabled = true
         self.writeButton?.setImage(UIImage(named: "기록 시작 버튼"), for: .normal)
         for (index, item) in (self.tabBar?.items ?? []).enumerated() {
             item.isEnabled = true
@@ -131,8 +131,8 @@ final class WriteBottomSheetViewController: BaseBottomSheetController {
             $0.height.equalTo(593.0)
         }
         
-        if let writeButton = writeButton {
-            self.view.addSubview(writebuttonView)
+        if let writeButton, let writeButtonParent = writeButton.superview {
+            writeButtonParent.addSubview(writebuttonView)
             writebuttonView.frame = writeButton.frame
             writebuttonView.backgroundColor = .clear
         }
@@ -190,6 +190,7 @@ final class WriteBottomSheetViewController: BaseBottomSheetController {
         
         self.writebuttonView.rx.tapGesture()
             .when(.recognized)
+            .debug("@@@@@@")
             .bind { [weak self] _ in
                 self?.writeButtonTapped()
             }
@@ -352,6 +353,8 @@ final class WriteBottomSheetViewController: BaseBottomSheetController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        
+        self.writebuttonView.removeFromSuperview()
     }
 }
 

@@ -43,7 +43,7 @@ class PostServices: Networkable {
                          star: Int? = nil,
                          createdDate: String? = nil) -> Observable<PostsResponse?> {
         PostServices.provider
-            .rx.request(.getPosts(page: page, size: size, sort: sort, category: category, star: star, createdDate: createdDate))
+            .requestWithToken(.getPosts(page: page, size: size, sort: sort, category: category, star: star, createdDate: createdDate))
             .asObservable()
             .map {
                 let response = $0.data.decode(PostsResponse.self)
@@ -58,7 +58,7 @@ class PostServices: Networkable {
     
     static func getCountOfPost(sense: FiveSenses? = nil, star: Int? = nil, createdDate: String? = nil) -> Observable<Int> {
         PostServices.provider
-            .rx.request(.getCountOfPost(sense: sense, star: star, createdDate: createdDate))
+            .requestWithToken(.getCountOfPost(sense: sense, star: star, createdDate: createdDate))
             .asObservable()
             .map {
                 let response = $0.data.decode(PostsCountResponse.self)
@@ -73,7 +73,7 @@ class PostServices: Networkable {
     
     static func createPost(creatingPost: CreatingPost) -> Observable<Post?> {
         PostServices.provider
-            .rx.request(.createPost(creatingPost: creatingPost))
+            .requestWithToken(.createPost(creatingPost: creatingPost))
             .asObservable()
             .map {
                 let response = $0.data.decode(CreatePostResponse.self)
@@ -86,7 +86,7 @@ class PostServices: Networkable {
     
     static func deletePost(post: Post) -> Observable<Bool> {
         PostServices.provider
-            .rx.request(.deletePost(post: post))
+            .requestWithToken(.deletePost(post: post))
             .asObservable()
             .map {
                 return $0.statusCode == 200
@@ -95,7 +95,7 @@ class PostServices: Networkable {
     
     static func modifyPost(id: Int, creatingPost: CreatingPost)  -> Observable<Post?> {
         PostServices.provider
-            .rx.request(.modifyPost(id: id, creatingPost: creatingPost))
+            .requestWithToken(.modifyPost(id: id, creatingPost: creatingPost))
             .asObservable()
             .map {
                 let response = $0.data.decode(CreatePostResponse.self)
@@ -121,10 +121,25 @@ class PostServices: Networkable {
     
     static func getIfPostPresent(startDate: Date, endDate: Date) -> Observable<[PostPresentResponse.Data]> {
         PostServices.provider
-            .rx.request(.getIfPostPresent(startDate: startDate, endDate: endDate))
+            .requestWithToken(.getIfPostPresent(startDate: startDate, endDate: endDate))
             .asObservable()
             .map {
                 let response = $0.data.decode(PostPresentResponse.self)
+                return response?.data ?? []
+            }
+    }
+    
+    struct SearchPostsResponse: Codable {
+        var meta: APIMeta
+        var data: [Post]
+    }
+    
+    static func searchPosts(with keyword: String) -> Observable<[Post]> {
+        PostServices.provider
+            .requestWithToken(.searchKeywordLike(keyword: keyword))
+            .asObservable()
+            .map {
+                let response = $0.data.decode(SearchPostsResponse.self)
                 return response?.data ?? []
             }
     }

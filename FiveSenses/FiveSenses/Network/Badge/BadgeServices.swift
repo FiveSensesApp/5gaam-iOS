@@ -28,7 +28,7 @@ class BadgeServices: Networkable {
                     return Observable.just([])
                 } else {
                     return BadgeServices.provider
-                        .rx.request(.getUserBadgesByUser)
+                        .requestWithToken(.getUserBadgesByUser)
                         .asObservable()
                         .map {
                             let response = $0.data.decode(BadgesResponse.self)
@@ -45,7 +45,7 @@ class BadgeServices: Networkable {
     
     static func getBadgeImageUrl(by name: String) -> Observable<String?> {
         BadgeServices.provider
-            .rx.request(.getBadge(name: name))
+            .requestWithToken(.getBadge(name: name))
             .asObservable()
             .map {
                 let response = $0.data.decode(BadgeResponse.self)
@@ -55,7 +55,7 @@ class BadgeServices: Networkable {
     
     static func getBadge(by name: String) -> Observable<Badge?> {
         BadgeServices.provider
-            .rx.request(.getBadge(name: name))
+            .requestWithToken(.getBadge(name: name))
             .asObservable()
             .map {
                 let response = $0.data.decode(BadgeResponse.self)
@@ -65,7 +65,7 @@ class BadgeServices: Networkable {
     
     static func checkUpdate() -> Observable<[Badge]?> {
         BadgeServices.provider
-            .rx.request(.checkUpdate)
+            .requestWithToken(.checkUpdate)
             .asObservable()
             .map {
                 let response = $0.data.decode(BadgesResponse.self)
@@ -75,7 +75,7 @@ class BadgeServices: Networkable {
     
     static func createUserBadge(badge: Badge) -> Observable<Bool> {
         BadgeServices.provider
-            .rx.request(.createUserBadge(badge: badge))
+            .requestWithToken(.createUserBadge(badge: badge))
             .asObservable()
             .map {
                 return $0.statusCode == 200

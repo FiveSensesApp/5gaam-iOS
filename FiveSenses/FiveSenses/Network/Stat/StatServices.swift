@@ -31,7 +31,7 @@ final class StatServices: Networkable {
     
     static func getStat() -> Observable<StatResponse.Data?> {
         StatServices.provider
-            .rx.request(.getStats)
+            .requestWithToken(.getStats)
             .asObservable()
             .map {
                 let response = $0.data.decode(StatResponse.self)
