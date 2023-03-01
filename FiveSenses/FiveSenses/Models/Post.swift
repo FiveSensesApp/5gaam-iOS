@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Post: Codable {
+struct Post: Codable, Hashable {
     var id: Int
     var category: FiveSenses
     var keyword: String

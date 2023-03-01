@@ -32,6 +32,7 @@ enum PostAPI {
     case deletePost(post: Post)
     case modifyPost(id: Int, creatingPost: CreatingPost)
     case getIfPostPresent(startDate: Date, endDate: Date)
+    case searchKeywordLike(keyword: String)
 }
 
 extension PostAPI: TargetType, AccessTokenAuthorizable {
@@ -53,6 +54,8 @@ extension PostAPI: TargetType, AccessTokenAuthorizable {
             return "/\(id)"
         case .getIfPostPresent:
             return "/present-between"
+        case .searchKeywordLike:
+            return "/search-keyword"
         }
     }
     
@@ -69,6 +72,8 @@ extension PostAPI: TargetType, AccessTokenAuthorizable {
         case .modifyPost:
             return .patch
         case .getIfPostPresent:
+            return .get
+        case .searchKeywordLike:
             return .get
         }
     }
@@ -118,6 +123,8 @@ extension PostAPI: TargetType, AccessTokenAuthorizable {
                 ],
                 encoding: URLEncoding.default
             )
+        case .searchKeywordLike(let keyword):
+            return .requestParameters(parameters: ["query": keyword], encoding: URLEncoding.default)
         }
     }
     

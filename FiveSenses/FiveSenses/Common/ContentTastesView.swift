@@ -99,6 +99,69 @@ class ContentTastesView: UIView {
     }
 }
 
+final class ContentTastesViewForShare: ContentTastesView {
+    var logoImageView = UIImageView()
+    var descriptionLabel = UILabel()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        
+        self.menuButton.removeFromSuperview()
+        
+        self.keywordLabel.font = .bold(10.34)
+        self.contentTextView.font = .medium(9.05)
+        
+        self.senseImageView.snp.updateConstraints {
+            $0.width.height.equalTo(47.28)
+            $0.left.equalToSuperview().inset(7.22)
+            $0.top.equalToSuperview().inset(35.46)
+        }
+        
+        self.keywordBackgroundImageView.snp.updateConstraints {
+            $0.right.equalToSuperview().inset(9.19)
+            $0.height.equalTo(31.52)
+            $0.left.equalTo(self.senseImageView.snp.right).offset(-3.94)
+            $0.centerY.equalTo(self.senseImageView)
+        }
+        
+        self.contentTextView.snp.updateConstraints {
+            $0.height.equalTo(88.0)
+            $0.left.right.equalToSuperview().inset(9.2)
+            $0.top.equalTo(self.senseImageView.snp.bottom).offset(3.29)
+        }
+        
+        self.dateLabel.then {
+            $0.font = .medium(7.75)
+        }.snp.updateConstraints {
+            $0.height.equalTo(12.19)
+            $0.left.equalToSuperview().inset(15.76)
+            $0.top.equalTo(self.contentTextView.snp.bottom).offset(12.48)
+        }
+        
+        self.addSubview(self.logoImageView)
+        self.logoImageView.then {
+            $0.image = UIImage(named: "오감-영문세로")?.withRenderingMode(.alwaysTemplate)
+        }.snp.makeConstraints {
+            $0.width.equalTo(47.41)
+            $0.height.equalTo(18.39)
+            $0.top.equalToSuperview().inset(19.04)
+            $0.right.equalToSuperview().inset(9.01)
+        }
+        
+        self.addSubview(self.descriptionLabel)
+        self.descriptionLabel.snp.makeConstraints {
+            $0.centerY.equalTo(self.dateLabel)
+            $0.right.equalToSuperview().inset(16.27)
+        }
+        
+        self.starView.removeFromSuperview()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+
 class DetailTastesViewController: UIViewController {
     var tastePost: Post? {
         didSet {
@@ -298,3 +361,4 @@ class DetailTastesViewController: UIViewController {
         self.present(alert, animated: true)
     }
 }
+

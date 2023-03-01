@@ -168,6 +168,25 @@ extension UIView {
     }
 }
 
+extension UIView {
+    
+    func addShadow(shadowColor: UIColor, offSet: CGSize, opacity: Float, shadowRadius: CGFloat, cornerRadius: CGFloat, corners: UIRectCorner, fillColor: UIColor = .white) {
+        
+        let shadowLayer = CAShapeLayer()
+        let size = CGSize(width: cornerRadius, height: cornerRadius)
+        let cgPath = UIBezierPath(roundedRect: self.bounds, byRoundingCorners: corners, cornerRadii: size).cgPath //1
+        shadowLayer.path = cgPath //2
+        shadowLayer.fillColor = fillColor.cgColor //3
+        shadowLayer.shadowColor = shadowColor.cgColor //4
+        shadowLayer.shadowPath = cgPath
+        shadowLayer.shadowOffset = offSet //5
+        shadowLayer.shadowOpacity = opacity
+        shadowLayer.shadowRadius = shadowRadius
+        self.layer.addSublayer(shadowLayer)
+    }
+}
+
+
 // MARK: - String <-> Date 변환
 enum DateFormatType: String {
     /// 7.2 (화) 오전 4:20
@@ -359,7 +378,16 @@ extension UIView {
         let image = renderer.image { rendererContext in
             self.layer.render(in: rendererContext.cgContext)
         }
-
+        
         return image
+    }
+    
+    // Using a function since `var image` might conflict with an existing variable
+    // (like on `UIImageView`)
+    func asImage() -> UIImage {
+        let renderer = UIGraphicsImageRenderer(bounds: bounds)
+        return renderer.image { rendererContext in
+            layer.render(in: rendererContext.cgContext)
+        }
     }
 }

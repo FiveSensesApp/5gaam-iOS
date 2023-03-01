@@ -45,19 +45,6 @@ class IntroViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let mainViewController = MainViewController()
-        let vc1 = TastesStorageViewController().then {
-            $0.view.backgroundColor = .white
-            $0.tabBarItem.image = UIImage(named: "보관함 아이콘")
-            $0.tabBarItem.imageInsets = UIEdgeInsets(top: 12.0, left: 0, bottom: -12.0, right: 0)
-        }
-        let vc2 = UIViewController()
-        let vc3 = SettingViewController().then {
-            $0.tabBarItem.image = UIImage(named: "성향분석 아이콘")
-            $0.tabBarItem.imageInsets = UIEdgeInsets(top: 12.0, left: 0, bottom: -12.0, right: 0)
-        }
-        mainViewController.viewControllers = [vc1, vc2, vc3]
-        
         self.lottieView.play(completion: { [weak self] _ in
             
             guard let self = self else {

@@ -31,7 +31,7 @@ final class TastesStorageViewController: CMViewController {
     override func loadView() {
         super.loadView()
         
-        self.navigationBarView.rightButton.setImage(UIImage(named: "InfoIcon"), for: .normal)
+        self.navigationBarView.rightButton.setImage(UIImage(named: "검색 닫혔을때"), for: .normal)
         self.navigationBarView.titleView = titleView
         self.navigationBarView.titleView.snp.remakeConstraints {
             $0.bottom.equalToSuperview()
@@ -118,10 +118,10 @@ final class TastesStorageViewController: CMViewController {
         
         self.navigationBarView.rightButton
             .rx.tap
-            .bind {
-                if let url = URL(string: "https://www.notion.so/5gaam/5gaam-3b45d6083ad044ab869f0df6378933de") {
-                    UIApplication.shared.open(url)
-                }
+            .bind { [weak self] in
+                guard let self else { return }
+                
+                self.navigationController?.pushViewController(SearchPostViewController(), animated: true)
             }
             .disposed(by: disposeBag)
         

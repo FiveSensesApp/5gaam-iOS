@@ -72,7 +72,7 @@ class MainViewController: UITabBarController, UITabBarControllerDelegate {
     
     static func makeMainViewController() -> MainViewController {
         let mainViewController = MainViewController()
-        let vc1 = TastesStorageViewController().then {
+        let vc1 = CMNavigationController(rootViewController: TastesStorageViewController()) .then {
             $0.view.backgroundColor = .white
             $0.tabBarItem.image = UIImage(named: "보관함 아이콘")
             $0.tabBarItem.imageInsets = UIEdgeInsets(top: 12.0, left: 0, bottom: -12.0, right: 0)

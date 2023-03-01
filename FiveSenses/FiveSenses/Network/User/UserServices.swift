@@ -74,7 +74,7 @@ class UserServices: Networkable {
     
     static func getUserInfo() -> Observable<UserInfo?> {
         UserServices.provider
-            .rx.request(.getUserInfo)
+            .requestWithToken(.getUserInfo)
             .asObservable()
             .map {
                 let response = $0.data.decode(UserInfoResponse.self)
@@ -84,7 +84,7 @@ class UserServices: Networkable {
     
     static func updateUser(updatingUser: UpdatingUser) -> Observable<Bool> {
         UserServices.provider
-            .rx.request(.updateUser(updatingUser: updatingUser))
+            .requestWithToken(.updateUser(updatingUser: updatingUser))
             .asObservable()
             .map {
                 return $0.statusCode == 200
@@ -93,7 +93,7 @@ class UserServices: Networkable {
     
     static func changePassword(old: String, new: String) -> Observable<String?> {
         UserServices.provider
-            .rx.request(.changePassword(old: old, new: new))
+            .requestWithToken(.changePassword(old: old, new: new))
             .asObservable()
             .map {
                 let response = $0.data.decode(ValidateDuplicateResponse.self)
@@ -103,7 +103,7 @@ class UserServices: Networkable {
     
     static func deleteUser() {
         UserServices.provider
-            .rx.request(.deleteUser)
+            .requestWithToken(.deleteUser)
             .asObservable()
             .bind {
                 if $0.statusCode == 200 {

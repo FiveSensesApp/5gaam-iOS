@@ -156,7 +156,7 @@ class LoginViewController: UIViewController {
                 guard let self = self else { return Observable.just(false) }
                 self.loginButton.isEnabled = false
                 
-                return AuthServices.login(
+                return NewAuthServices.login(
                     email: self.emailTextfield.text ?? "",
                     password: self.passwordTextfield.text ?? ""
                 ).map {
