@@ -7,11 +7,6 @@
 
 import Foundation
 
-//"grantType": "Bearer",
-//"accessToken": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxOTkiLCJhdXRoIjoiUk9MRV9VU0VSIiwiZXhwIjoxNjczMTU2MTU5fQ.t1xSM7bgPkOkp0YBt1zi4kzd1koka6XTEQd4UgWvSGZmHHkuprAY6W8M0qzrWTBF-cRxcM22BnM6q8FgtAQ3Yw",
-//"refreshToken": "eyJhbGciOiJIUzUxMiJ9.eyJleHAiOjE2NzM3NTkxNTl9.dA0OOcA2NtagO2V8nM7mTNs6B0DYx-kpR84fWWMV8V103Nbfbnm2abaUv8sTKfVOpyV5qLHXBh_jCj6vZmjSog",
-//"accessTokenExpiresIn": 1673156159908
-
 struct TokenModel: Codable {
     var grantType: String
     var accessToken: String?
