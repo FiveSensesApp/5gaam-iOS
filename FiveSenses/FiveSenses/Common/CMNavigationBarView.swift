@@ -8,7 +8,9 @@
 import UIKit
 
 final class CMNavigationBarView: UIView {
-    var rightButton = UIButton()
+    var rightButton = UIButton().then {
+        $0.adjustsImageWhenHighlighted = false
+    }
     var titleView = UIView() {
         didSet {
             self.addSubview(titleView)

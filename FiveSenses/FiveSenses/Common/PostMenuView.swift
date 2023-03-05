@@ -47,13 +47,11 @@ class PostMenuView: UIView {
     
     private var containerView = UIStackView()
     var modifyButton = PostMenu(image: UIImage(named: "수정 아이콘"), title: "수정")
-    var shareButton = PostMenu(image: UIImage(named: "공유 아이콘"), title: "공유")
     var deleteButton = PostMenu(image: UIImage(named: "삭제 아이콘"), title: "삭제")
     
     var post: Post?
     lazy var deleteButtonTapped = self.deleteButton.rx.tapGesture().when(.recognized)
     lazy var modifyButtonTapped = self.modifyButton.rx.tapGesture().when(.recognized)
-    lazy var shareButtonTapped = self.shareButton.rx.tapGesture().when(.recognized)
     
     private var disposeBag = DisposeBag()
     
@@ -81,14 +79,6 @@ class PostMenuView: UIView {
         }
         self.containerView.addArrangedSubview(lineView1)
         lineView1.snp.makeConstraints {
-            $0.height.equalTo(1.0)
-        }
-        self.containerView.addArrangedSubview(shareButton)
-        let lineView2 = UIView().then {
-            $0.backgroundColor = .gray04
-        }
-        self.containerView.addArrangedSubview(lineView2)
-        lineView2.snp.makeConstraints {
             $0.height.equalTo(1.0)
         }
         self.containerView.addArrangedSubview(deleteButton)

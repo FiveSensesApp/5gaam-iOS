@@ -128,21 +128,6 @@ final class TimeLineViewController: BaseTastesViewController {
             }
             .disposed(by: disposeBag)
         
-        self.postMenuView.shareButtonTapped
-            .asObservable()
-            .bind { [weak self] _ in
-                guard let self = self else { return }
-                
-                let prepareShareViewController = PrepareShareViewController()
-                prepareShareViewController.tastePost = self.postMenuView.post
-                let navigationController = CMNavigationController(rootViewController: prepareShareViewController)
-                navigationController.modalPresentationStyle = .fullScreen
-                self.present(navigationController, animated: true)
-                
-            }
-            .disposed(by: disposeBag)
-     
-        
         self.firstWriteView.label.rx.tapGesture()
             .when(.recognized)
             .bind { [weak self] _ in
@@ -278,11 +263,25 @@ extension TimeLineViewController: AdapterDelegate {
             view.totalCountLabel.text = "총 \(count)개"
         case (.post(let post), let cell as ContentTastesCell):
             cell.configure(tastePost: post)
+            cell.tastesView.shareButton.isHidden = false
             cell.tastesView.menuButton
                 .rx.tapGesture()
                 .when(.recognized)
                 .bind { [weak self] _ in
                     self?.showPostMenu(menuButtonFrame: cell.frame, post: post)
+                }
+                .disposed(by: cell.disposeBag)
+            cell.tastesView.shareButton
+                .rx.tap
+                .bind { [weak self] _ in
+                    guard let self = self else { return }
+
+                    let prepareShareViewController = PrepareShareViewController()
+                    prepareShareViewController.tastePost = cell.tastePost
+                    let navigationController = CMNavigationController(rootViewController: prepareShareViewController)
+                    navigationController.modalPresentationStyle = .fullScreen
+                    self.present(navigationController, animated: true)
+
                 }
                 .disposed(by: cell.disposeBag)
         default:

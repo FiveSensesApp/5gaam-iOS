@@ -18,6 +18,7 @@ class ContentTastesView: UIView {
     var dateLabel = UILabel()
     var starView = ContentTastesStarView()
     let keywordBackgroundImageView = UIImageView(image: UIImage(named: "키워드배경"))
+    var shareButton = UIButton()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -32,6 +33,16 @@ class ContentTastesView: UIView {
             $0.width.height.equalTo(44.0)
             $0.right.equalToSuperview()
             $0.top.equalToSuperview().inset(14.0)
+        }
+        
+        self.addSubview(self.shareButton)
+        self.shareButton.then {
+            $0.setImage(UIImage(named: "공유 버튼")?.withRenderingMode(.alwaysTemplate), for: .normal)
+            $0.isHidden = true
+        }.snp.makeConstraints {
+            $0.width.height.equalTo(44.0)
+            $0.top.equalTo(self.menuButton)
+            $0.right.equalTo(self.menuButton.snp.left)
         }
         
         self.addSubview(senseImageView)
@@ -105,6 +116,8 @@ final class ContentTastesViewForShare: ContentTastesView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        
+        self.layer.cornerRadius = 0
         
         self.menuButton.removeFromSuperview()
         
@@ -258,17 +271,18 @@ class DetailTastesViewController: UIViewController {
             }
             .disposed(by: disposeBag)
         
-        self.postMenuView.shareButtonTapped
-            .asObservable()
+        self.contentTastesView.shareButton.isHidden = false
+        self.contentTastesView.shareButton
+            .rx.tap
             .bind { [weak self] _ in
                 guard let self = self else { return }
-                
+
                 let prepareShareViewController = PrepareShareViewController()
-                prepareShareViewController.tastePost = self.postMenuView.post
+                prepareShareViewController.tastePost = self.tastePost
                 let navigationController = CMNavigationController(rootViewController: prepareShareViewController)
                 navigationController.modalPresentationStyle = .fullScreen
                 self.present(navigationController, animated: true)
-                
+
             }
             .disposed(by: disposeBag)
     }
@@ -312,7 +326,7 @@ class DetailTastesViewController: UIViewController {
             x: menuButtonFrame.maxX - 126.0,
             y: menuButtonFrame.origin.y + 58.0,
             width: 112.0,
-            height: 146.0
+            height: 102.0
         )
         
         self.view.addSubview(postMenuView)

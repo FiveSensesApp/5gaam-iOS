@@ -38,15 +38,22 @@ final class PrepareShareViewController: CMViewController {
     }
     
     var iconCustomView = UIView()
-    var characterButton = UIButton()
-    var emojiButton = UIButton()
-    var textOnlyButton = UIButton()
+    var characterButton = UIButton().then {
+        $0.adjustsImageWhenHighlighted = false
+    }
+    var emojiButton = UIButton().then {
+        $0.adjustsImageWhenHighlighted = false
+    }
+    var textOnlyButton = UIButton().then {
+        $0.adjustsImageWhenHighlighted = false
+    }
     
     var contentTastesView = ContentTastesViewForShare()
     
     var backgroundImage: UIImage? = nil {
         didSet {
             self.pagerView.reloadData()
+            self.shareButton.isEnabled = (self.backgroundImage != nil)
         }
     }
     
@@ -144,7 +151,9 @@ final class PrepareShareViewController: CMViewController {
         self.view.addSubview(shareButton)
         self.shareButton.then {
             $0.makeCornerRadius(radius: 19.0)
-            $0.backgroundColor = .black
+            $0.isEnabled = true
+            $0.setBackgroundImage(UIImage.color(UIColor.black), for: .normal)
+            $0.setBackgroundImage(UIImage.color(UIColor.gray03), for: .disabled)
             $0.setTitle("공유", for: .normal)
             $0.setTitleColor(.white, for: .normal)
             $0.titleLabel?.font = .bold(18.0)
@@ -329,6 +338,7 @@ final class PrepareShareViewController: CMViewController {
         self.contentTastesView.contentTextView.text = tastePost.content
         
         if tastePost.content == "" {
+            self.contentTastesView.contentTextView.isHidden = true
             self.contentTastesView.contentTextView.snp.updateConstraints {
                 $0.height.equalTo(0)
             }
@@ -417,6 +427,13 @@ extension PrepareShareViewController: FSPagerViewDataSource, FSPagerViewDelegate
         return cell
     }
     
+    func pagerViewDidEndDecelerating(_ pagerView: FSPagerView) {
+        if pagerView.currentIndex == 0 {
+            self.shareButton.isEnabled = true
+        } else {
+            self.shareButton.isEnabled = (self.backgroundImage != nil)
+        }
+    }
     
 }
 

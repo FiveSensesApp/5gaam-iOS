@@ -110,7 +110,11 @@ final class ShareContentPagerCell: FSPagerViewCell {
     
     private func renderTastesViewAsImage() -> UIImage? {
         
-        self.contentTastesView?.frame = CGRect(x: 0, y: 0, width: 220, height: 220)
+        if self.contentTastesView?.contentTextView.isHidden == true {
+            self.contentTastesView?.frame = CGRect(x: 0, y: 0, width: 220, height: 124.12)
+        } else {
+            self.contentTastesView?.frame = CGRect(x: 0, y: 0, width: 220, height: 220)
+        }
         
         self.contentTastesView?.layoutIfNeeded()
         

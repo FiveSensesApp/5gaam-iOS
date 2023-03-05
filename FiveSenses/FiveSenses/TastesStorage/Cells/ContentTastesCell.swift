@@ -28,6 +28,7 @@ class ContentTastesCell: UICollectionViewCell {
         self.tastePost = tastePost
         
         self.tastesView.menuButton.setImage(UIImage(named: "메뉴(공유,수정,삭제)")?.withTintColor(tastePost.category.color), for: .normal)
+        self.tastesView.shareButton.tintColor = tastePost.category.color
         self.tastesView.senseImageView.image = tastePost.category.characterImage
         self.tastesView.dateLabel.textColor = tastePost.category.color
         self.tastesView.dateLabel.text = tastePost.createdDate.toString(format: .WriteView)

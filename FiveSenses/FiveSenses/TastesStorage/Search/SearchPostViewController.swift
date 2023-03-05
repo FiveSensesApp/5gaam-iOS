@@ -224,6 +224,20 @@ final class SearchPostViewController: CMViewController {
                     self.showPostMenu(menuButtonFrame: cell.frame, post: itemIdentifier)
                 }
                 .disposed(by: cell.disposeBag)
+            cell.tastesView.shareButton.isHidden = false
+            cell.tastesView.shareButton
+                .rx.tap
+                .bind { [weak self] _ in
+                    guard let self = self else { return }
+
+                    let prepareShareViewController = PrepareShareViewController()
+                    prepareShareViewController.tastePost = cell.tastePost
+                    let navigationController = CMNavigationController(rootViewController: prepareShareViewController)
+                    navigationController.modalPresentationStyle = .fullScreen
+                    self.present(navigationController, animated: true)
+
+                }
+                .disposed(by: cell.disposeBag)
             return cell
         }
         
@@ -321,19 +335,19 @@ final class SearchPostViewController: CMViewController {
             }
             .disposed(by: disposeBag)
         
-        self.postMenuView.shareButtonTapped
-            .asObservable()
-            .bind { [weak self] _ in
-                guard let self = self else { return }
-                
-                let prepareShareViewController = PrepareShareViewController()
-                prepareShareViewController.tastePost = self.postMenuView.post
-                let navigationController = CMNavigationController(rootViewController: prepareShareViewController)
-                navigationController.modalPresentationStyle = .fullScreen
-                self.present(navigationController, animated: true)
-                
-            }
-            .disposed(by: disposeBag)
+//        self.postMenuView.shareButtonTapped
+//            .asObservable()
+//            .bind { [weak self] _ in
+//                guard let self = self else { return }
+//                
+//                let prepareShareViewController = PrepareShareViewController()
+//                prepareShareViewController.tastePost = self.postMenuView.post
+//                let navigationController = CMNavigationController(rootViewController: prepareShareViewController)
+//                navigationController.modalPresentationStyle = .fullScreen
+//                self.present(navigationController, animated: true)
+//                
+//            }
+//            .disposed(by: disposeBag)
     }
     
     private func hiddenRecentViews(hidden: Bool) {
@@ -386,7 +400,7 @@ final class SearchPostViewController: CMViewController {
             x: menuButtonFrame.maxX - 126.0,
             y: menuButtonFrame.origin.y + 58.0,
             width: 112.0,
-            height: 146.0
+            height: 102.0
         )
         
         self.searchResultCollectionView.addSubview(postMenuView)

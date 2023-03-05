@@ -202,6 +202,7 @@ final class WriteTastesStarView: UIStackView {
             _ = button.then {
                 $0.tag = i
                 $0.setImage(sense.star(isEmpty: true), for: .normal)
+                $0.imageView?.contentMode = .scaleAspectFit
                 $0.addTarget(self, action: #selector(setScore), for: .touchUpInside)
             }
             self.buttons.append(button)
