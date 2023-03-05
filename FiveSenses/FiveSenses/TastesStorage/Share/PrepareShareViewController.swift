@@ -12,6 +12,7 @@ import RxCocoa
 import EmojiPicker
 import PhotosUI
 import FSPagerView
+import SwiftyUserDefaults
 
 enum SharePostRatioType {
     case by11
@@ -58,6 +59,11 @@ final class PrepareShareViewController: CMViewController {
     }
     
     private var isFirst = true
+    
+    private var onboardingImageView = UIImageView()
+    private var onboardingCount = 0
+    
+    var addBackgroundImageBalloon = UIButton()
     
     var currentType: CustomIconType? {
         didSet {
@@ -172,7 +178,26 @@ final class PrepareShareViewController: CMViewController {
             $0.height.equalTo(221.0)
         }
         
+        self.view.addSubview(self.addBackgroundImageBalloon)
+        self.addBackgroundImageBalloon.then {
+            $0.setImage(UIImage(named: "BackgroundAddBalloon"), for: .normal)
+            $0.isHidden = true
+            $0.adjustsImageWhenHighlighted = false
+        }.snp.makeConstraints {
+            $0.width.equalTo(288.0)
+            $0.height.equalTo(49.88)
+            $0.top.equalTo(self.pagerView.snp.bottom).offset(15.0)
+            $0.centerX.equalToSuperview()
+        }
         
+        self.view.addSubview(self.onboardingImageView)
+        self.onboardingImageView.then {
+            $0.image = UIImage(named: "공유 가이드 1")
+            $0.contentMode = .scaleAspectFit
+//            $0.isHidden = Defaults[\.didSeenShareOnBoarding]
+        }.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
     }
     
     override func viewDidLayoutSubviews() {
@@ -260,6 +285,44 @@ final class PrepareShareViewController: CMViewController {
                 self.currentType = .textOnly
             }
             .disposed(by: disposeBag)
+        
+        self.onboardingImageView
+            .rx.tapGesture()
+            .when(.recognized)
+            .bind { [weak self] _ in
+                guard let self else { return }
+                
+                if self.onboardingCount == 2 {
+                    self.onboardingImageView.isHidden = true
+//                    Defaults[\.didSeenShareOnBoarding] = true
+                }
+                
+                self.onboardingCount += 1
+                self.onboardingImageView.image = UIImage(named: "공유 가이드 \(self.onboardingCount + 1)")
+            }
+            .disposed(by: disposeBag)
+        
+        self.addBackgroundImageBalloon
+            .rx.tap
+            .bind { [weak self] _ in
+                guard let self else { return }
+                
+                let alert = UIAlertController(title: "선택", message: nil, preferredStyle: .actionSheet)
+                let library = UIAlertAction(title: "앨범", style: .default) { action in
+                    self.openLibrary()
+                }
+                let camera = UIAlertAction(title: "카메라", style: .default) { action in
+                    self.openCamera()
+                }
+                let cancel = UIAlertAction(title: "취소", style: .cancel, handler: nil)
+                
+                alert.addAction(library)
+                alert.addAction(camera)
+                alert.addAction(cancel)
+                
+                self.present(alert, animated: true)
+            }
+            .disposed(by: self.disposeBag)
     }
     
     private func presentEmojiSelectController() {
@@ -430,11 +493,16 @@ extension PrepareShareViewController: FSPagerViewDataSource, FSPagerViewDelegate
     func pagerViewDidEndDecelerating(_ pagerView: FSPagerView) {
         if pagerView.currentIndex == 0 {
             self.shareButton.isEnabled = true
+            self.addBackgroundImageBalloon.isHidden = true
         } else {
             self.shareButton.isEnabled = (self.backgroundImage != nil)
+            self.addBackgroundImageBalloon.isHidden = false
         }
     }
     
+    func pagerViewWillBeginDragging(_ pagerView: FSPagerView) {
+        self.addBackgroundImageBalloon.isHidden = true
+    }
 }
 
 final class CustomBottomSheetViewController: BaseBottomSheetController {

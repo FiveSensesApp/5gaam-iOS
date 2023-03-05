@@ -22,7 +22,7 @@ final class ShareContentPagerCell: FSPagerViewCell {
     private var ratioLabel = UILabel()
     var addBackgroundImageButton = BaseButton()
     var disposeBag = DisposeBag()
-    
+        
     override init(frame: CGRect) {
         super.init(frame: frame)
         
