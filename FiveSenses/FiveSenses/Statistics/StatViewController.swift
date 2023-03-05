@@ -75,7 +75,7 @@ final class StatViewController: CMViewController {
         self.userInfoView.snp.makeConstraints {
             $0.left.right.equalToSuperview()
             $0.top.equalToSuperview()
-            $0.height.equalTo(397.0)
+            $0.height.equalTo(316.0)
         }
         
         self.contentView.addSubview(bannerPagerView)
@@ -303,7 +303,7 @@ final class StatViewController: CMViewController {
 
 extension StatViewController: FSPagerViewDelegate, FSPagerViewDataSource {
     func numberOfItems(in pagerView: FSPagerView) -> Int {
-        return 3
+        return 4
     }
     
     func pagerView(_ pagerView: FSPagerView, cellForItemAt index: Int) -> FSPagerViewCell {
@@ -315,6 +315,7 @@ extension StatViewController: FSPagerViewDelegate, FSPagerViewDataSource {
     }
     
     func pagerView(_ pagerView: FSPagerView, didSelectItemAt index: Int) {
+        // TODO: 배너별 링크 연결
         if index == 0 {
             if let url = URL(string: "https://www.notion.so/5gaam/5gaam-3b45d6083ad044ab869f0df6378933de") {
                 UIApplication.shared.open(url)
@@ -328,49 +329,6 @@ extension StatViewController: FSPagerViewDelegate, FSPagerViewDataSource {
 }
 
 extension StatViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
-//    self.viewModel.output!.countByDay
-//        .skip(1)
-//        .take(1)
-//        .bind { [weak self] _ in
-//            guard let self = self else { return }
-//
-//            self.postCountGraphView.dailyMonthlySwitch.selectedType
-//                .bind { [weak self] in
-//                    guard let self = self else { return }
-//
-//                    for view in self.postCountGraphView.graphStackView.arrangedSubviews {
-//                        view.removeFromSuperview()
-//                    }
-//
-//                    switch $0 {
-//                    case .daily:
-//                        let max = Double(self.viewModel.output!.countByDay.value.map { $0.count }.max()!)
-//                        self.postCountGraphView.graphStackView.spacing = 2.0
-//                        for count in self.viewModel.output!.countByDay.value {
-//                            let graph = PostCountGraph()
-//                            graph.titleLabel.text = count.day.toString(format: .DailyGraph)
-//                            graph.graphImageView.snp.updateConstraints {
-//                                $0.height.equalTo(165.0 * (Double(count.count) / max))
-//                            }
-//                            self.postCountGraphView.graphStackView.addArrangedSubview(graph)
-//                        }
-//                    case .monthly:
-//                        let max = Double(self.viewModel.output!.countByMonth.value.map { $0.count }.max()!)
-//                        self.postCountGraphView.graphStackView.spacing = 9.0
-//                        for count in self.viewModel.output!.countByMonth.value {
-//                            let graph = PostCountGraph()
-//                            graph.titleLabel.text = count.month.toString(format: .OnlyMonth)
-//                            graph.graphImageView.snp.updateConstraints {
-//                                $0.height.equalTo(165.0 * (Double(count.count) / max))
-//                            }
-//                            self.postCountGraphView.graphStackView.addArrangedSubview(graph)
-//                        }
-//                    }
-//
-//                }
-//                .disposed(by: self.disposeBag)
-//        }
-//        .disposed(by: self.disposeBag)
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         let type = self.postCountGraphView.dailyMonthlySwitch.selectedType.value
@@ -440,13 +398,6 @@ extension StatViewController: UICollectionViewDataSource, UICollectionViewDelega
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostCountGraph.identifier, for: indexPath) as! PostCountGraph
-        
-//        for cellin in collectionView.visibleCells {
-//            if let cellin = cellin as? PostCountGraph {
-//                cellin.isPrime = false
-//            }
-//        }
         self.isCellSelected = true
         self.primeIndex = indexPath.item
         collectionView.reloadData()

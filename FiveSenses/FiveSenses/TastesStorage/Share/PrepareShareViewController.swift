@@ -194,7 +194,7 @@ final class PrepareShareViewController: CMViewController {
         self.onboardingImageView.then {
             $0.image = UIImage(named: "공유 가이드 1")
             $0.contentMode = .scaleAspectFit
-//            $0.isHidden = Defaults[\.didSeenShareOnBoarding]
+//            $0.isHidden = Defaults[\.didSeenShareOnBoarding] TODO: 제거
         }.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
@@ -294,7 +294,7 @@ final class PrepareShareViewController: CMViewController {
                 
                 if self.onboardingCount == 2 {
                     self.onboardingImageView.isHidden = true
-//                    Defaults[\.didSeenShareOnBoarding] = true
+//                    Defaults[\.didSeenShareOnBoarding] = true TODO: 제거
                 }
                 
                 self.onboardingCount += 1

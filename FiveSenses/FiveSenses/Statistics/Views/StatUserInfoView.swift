@@ -129,9 +129,10 @@ final class StatUserInfoView: UIView {
         self.addSubview(badgeBackgroundImageView)
         self.badgeBackgroundImageView.then {
             $0.image = UIImage(named: "획득한 뱃지 bg")
+            $0.contentMode = .scaleToFill
         }.snp.makeConstraints {
             $0.left.right.equalToSuperview().inset(20.0)
-            $0.height.equalTo(142.0)
+            $0.height.equalTo(61.0)
             $0.top.equalTo(self.representBadgeImageView.snp.bottom).offset(22.0)
         }
         
@@ -141,7 +142,7 @@ final class StatUserInfoView: UIView {
             $0.textColor = .black
             $0.text = "획득한 뱃지"
         }.snp.makeConstraints {
-            $0.centerX.equalTo(self.badgeBackgroundImageView)
+            $0.left.equalToSuperview().inset(39.0)
             $0.top.equalTo(self.badgeBackgroundImageView).offset(20.0)
             $0.height.equalTo(22.0)
         }
@@ -155,16 +156,16 @@ final class StatUserInfoView: UIView {
             $0.width.height.equalTo(44.0)
         }
         
-        self.addSubview(badgeStackView)
-        self.badgeStackView.then {
-            $0.axis = .horizontal
-            $0.spacing = 11.0
-            $0.distribution = .fillEqually
-        }.snp.makeConstraints {
-            $0.top.equalTo(self.badgeTitleLabel.snp.bottom).offset(18.0)
-            $0.left.right.equalTo(self.badgeBackgroundImageView).inset(21.0)
-            $0.bottom.equalTo(self.badgeBackgroundImageView).inset(17.0)
-        }
+//        self.addSubview(badgeStackView)
+//        self.badgeStackView.then {
+//            $0.axis = .horizontal
+//            $0.spacing = 11.0
+//            $0.distribution = .fillEqually
+//        }.snp.makeConstraints {
+//            $0.top.equalTo(self.badgeTitleLabel.snp.bottom).offset(18.0)
+//            $0.left.right.equalTo(self.badgeBackgroundImageView).inset(21.0)
+//            $0.bottom.equalTo(self.badgeBackgroundImageView).inset(17.0)
+//        }
     }
     
     required init?(coder: NSCoder) {

@@ -73,7 +73,11 @@ class IntroViewController: UIViewController {
                         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { [weak self] _, _ in
                             guard let self = self else { return }
                             DispatchQueue.main.async {
-                                UIApplication.shared.keyWindow?.replaceRootViewController(MainViewController.makeMainViewController(), animated: true, completion: nil)
+                                if Defaults[\.didSeenNewOnBoarding] {
+                                    UIApplication.shared.keyWindow?.replaceRootViewController(MainViewController.makeMainViewController(), animated: true, completion: nil)
+                                } else {
+                                    UIApplication.shared.keyWindow?.replaceRootViewController(MainOnBoardingViewController(), animated: true, completion: nil)
+                                }
                             }
                         }
                     }

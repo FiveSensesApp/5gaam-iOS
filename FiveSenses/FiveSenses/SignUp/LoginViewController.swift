@@ -9,6 +9,7 @@ import UIKit
 
 import RxSwift
 import RxKeyboard
+import SwiftyUserDefaults
 
 class LoginViewController: UIViewController {
     private var upperImageView = UIImageView()
@@ -177,7 +178,11 @@ class LoginViewController: UIViewController {
                 
                 if $0 != nil {
                     Constants.CurrentUser = $0?.createdUser
-                    UIApplication.shared.keyWindow?.replaceRootViewController(MainViewController.makeMainViewController(), animated: true, completion: nil)
+                    if Defaults[\.didSeenNewOnBoarding] {
+                        UIApplication.shared.keyWindow?.replaceRootViewController(MainViewController.makeMainViewController(), animated: true, completion: nil)
+                    } else {
+                        UIApplication.shared.keyWindow?.replaceRootViewController(MainOnBoardingViewController(), animated: true, completion: nil)
+                    }
                 } else {
                     BaseAlertViewController.showAlert(viewController: self, title: "로그인 실패", content: "이메일 / 비밀번호를 확인해주세요.", buttonTitle: "확인")
                 }
